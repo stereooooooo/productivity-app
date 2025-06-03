@@ -236,7 +236,40 @@
   </div>
 </div>
 
-<!-- Modals omitted for brevity -->
+<div class="modal" id="taskModal">
+  <div class="modal-content">
+    <span class="close" id="closeModalBtn">&times;</span>
+    <h2>Add Task</h2>
+    <form id="taskForm">
+      <input type="text" id="project" placeholder="Project Name" required><br>
+      <input type="text" id="task" placeholder="Task Name" required><br>
+      <input type="number" id="time" placeholder="Time (minutes)" required><br>
+      <input type="text" id="tag" placeholder="Tag (e.g. Work, Fitness)" required><br>
+      <select id="priority" required>
+        <option value="" disabled selected>Priority</option>
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+      </select><br>
+      <select id="context" required>
+        <option value="" disabled selected>Context</option>
+        <option value="Workday">Workday</option>
+        <option value="Evening">Evening</option>
+        <option value="Weekend">Weekend</option>
+      </select><br><br>
+      <button type="submit" class="add-task-btn">Save Task</button>
+    </form>
+  </div>
+</div>
+
+<div class="modal timer-modal" id="timerModal">
+  <h1 id="activeTaskName"></h1>
+  <div id="countdownTimer" style="font-size:48px;margin:20px 0;"></div>
+  <div class="timer-controls">
+    <button class="pause-btn" id="pauseTaskBtn">Pause</button>
+    <button class="stop-btn" id="stopTaskBtn">Stop</button>
+  </div>
+</div>
 
 <script>
 let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
