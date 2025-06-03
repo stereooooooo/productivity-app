@@ -24,8 +24,8 @@
       gap: 20px;
     }
 
-    .left-column, .right-column {
-      flex: 1 1 45%;
+    .right-column {
+      flex: 1 1 100%;
       background: white;
       padding: 30px;
       border-radius: 16px;
@@ -33,23 +33,8 @@
       min-width: 320px;
     }
 
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    input, select {
-      padding: 12px;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      font-size: 16px;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    button {
-      padding: 12px;
+    .add-task-btn {
+      padding: 12px 20px;
       background-color: #3b82f6;
       color: white;
       border: none;
@@ -57,9 +42,10 @@
       cursor: pointer;
       font-size: 16px;
       transition: background-color 0.2s;
+      margin-bottom: 30px;
     }
 
-    button:hover {
+    .add-task-btn:hover {
       background-color: #2563eb;
     }
 
@@ -123,6 +109,71 @@
       color: #3b82f6;
     }
 
+    /* Modal Styling */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 30px;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: black;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    input, select {
+      padding: 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    button {
+      padding: 12px;
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: #2563eb;
+    }
+
     @media (max-width: 768px) {
       .container {
         flex-direction: column;
@@ -137,24 +188,9 @@
   <h1>🛠️ Productivity Task Picker</h1>
 
   <div class="container">
-    <div class="left-column">
-      <h2>Add or Edit a Task</h2>
-      <form id="taskForm">
-        <input type="text" id="project" placeholder="Project Name" required>
-        <input type="text" id="task" placeholder="Task Name" required>
-        <input type="number" id="time" placeholder="Time (minutes)" required>
-        <input type="text" id="tag" placeholder="Tag (e.g. Work, Fitness)" required>
-        <select id="priority" required>
-          <option value="" disabled selected>Priority</option>
-          <option value="High">High</option>
-          <option value="Medium">Medium</option>
-          <option value="Low">Low</option>
-        </select>
-        <button type="submit" id="addTaskBtn">Add Task</button>
-      </form>
-    </div>
-
     <div class="right-column">
+      <button class="add-task-btn" id="openModalBtn">+ Add Task</button>
+
       <h2>Your Tasks</h2>
       <ul id="taskList"></ul>
 
@@ -171,6 +207,27 @@
     </div>
   </div>
 
+  <!-- Modal -->
+  <div id="taskModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeModalBtn">&times;</span>
+      <h2>Add or Edit a Task</h2>
+      <form id="taskForm">
+        <input type="text" id="project" placeholder="Project Name" required>
+        <input type="text" id="task" placeholder="Task Name" required>
+        <input type="number" id="time" placeholder="Time (minutes)" required>
+        <input type="text" id="tag" placeholder="Tag (e.g. Work, Fitness)" required>
+        <select id="priority" required>
+          <option value="" disabled selected>Priority</option>
+          <option value="High">High</option>
+          <option value="Medium">Medium</option>
+          <option value="Low">Low</option>
+        </select>
+        <button type="submit" id="addTaskBtn">Save Task</button>
+      </form>
+    </div>
+  </div>
+
   <script>
     let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
     let editingIndex = null;
@@ -182,6 +239,26 @@
     const suggestedTaskDisplay = document.getElementById('suggestedTask');
     const tagFilter = document.getElementById('tagFilter');
     const addTaskBtn = document.getElementById('addTaskBtn');
+
+    const taskModal = document.getElementById('taskModal');
+    const openModalBtn = document.getElementById('openModalBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    openModalBtn.onclick = () => {
+      taskModal.style.display = 'block';
+    };
+
+    closeModalBtn.onclick = () => {
+      taskModal.style.display = 'none';
+      resetForm();
+    };
+
+    window.onclick = (event) => {
+      if (event.target == taskModal) {
+        taskModal.style.display = 'none';
+        resetForm();
+      }
+    };
 
     function saveTasks() {
       localStorage.setItem('tasks', JSON.stringify(tasks));
@@ -232,6 +309,7 @@
           document.getElementById('tag').value = t.tag;
           document.getElementById('priority').value = t.priority;
           addTaskBtn.textContent = 'Update Task';
+          taskModal.style.display = 'block';
         };
 
         const deleteBtn = document.createElement('button');
@@ -269,15 +347,21 @@
         if (editingIndex !== null) {
           tasks[editingIndex] = { project, task, time, tag, priority, completed: false };
           editingIndex = null;
-          addTaskBtn.textContent = 'Add Task';
+          addTaskBtn.textContent = 'Save Task';
         } else {
           tasks.push({ project, task, time, tag, priority, completed: false });
         }
         saveTasks();
         renderTasks();
-        taskForm.reset();
+        resetForm();
+        taskModal.style.display = 'none';
       }
     });
+
+    function resetForm() {
+      taskForm.reset();
+      addTaskBtn.textContent = 'Save Task';
+    }
 
     suggestTaskBtn.addEventListener('click', () => {
       const availableTime = parseInt(availableTimeInput.value);
