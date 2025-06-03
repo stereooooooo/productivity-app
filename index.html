@@ -23,7 +23,7 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
-    input {
+    input, select {
       padding: 10px;
       margin: 5px;
       width: 200px;
@@ -72,6 +72,12 @@
       <input type="text" id="project" placeholder="Project Name" required>
       <input type="text" id="task" placeholder="Task Name" required>
       <input type="number" id="time" placeholder="Time (minutes)" required>
+      <select id="priority" required>
+        <option value="" disabled selected>Priority</option>
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+      </select>
       <button type="submit">Add Task</button>
     </form>
   </div>
@@ -106,7 +112,7 @@
       taskList.innerHTML = '';
       tasks.forEach((t, i) => {
         const li = document.createElement('li');
-        li.textContent = `${t.project}: ${t.task} (${t.time} min) `;
+        li.textContent = `${t.project}: ${t.task} (${t.time} min) [${t.priority}] `;
         const deleteBtn = document.createElement('button');
         deleteBtn.textContent = 'Delete';
         deleteBtn.style.background = '#dc3545';
@@ -126,9 +132,10 @@
       const project = document.getElementById('project').value.trim();
       const task = document.getElementById('task').value.trim();
       const time = parseInt(document.getElementById('time').value);
+      const priority = document.getElementById('priority').value;
 
-      if (project && task && time > 0) {
-        tasks.push({ project, task, time });
+      if (project && task && time > 0 && priority) {
+        tasks.push({ project, task, time, priority });
         saveTasks();
         renderTasks();
         taskForm.reset();
@@ -142,9 +149,16 @@
         return;
       }
       const suitableTasks = tasks.filter(t => t.time <= availableTime);
+
+      // Prefer High > Medium > Low
+      const priorityOrder = { High: 1, Medium: 2, Low: 3 };
+      suitableTasks.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+
       if (suitableTasks.length > 0) {
-        const randomTask = suitableTasks[Math.floor(Math.random() * suitableTasks.length)];
-        suggestedTaskDisplay.textContent = `Try: "${randomTask.task}" from project "${randomTask.project}" — estimated ${randomTask.time} min.`;
+        const highestPriority = priorityOrder[suitableTasks[0].priority];
+        const highestPriorityTasks = suitableTasks.filter(t => priorityOrder[t.priority] === highestPriority);
+        const randomTask = highestPriorityTasks[Math.floor(Math.random() * highestPriorityTasks.length)];
+        suggestedTaskDisplay.textContent = `Try: "${randomTask.task}" from project "${randomTask.project}" — estimated ${randomTask.time} min. Priority: ${randomTask.priority}`;
       } else {
         suggestedTaskDisplay.textContent = 'No tasks fit that time — maybe add some quicker ones?';
       }
