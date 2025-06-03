@@ -1,4 +1,11 @@
-<style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Productivity Task Picker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
   body {
     font-family: 'Inter', sans-serif;
     margin: 20px;
@@ -214,3 +221,235 @@
     }
   }
 </style>
+</head>
+<body>
+  <h1>🛠️ Productivity Task Picker</h1>
+
+  <div class="container">
+    <div class="right-column">
+      <button class="add-task-btn" id="openModalBtn">+ Add Task</button>
+
+      <h2>Your Tasks</h2>
+      <ul id="taskList"></ul>
+
+<h2 style="margin-top: 40px;">Find a Task</h2>
+
+<div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
+  <input type="number" id="availableTime" placeholder="Custom Time (min)" style="flex: 1 1 100px;">
+  
+  <div id="timeButtons" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+    <button type="button" class="time-btn" data-time="5">5 min</button>
+    <button type="button" class="time-btn" data-time="10">10 min</button>
+    <button type="button" class="time-btn" data-time="15">15 min</button>
+    <button type="button" class="time-btn" data-time="20">20 min</button>
+    <button type="button" class="time-btn" data-time="25">25 min</button>
+    <button type="button" class="time-btn" data-time="30">30 min</button>
+    <button type="button" class="time-btn" data-time="45">45 min</button>
+    <button type="button" class="time-btn" data-time="60">1 hr</button>
+  </div>
+
+  <select id="tagFilter" style="flex: 1;">
+    <option value="">All Tags</option>
+  </select>
+  
+  <button id="suggestTask" style="flex: 0 0 auto;">Suggest a Task</button>
+</div>
+
+<div id="suggestedTask"></div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="taskModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeModalBtn">&times;</span>
+      <h2>Add or Edit a Task</h2>
+      <form id="taskForm">
+        <input type="text" id="project" placeholder="Project Name" required>
+        <input type="text" id="task" placeholder="Task Name" required>
+        <input type="number" id="time" placeholder="Time (minutes)" required>
+        <input type="text" id="tag" placeholder="Tag (e.g. Work, Fitness)" required>
+        <select id="priority" required>
+          <option value="" disabled selected>Priority</option>
+          <option value="High">High</option>
+          <option value="Medium">Medium</option>
+          <option value="Low">Low</option>
+        </select>
+        <button type="submit" id="addTaskBtn">Save Task</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    let editingIndex = null;
+
+    const taskForm = document.getElementById('taskForm');
+    const taskList = document.getElementById('taskList');
+    const availableTimeInput = document.getElementById('availableTime');
+    const suggestTaskBtn = document.getElementById('suggestTask');
+    const suggestedTaskDisplay = document.getElementById('suggestedTask');
+    const tagFilter = document.getElementById('tagFilter');
+    const addTaskBtn = document.getElementById('addTaskBtn');
+
+    const taskModal = document.getElementById('taskModal');
+    const openModalBtn = document.getElementById('openModalBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    openModalBtn.onclick = () => {
+      taskModal.style.display = 'block';
+    };
+
+    closeModalBtn.onclick = () => {
+      taskModal.style.display = 'none';
+      resetForm();
+    };
+
+    window.onclick = (event) => {
+      if (event.target == taskModal) {
+        taskModal.style.display = 'none';
+        resetForm();
+      }
+    };
+
+    function saveTasks() {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    function updateTagFilter() {
+      const tags = [...new Set(tasks.map(t => t.tag || 'None'))];
+      tagFilter.innerHTML = '<option value="">All Tags</option>';
+      tags.forEach(tag => {
+        const opt = document.createElement('option');
+        opt.value = tag;
+        opt.textContent = tag;
+        tagFilter.appendChild(opt);
+      });
+    }
+
+    function renderTasks() {
+      taskList.innerHTML = '';
+      tasks.forEach((t, i) => {
+        const li = document.createElement('li');
+        li.className = 'task-card';
+        li.classList.toggle('completed', t.completed);
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = t.completed || false;
+        checkbox.onchange = () => {
+          tasks[i].completed = checkbox.checked;
+          saveTasks();
+          renderTasks();
+        };
+
+        const taskInfo = document.createElement('div');
+        taskInfo.className = 'task-info';
+        taskInfo.innerHTML = `
+          <span><strong>${t.project}</strong>: ${t.task}</span>
+          <span>${t.time || 'N/A'} min [${t.priority || 'None'}] — Tag: ${t.tag || 'None'}</span>
+        `;
+
+        const editBtn = document.createElement('button');
+        editBtn.textContent = 'Edit';
+        editBtn.className = 'edit-btn';
+        editBtn.onclick = () => {
+          editingIndex = i;
+          document.getElementById('project').value = t.project;
+          document.getElementById('task').value = t.task;
+          document.getElementById('time').value = t.time;
+          document.getElementById('tag').value = t.tag;
+          document.getElementById('priority').value = t.priority;
+          addTaskBtn.textContent = 'Update Task';
+          taskModal.style.display = 'block';
+        };
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.onclick = () => {
+          tasks.splice(i, 1);
+          saveTasks();
+          renderTasks();
+          updateTagFilter();
+        };
+
+        const btnGroup = document.createElement('div');
+        btnGroup.className = 'btn-group';
+        btnGroup.appendChild(editBtn);
+        btnGroup.appendChild(deleteBtn);
+
+        li.appendChild(checkbox);
+        li.appendChild(taskInfo);
+        li.appendChild(btnGroup);
+        taskList.appendChild(li);
+      });
+      updateTagFilter();
+    }
+
+    taskForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const project = document.getElementById('project').value.trim();
+      const task = document.getElementById('task').value.trim();
+      const time = parseInt(document.getElementById('time').value);
+      const tag = document.getElementById('tag').value.trim();
+      const priority = document.getElementById('priority').value;
+
+      if (project && task && time > 0 && tag && priority) {
+        if (editingIndex !== null) {
+          tasks[editingIndex] = { project, task, time, tag, priority, completed: false };
+          editingIndex = null;
+          addTaskBtn.textContent = 'Save Task';
+        } else {
+          tasks.push({ project, task, time, tag, priority, completed: false });
+        }
+        saveTasks();
+        renderTasks();
+        resetForm();
+        taskModal.style.display = 'none';
+      }
+    });
+
+    function resetForm() {
+      taskForm.reset();
+      addTaskBtn.textContent = 'Save Task';
+    }
+
+    suggestTaskBtn.addEventListener('click', () => {
+      const availableTime = parseInt(availableTimeInput.value);
+      const selectedTag = tagFilter.value;
+
+      if (isNaN(availableTime) || availableTime <= 0) {
+        suggestedTaskDisplay.textContent = 'Please enter a valid available time.';
+        return;
+      }
+
+      let suitableTasks = tasks.filter(t => t.time <= availableTime && !t.completed);
+      if (selectedTag) {
+        suitableTasks = suitableTasks.filter(t => t.tag === selectedTag);
+      }
+
+      const priorityOrder = { High: 1, Medium: 2, Low: 3 };
+      suitableTasks.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+
+      if (suitableTasks.length > 0) {
+        const highestPriority = priorityOrder[suitableTasks[0].priority];
+        const highestPriorityTasks = suitableTasks.filter(t => priorityOrder[t.priority] === highestPriority);
+        const randomTask = highestPriorityTasks[Math.floor(Math.random() * highestPriorityTasks.length)];
+        suggestedTaskDisplay.textContent = `Try: "${randomTask.task}" from project "${randomTask.project}" — estimated ${randomTask.time} min. Priority: ${randomTask.priority || 'None'}. Tag: ${randomTask.tag || 'None'}`;
+      } else {
+        suggestedTaskDisplay.textContent = 'No tasks fit that time and tag — maybe adjust the filter or add quicker tasks.';
+      }
+    });
+
+    renderTasks();
+ 
+    document.querySelectorAll('.time-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById('availableTime').value = btn.getAttribute('data-time');
+  });
+});
+  
+  </script>
+</body>
+</html>
