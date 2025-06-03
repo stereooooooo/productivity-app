@@ -9,7 +9,7 @@
     body {
       font-family: 'Inter', sans-serif;
       margin: 20px;
-      background: #f9fafb;
+      background: #f3f4f6;
       color: #374151;
     }
 
@@ -24,20 +24,28 @@
       display: flex;
       flex-wrap: wrap;
       gap: 20px;
-      max-width: 1200px; /* <<< KEY */
-      margin: 0 auto;    /* <<< Center the container */
+      max-width: 1200px;
+      margin: 0 auto;
       padding: 20px;
     }
-
-
     
     .left-column, .right-column {
-      flex: 1 1 48%;
+      flex: 0 0 calc(50% - 10px);
       background: white;
       padding: 30px;
       border-radius: 16px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      min-width: 320px;
+      box-sizing: border-box;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+    
+      .left-column, .right-column {
+        flex: 1 1 100%;
+      }
     }
 
     .add-task-btn {
