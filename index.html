@@ -53,6 +53,18 @@
     li {
       padding: 10px 0;
       border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    li.completed span {
+      text-decoration: line-through;
+      color: #888;
+    }
+
+    .task-info {
+      flex: 1;
     }
 
     #suggestedTask {
@@ -72,6 +84,7 @@
       <input type="text" id="project" placeholder="Project Name" required>
       <input type="text" id="task" placeholder="Task Name" required>
       <input type="number" id="time" placeholder="Time (minutes)" required>
+      <input type="text" id="tag" placeholder="Tag (e.g. Work, Fitness)" required>
       <select id="priority" required>
         <option value="" disabled selected>Priority</option>
         <option value="High">High</option>
@@ -112,7 +125,21 @@
       taskList.innerHTML = '';
       tasks.forEach((t, i) => {
         const li = document.createElement('li');
-        li.textContent = `${t.project}: ${t.task} (${t.time} min) [${t.priority}] `;
+        li.className = t.completed ? 'completed' : '';
+        
+        const taskInfo = document.createElement('span');
+        taskInfo.className = 'task-info';
+        taskInfo.textContent = `${t.project}: ${t.task} (${t.time} min) [${t.priority}] — Tag: ${t.tag}`;
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = t.completed || false;
+        checkbox.onchange = () => {
+          tasks[i].completed = checkbox.checked;
+          saveTasks();
+          renderTasks();
+        };
+
         const deleteBtn = document.createElement('button');
         deleteBtn.textContent = 'Delete';
         deleteBtn.style.background = '#dc3545';
@@ -122,6 +149,9 @@
           saveTasks();
           renderTasks();
         };
+
+        li.appendChild(checkbox);
+        li.appendChild(taskInfo);
         li.appendChild(deleteBtn);
         taskList.appendChild(li);
       });
@@ -132,10 +162,11 @@
       const project = document.getElementById('project').value.trim();
       const task = document.getElementById('task').value.trim();
       const time = parseInt(document.getElementById('time').value);
+      const tag = document.getElementById('tag').value.trim();
       const priority = document.getElementById('priority').value;
 
-      if (project && task && time > 0 && priority) {
-        tasks.push({ project, task, time, priority });
+      if (project && task && time > 0 && tag && priority) {
+        tasks.push({ project, task, time, tag, priority, completed: false });
         saveTasks();
         renderTasks();
         taskForm.reset();
@@ -148,7 +179,7 @@
         suggestedTaskDisplay.textContent = 'Please enter a valid available time.';
         return;
       }
-      const suitableTasks = tasks.filter(t => t.time <= availableTime);
+      const suitableTasks = tasks.filter(t => t.time <= availableTime && !t.completed);
 
       // Prefer High > Medium > Low
       const priorityOrder = { High: 1, Medium: 2, Low: 3 };
@@ -158,7 +189,7 @@
         const highestPriority = priorityOrder[suitableTasks[0].priority];
         const highestPriorityTasks = suitableTasks.filter(t => priorityOrder[t.priority] === highestPriority);
         const randomTask = highestPriorityTasks[Math.floor(Math.random() * highestPriorityTasks.length)];
-        suggestedTaskDisplay.textContent = `Try: "${randomTask.task}" from project "${randomTask.project}" — estimated ${randomTask.time} min. Priority: ${randomTask.priority}`;
+        suggestedTaskDisplay.textContent = `Try: "${randomTask.task}" from project "${randomTask.project}" — estimated ${randomTask.time} min. Priority: ${randomTask.priority}. Tag: ${randomTask.tag}`;
       } else {
         suggestedTaskDisplay.textContent = 'No tasks fit that time — maybe add some quicker ones?';
       }
