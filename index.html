@@ -6,256 +6,295 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
-  body {
-    font-family: 'Inter', sans-serif;
-    margin: 20px;
-    background: #f9fafb;
-    color: #374151;
-  }
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 20px;
+      background: #f9fafb;
+      color: #374151;
+    }
 
-  h1 {
-    font-size: 28px;
-    color: #111827;
-    margin-bottom: 20px;
-    font-weight: 700;
-  }
+    h1 {
+      font-size: 28px;
+      color: #111827;
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
 
-  .container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-  }
-
-  .right-column {
-    flex: 1 1 100%;
-    background: white;
-    padding: 30px;
-    border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    min-width: 320px;
-  }
-
-  .add-task-btn {
-    padding: 12px 20px;
-    background-color: #3b82f6;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.2s;
-    margin-bottom: 30px;
-  }
-
-  .add-task-btn:hover {
-    background-color: #2563eb;
-  }
-
-  ul {
-    list-style-type: none;
-    padding: 0;
-  }
-
-  .task-card {
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 16px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    transition: transform 0.2s;
-  }
-
-  .task-card:hover {
-    transform: scale(1.01);
-  }
-
-  .task-info {
-    flex: 1;
-    margin-left: 10px;
-    font-size: 16px;
-  }
-
-  .task-info span:first-child {
-    font-weight: 600;
-    font-size: 18px;
-    color: #1f2937;
-  }
-
-  .task-info span:last-child {
-    margin-top: 4px;
-    display: block;
-    font-size: 14px;
-    color: #6b7280;
-  }
-
-  .btn-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .edit-btn, .delete-btn {
-    padding: 8px 12px;
-    font-size: 14px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    color: white;
-    transition: background-color 0.2s;
-  }
-
-  .edit-btn {
-    background-color: #10b981;
-  }
-
-  .edit-btn:hover {
-    background-color: #059669;
-  }
-
-  .delete-btn {
-    background-color: #ef4444;
-  }
-
-  .delete-btn:hover {
-    background-color: #dc2626;
-  }
-
-  #suggestedTask {
-    margin-top: 20px;
-    font-size: 18px;
-    font-weight: 600;
-    color: #3b82f6;
-  }
-
-  .time-btn {
-    background-color: #e0e7ff;
-    color: #4338ca;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-
-  .time-btn:hover {
-    background-color: #c7d2fe;
-  }
-
-  input, select {
-    padding: 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 16px;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  button#suggestTask {
-    background-color: #3b82f6;
-    border: none;
-    border-radius: 8px;
-    color: white;
-    font-size: 16px;
-    padding: 10px 20px;
-    transition: background-color 0.2s;
-  }
-
-  button#suggestTask:hover {
-    background-color: #2563eb;
-  }
-
-  /* Modal Styling */
-  .modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.5);
-  }
-
-  .modal-content {
-    background-color: #fff;
-    margin: 10% auto;
-    padding: 30px;
-    border: 1px solid #ccc;
-    border-radius: 16px;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-  }
-
-  .close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-
-  .close:hover {
-    color: black;
-  }
-
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  @media (max-width: 768px) {
     .container {
-      flex-direction: column;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .left-column, .right-column {
+      flex: 1 1 48%;
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      min-width: 320px;
+    }
+
+    .add-task-btn {
+      padding: 12px 20px;
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.2s;
+      margin-bottom: 20px;
+    }
+
+    .add-task-btn:hover {
+      background-color: #2563eb;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .task-card {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .task-info {
+      flex: 1;
+      margin-left: 10px;
+      font-size: 16px;
+    }
+
+    .task-info span:first-child {
+      font-weight: 600;
+      font-size: 18px;
+      color: #1f2937;
+    }
+
+    .task-info span:last-child {
+      margin-top: 4px;
+      display: block;
+      font-size: 14px;
+      color: #6b7280;
     }
 
     .btn-group {
-      flex-direction: row;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
-  }
-</style>
+
+    .edit-btn, .delete-btn {
+      padding: 8px 12px;
+      font-size: 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
+      transition: background-color 0.2s;
+    }
+
+    .edit-btn {
+      background-color: #10b981;
+    }
+
+    .edit-btn:hover {
+      background-color: #059669;
+    }
+
+    .delete-btn {
+      background-color: #ef4444;
+    }
+
+    .delete-btn:hover {
+      background-color: #dc2626;
+    }
+
+    #timeButtons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 10px 0;
+    }
+
+    .time-btn {
+      background-color: #e0e7ff;
+      color: #4338ca;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .time-btn:hover {
+      background-color: #c7d2fe;
+    }
+
+    input, select {
+      padding: 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    #suggestTask {
+      margin-top: 10px;
+      background-color: #3b82f6;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 16px;
+      padding: 10px 20px;
+      transition: background-color 0.2s;
+      width: 100%;
+    }
+
+    #suggestTask:hover {
+      background-color: #2563eb;
+    }
+
+    .active-task-card {
+      background: #fefce8;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .active-task-card.hidden {
+      display: none;
+    }
+
+    #activeTaskName {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    #countdownTimer {
+      font-size: 32px;
+      font-weight: bold;
+      color: #f59e0b;
+      margin-bottom: 15px;
+    }
+
+    #stopTaskBtn {
+      padding: 10px 20px;
+      background-color: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.2s;
+    }
+
+    #stopTaskBtn:hover {
+      background-color: #dc2626;
+    }
+
+    /* Modal Styling */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 30px;
+      border: 1px solid #ccc;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: black;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+    }
+  </style>
 </head>
 <body>
   <h1>🛠️ Productivity Task Picker</h1>
 
   <div class="container">
-    <div class="right-column">
+    <div class="left-column">
       <button class="add-task-btn" id="openModalBtn">+ Add Task</button>
 
       <h2>Your Tasks</h2>
       <ul id="taskList"></ul>
+    </div>
 
-<h2 style="margin-top: 40px;">Find a Task</h2>
+    <div class="right-column">
+      <h2>Find a Task</h2>
+      <div class="time-picker">
+        <input type="number" id="availableTime" placeholder="Custom Time (min)">
+        <div id="timeButtons">
+          <button type="button" class="time-btn" data-time="5">5 min</button>
+          <button type="button" class="time-btn" data-time="10">10 min</button>
+          <button type="button" class="time-btn" data-time="15">15 min</button>
+          <button type="button" class="time-btn" data-time="20">20 min</button>
+          <button type="button" class="time-btn" data-time="25">25 min</button>
+          <button type="button" class="time-btn" data-time="30">30 min</button>
+          <button type="button" class="time-btn" data-time="45">45 min</button>
+          <button type="button" class="time-btn" data-time="60">1 hr</button>
+        </div>
+        <select id="tagFilter">
+          <option value="">All Tags</option>
+        </select>
+        <button id="suggestTask">Suggest a Task</button>
+      </div>
 
-<div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
-  <input type="number" id="availableTime" placeholder="Custom Time (min)" style="flex: 1 1 100px;">
-  
-  <div id="timeButtons" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
-    <button type="button" class="time-btn" data-time="5">5 min</button>
-    <button type="button" class="time-btn" data-time="10">10 min</button>
-    <button type="button" class="time-btn" data-time="15">15 min</button>
-    <button type="button" class="time-btn" data-time="20">20 min</button>
-    <button type="button" class="time-btn" data-time="25">25 min</button>
-    <button type="button" class="time-btn" data-time="30">30 min</button>
-    <button type="button" class="time-btn" data-time="45">45 min</button>
-    <button type="button" class="time-btn" data-time="60">1 hr</button>
-  </div>
+      <div id="suggestedTask"></div>
 
-  <select id="tagFilter" style="flex: 1;">
-    <option value="">All Tags</option>
-  </select>
-  
-  <button id="suggestTask" style="flex: 0 0 auto;">Suggest a Task</button>
-</div>
-
-<div id="suggestedTask"></div>
+      <h2 style="margin-top: 40px;">Active Task</h2>
+      <div id="activeTaskCard" class="active-task-card hidden">
+        <div id="activeTaskName"></div>
+        <div id="countdownTimer">00:00</div>
+        <button id="stopTaskBtn">Stop</button>
+      </div>
     </div>
   </div>
 
@@ -283,6 +322,9 @@
   <script>
     let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
     let editingIndex = null;
+    let countdown;
+    let countdownDuration;
+    let countdownRemaining;
 
     const taskForm = document.getElementById('taskForm');
     const taskList = document.getElementById('taskList');
@@ -295,6 +337,11 @@
     const taskModal = document.getElementById('taskModal');
     const openModalBtn = document.getElementById('openModalBtn');
     const closeModalBtn = document.getElementById('closeModalBtn');
+
+    const activeTaskCard = document.getElementById('activeTaskCard');
+    const activeTaskName = document.getElementById('activeTaskName');
+    const countdownTimer = document.getElementById('countdownTimer');
+    const stopTaskBtn = document.getElementById('stopTaskBtn');
 
     openModalBtn.onclick = () => {
       taskModal.style.display = 'block';
@@ -332,16 +379,6 @@
       tasks.forEach((t, i) => {
         const li = document.createElement('li');
         li.className = 'task-card';
-        li.classList.toggle('completed', t.completed);
-
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.checked = t.completed || false;
-        checkbox.onchange = () => {
-          tasks[i].completed = checkbox.checked;
-          saveTasks();
-          renderTasks();
-        };
 
         const taskInfo = document.createElement('div');
         taskInfo.className = 'task-info';
@@ -379,36 +416,12 @@
         btnGroup.appendChild(editBtn);
         btnGroup.appendChild(deleteBtn);
 
-        li.appendChild(checkbox);
         li.appendChild(taskInfo);
         li.appendChild(btnGroup);
         taskList.appendChild(li);
       });
       updateTagFilter();
     }
-
-    taskForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const project = document.getElementById('project').value.trim();
-      const task = document.getElementById('task').value.trim();
-      const time = parseInt(document.getElementById('time').value);
-      const tag = document.getElementById('tag').value.trim();
-      const priority = document.getElementById('priority').value;
-
-      if (project && task && time > 0 && tag && priority) {
-        if (editingIndex !== null) {
-          tasks[editingIndex] = { project, task, time, tag, priority, completed: false };
-          editingIndex = null;
-          addTaskBtn.textContent = 'Save Task';
-        } else {
-          tasks.push({ project, task, time, tag, priority, completed: false });
-        }
-        saveTasks();
-        renderTasks();
-        resetForm();
-        taskModal.style.display = 'none';
-      }
-    });
 
     function resetForm() {
       taskForm.reset();
@@ -437,19 +450,50 @@
         const highestPriorityTasks = suitableTasks.filter(t => priorityOrder[t.priority] === highestPriority);
         const randomTask = highestPriorityTasks[Math.floor(Math.random() * highestPriorityTasks.length)];
         suggestedTaskDisplay.textContent = `Try: "${randomTask.task}" from project "${randomTask.project}" — estimated ${randomTask.time} min. Priority: ${randomTask.priority || 'None'}. Tag: ${randomTask.tag || 'None'}`;
+
+        startActiveTask(randomTask.task, randomTask.time);
       } else {
         suggestedTaskDisplay.textContent = 'No tasks fit that time and tag — maybe adjust the filter or add quicker tasks.';
       }
     });
 
-    renderTasks();
- 
     document.querySelectorAll('.time-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.getElementById('availableTime').value = btn.getAttribute('data-time');
-  });
-});
-  
+      btn.addEventListener('click', () => {
+        document.getElementById('availableTime').value = btn.getAttribute('data-time');
+      });
+    });
+
+    function startActiveTask(taskName, minutes) {
+      clearInterval(countdown);
+      countdownDuration = minutes * 60;
+      countdownRemaining = countdownDuration;
+
+      activeTaskName.textContent = taskName;
+      activeTaskCard.classList.remove('hidden');
+
+      updateCountdown();
+      countdown = setInterval(updateCountdown, 1000);
+    }
+
+    function updateCountdown() {
+      const minutes = Math.floor(countdownRemaining / 60);
+      const seconds = countdownRemaining % 60;
+      countdownTimer.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+      if (countdownRemaining <= 0) {
+        clearInterval(countdown);
+        alert('Time’s up!');
+      } else {
+        countdownRemaining--;
+      }
+    }
+
+    stopTaskBtn.addEventListener('click', () => {
+      clearInterval(countdown);
+      activeTaskCard.classList.add('hidden');
+    });
+
+    renderTasks();
   </script>
 </body>
 </html>
