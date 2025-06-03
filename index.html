@@ -3,46 +3,50 @@
 <head>
   <meta charset="UTF-8">
   <title>Productivity Task Picker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Inter', sans-serif;
       margin: 40px;
-      background: #f4f4f4;
+      background: #f9fafb;
       color: #333;
     }
 
     h1, h2 {
-      color: #222;
+      color: #111827;
     }
 
     form, .task-section, .suggest-section {
       margin-bottom: 30px;
       padding: 20px;
       background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     }
 
     input, select {
       padding: 10px;
-      margin: 5px;
+      margin: 5px 10px 5px 0;
       width: 200px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 16px;
     }
 
     button {
       padding: 10px 15px;
       margin: 5px;
-      background-color: #007bff;
+      background-color: #3b82f6;
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 8px;
       cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.2s;
     }
 
     button:hover {
-      background-color: #0056b3;
+      background-color: #2563eb;
     }
 
     ul {
@@ -51,8 +55,8 @@
     }
 
     li {
-      padding: 10px 0;
-      border-bottom: 1px solid #eee;
+      padding: 12px 0;
+      border-bottom: 1px solid #e5e7eb;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -60,18 +64,24 @@
 
     li.completed span {
       text-decoration: line-through;
-      color: #888;
+      color: #9ca3af;
     }
 
     .task-info {
       flex: 1;
+      margin-left: 10px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
     }
 
     #suggestedTask {
       margin-top: 20px;
       font-size: 18px;
-      font-weight: bold;
-      color: #007bff;
+      font-weight: 600;
+      color: #3b82f6;
     }
   </style>
 </head>
@@ -91,7 +101,7 @@
         <option value="Medium">Medium</option>
         <option value="Low">Low</option>
       </select>
-      <button type="submit">Add Task</button>
+      <button type="submit" id="addTaskBtn">Add Task</button>
     </form>
   </div>
 
@@ -103,6 +113,9 @@
   <div class="suggest-section">
     <h2>Find a Task</h2>
     <input type="number" id="availableTime" placeholder="Available Time (minutes)">
+    <select id="tagFilter">
+      <option value="">All Tags</option>
+    </select>
     <button id="suggestTask">Suggest a Task</button>
 
     <div id="suggestedTask"></div>
@@ -110,15 +123,29 @@
 
   <script>
     let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    let editingIndex = null;
 
     const taskForm = document.getElementById('taskForm');
     const taskList = document.getElementById('taskList');
     const availableTimeInput = document.getElementById('availableTime');
     const suggestTaskBtn = document.getElementById('suggestTask');
     const suggestedTaskDisplay = document.getElementById('suggestedTask');
+    const tagFilter = document.getElementById('tagFilter');
+    const addTaskBtn = document.getElementById('addTaskBtn');
 
     function saveTasks() {
       localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    function updateTagFilter() {
+      const tags = [...new Set(tasks.map(t => t.tag))];
+      tagFilter.innerHTML = '<option value="">All Tags</option>';
+      tags.forEach(tag => {
+        const opt = document.createElement('option');
+        opt.value = tag;
+        opt.textContent = tag;
+        tagFilter.appendChild(opt);
+      });
     }
 
     function renderTasks() {
@@ -126,11 +153,7 @@
       tasks.forEach((t, i) => {
         const li = document.createElement('li');
         li.className = t.completed ? 'completed' : '';
-        
-        const taskInfo = document.createElement('span');
-        taskInfo.className = 'task-info';
-        taskInfo.textContent = `${t.project}: ${t.task} (${t.time} min) [${t.priority}] — Tag: ${t.tag}`;
-        
+
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.checked = t.completed || false;
@@ -140,21 +163,44 @@
           renderTasks();
         };
 
+        const taskInfo = document.createElement('span');
+        taskInfo.className = 'task-info';
+        taskInfo.textContent = `${t.project}: ${t.task} (${t.time} min) [${t.priority}] — Tag: ${t.tag}`;
+
+        const editBtn = document.createElement('button');
+        editBtn.textContent = 'Edit';
+        editBtn.style.background = '#10b981'; // green
+        editBtn.onclick = () => {
+          editingIndex = i;
+          document.getElementById('project').value = t.project;
+          document.getElementById('task').value = t.task;
+          document.getElementById('time').value = t.time;
+          document.getElementById('tag').value = t.tag;
+          document.getElementById('priority').value = t.priority;
+          addTaskBtn.textContent = 'Update Task';
+        };
+
         const deleteBtn = document.createElement('button');
         deleteBtn.textContent = 'Delete';
-        deleteBtn.style.background = '#dc3545';
-        deleteBtn.style.marginLeft = '10px';
+        deleteBtn.style.background = '#ef4444'; // red
         deleteBtn.onclick = () => {
           tasks.splice(i, 1);
           saveTasks();
           renderTasks();
+          updateTagFilter();
         };
+
+        const btnGroup = document.createElement('div');
+        btnGroup.className = 'btn-group';
+        btnGroup.appendChild(editBtn);
+        btnGroup.appendChild(deleteBtn);
 
         li.appendChild(checkbox);
         li.appendChild(taskInfo);
-        li.appendChild(deleteBtn);
+        li.appendChild(btnGroup);
         taskList.appendChild(li);
       });
+      updateTagFilter();
     }
 
     taskForm.addEventListener('submit', (e) => {
@@ -166,7 +212,13 @@
       const priority = document.getElementById('priority').value;
 
       if (project && task && time > 0 && tag && priority) {
-        tasks.push({ project, task, time, tag, priority, completed: false });
+        if (editingIndex !== null) {
+          tasks[editingIndex] = { project, task, time, tag, priority, completed: false };
+          editingIndex = null;
+          addTaskBtn.textContent = 'Add Task';
+        } else {
+          tasks.push({ project, task, time, tag, priority, completed: false });
+        }
         saveTasks();
         renderTasks();
         taskForm.reset();
@@ -175,11 +227,17 @@
 
     suggestTaskBtn.addEventListener('click', () => {
       const availableTime = parseInt(availableTimeInput.value);
+      const selectedTag = tagFilter.value;
+
       if (isNaN(availableTime) || availableTime <= 0) {
         suggestedTaskDisplay.textContent = 'Please enter a valid available time.';
         return;
       }
-      const suitableTasks = tasks.filter(t => t.time <= availableTime && !t.completed);
+
+      let suitableTasks = tasks.filter(t => t.time <= availableTime && !t.completed);
+      if (selectedTag) {
+        suitableTasks = suitableTasks.filter(t => t.tag === selectedTag);
+      }
 
       // Prefer High > Medium > Low
       const priorityOrder = { High: 1, Medium: 2, Low: 3 };
@@ -191,7 +249,7 @@
         const randomTask = highestPriorityTasks[Math.floor(Math.random() * highestPriorityTasks.length)];
         suggestedTaskDisplay.textContent = `Try: "${randomTask.task}" from project "${randomTask.project}" — estimated ${randomTask.time} min. Priority: ${randomTask.priority}. Tag: ${randomTask.tag}`;
       } else {
-        suggestedTaskDisplay.textContent = 'No tasks fit that time — maybe add some quicker ones?';
+        suggestedTaskDisplay.textContent = 'No tasks fit that time and tag — maybe adjust the filter or add quicker tasks.';
       }
     });
 
