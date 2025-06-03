@@ -2,154 +2,148 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Productivity Task Picker</title>
+  <title>Select + Do</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     body {
       font-family: 'Inter', sans-serif;
       margin: 0;
-      padding: 20px;
       background: #f8f9fa;
       color: #333;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
-
-    h1 {
-      font-size: 28px;
-      margin-bottom: 20px;
-    }
-
     .container {
       display: flex;
-      gap: 20px;
-      max-width: 1200px;
-      margin: 0 auto;
-      flex-wrap: wrap;
+      height: 100%;
     }
-
-    .left-column, .right-column {
-      flex: 1 1 45%;
+    .sidebar {
+      width: 300px;
       background: #ffffff;
+      border-right: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
       padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      box-sizing: border-box;
     }
-
+    .sidebar img {
+      width: 100px;
+      margin: 0 auto 20px;
+      display: block;
+    }
     .add-task-btn {
       background-color: #3b82f6;
       color: white;
       border: none;
-      padding: 12px 20px;
+      padding: 12px;
       border-radius: 8px;
       cursor: pointer;
-      margin-bottom: 20px;
+      width: 100%;
       font-size: 16px;
+      margin-bottom: 20px;
     }
-
+    .task-list {
+      overflow-y: auto;
+      flex: 1;
+    }
     ul {
       list-style: none;
       padding: 0;
-      margin: 0;
     }
-
     .project-header {
-      font-size: 18px;
-      margin: 20px 0 10px;
+      font-size: 16px;
+      font-weight: 600;
+      margin-top: 20px;
     }
-
     .task-card {
       background: #f9fafb;
-      padding: 12px 16px;
+      padding: 12px;
       border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
       margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
     }
-
     .task-info span:first-child {
       font-weight: 600;
       display: block;
+      margin-bottom: 4px;
     }
-
     .pill {
-      display: inline-block;
       background: #e2e8f0;
       border-radius: 9999px;
       padding: 4px 10px;
-      margin: 4px 4px 0 0;
       font-size: 12px;
-      color: #475569;
+      display: inline-block;
+      margin-right: 4px;
+      margin-top: 4px;
     }
-
     .btn-group {
       display: flex;
       gap: 6px;
+      margin-top: 8px;
     }
-
     .edit-btn, .delete-btn {
+      flex: 1;
       border: none;
-      padding: 6px 12px;
+      padding: 6px 10px;
       border-radius: 6px;
       font-size: 12px;
       cursor: pointer;
-    }
-
-    .edit-btn {
-      background-color: #10b981;
       color: white;
     }
+    .edit-btn { background-color: #10b981; }
+    .delete-btn { background-color: #ef4444; }
 
-    .delete-btn {
-      background-color: #ef4444;
-      color: white;
+    .main {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
     }
-
-    input, select {
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    #availableTime {
       width: 100%;
       padding: 10px;
-      margin: 8px 0;
+      margin-bottom: 10px;
       border: 1px solid #d1d5db;
       border-radius: 8px;
       font-size: 14px;
     }
-
-    .tag-cloud, .context-cloud {
+    .time-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .time-btn {
+      flex: 1 1 80px;
+      padding: 8px 0;
+      border: none;
+      background: #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    #tagCloud {
+      margin: 10px 0;
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin-bottom: 10px;
     }
-
     .tag-pill {
       background: #e2e8f0;
-      color: #334155;
-      padding: 6px 12px;
       border-radius: 9999px;
+      padding: 6px 12px;
+      font-size: 12px;
       cursor: pointer;
     }
-
     .tag-pill.selected {
       background: #3b82f6;
       color: white;
     }
-
-    .suggestion-card {
-      background: #ffffff;
-      border: 1px solid #e5e7eb;
-      padding: 16px;
-      border-radius: 8px;
-      margin-top: 10px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .suggestion-card:hover {
-      background: #eff6ff;
-      border-color: #3b82f6;
-    }
-
     #suggestTask {
       width: 100%;
       background-color: #3b82f6;
@@ -161,7 +155,19 @@
       margin-top: 10px;
       cursor: pointer;
     }
-
+    .suggestion-card {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      padding: 16px;
+      border-radius: 8px;
+      margin-top: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .suggestion-card:hover {
+      background: #eff6ff;
+      border-color: #3b82f6;
+    }
     #activeTaskCard {
       margin-top: 20px;
       text-align: center;
@@ -170,7 +176,6 @@
       background: #fefce8;
       display: none;
     }
-
     #pauseTaskBtn, #stopTaskBtn {
       margin: 10px 5px 0;
       padding: 10px 20px;
@@ -179,16 +184,8 @@
       font-size: 14px;
       cursor: pointer;
     }
-
-    #pauseTaskBtn {
-      background: #fbbf24;
-      color: white;
-    }
-
-    #stopTaskBtn {
-      background: #ef4444;
-      color: white;
-    }
+    #pauseTaskBtn { background: #fbbf24; color: white; }
+    #stopTaskBtn { background: #ef4444; color: white; }
 
     /* Modal */
     .modal {
@@ -201,7 +198,6 @@
       height: 100%;
       background: rgba(0, 0, 0, 0.5);
     }
-
     .modal-content {
       background: white;
       margin: 10% auto;
@@ -210,29 +206,56 @@
       width: 90%;
       max-width: 400px;
     }
-
     .close {
       float: right;
       font-size: 24px;
       cursor: pointer;
     }
+    .modal-content input, .modal-content select {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .modal-content button {
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
 
-<h1>🛠️ Productivity Task Picker</h1>
-
 <div class="container">
-  <div class="left-column">
+  <div class="sidebar">
+    <img src="YOUR_LOGO_HERE.png" alt="Select + Do Logo">
     <button class="add-task-btn" id="openModalBtn">+ Add Task</button>
-    <h2>Your Tasks</h2>
-    <ul id="taskList"></ul>
+    <div class="task-list">
+      <ul id="taskList"></ul>
+    </div>
   </div>
 
-  <div class="right-column">
-    <h2>Find a Task</h2>
+  <div class="main">
+    <h1>Select + Do</h1>
+    <div class="time-buttons">
+      <button class="time-btn" data-time="5">5 min</button>
+      <button class="time-btn" data-time="10">10 min</button>
+      <button class="time-btn" data-time="15">15 min</button>
+      <button class="time-btn" data-time="20">20 min</button>
+      <button class="time-btn" data-time="25">25 min</button>
+      <button class="time-btn" data-time="30">30 min</button>
+      <button class="time-btn" data-time="45">45 min</button>
+      <button class="time-btn" data-time="60">60 min</button>
+    </div>
     <input type="number" id="availableTime" placeholder="Custom Time (min)">
-    <div id="tagCloud" class="tag-cloud"></div>
+    <div id="tagCloud"></div>
     <select id="contextFilter">
       <option value="">All Contexts</option>
       <option value="Workday">Workday</option>
@@ -241,7 +264,6 @@
     </select>
     <button id="suggestTask">Suggest a Task</button>
     <div id="suggestedTasks"></div>
-
     <div id="activeTaskCard">
       <div id="activeTaskName"></div>
       <div id="countdownTimer">00:00</div>
@@ -275,7 +297,7 @@
         <option value="Medium">Medium</option>
         <option value="Low">Low</option>
       </select>
-      <button type="submit" class="add-task-btn">Save Task</button>
+      <button type="submit">Save Task</button>
     </form>
   </div>
 </div>
@@ -304,7 +326,7 @@ let countdown;
 let countdownRemaining;
 let isPaused = false;
 
-// Open/Close Modal
+// Modal Handlers
 openModalBtn.onclick = () => taskModal.style.display = 'block';
 closeModalBtn.onclick = () => {
   taskModal.style.display = 'none';
@@ -356,6 +378,23 @@ function renderTasks() {
       const btnGroup = document.createElement('div');
       btnGroup.className = 'btn-group';
 
+      const editBtn = document.createElement('button');
+      editBtn.className = 'edit-btn';
+      editBtn.textContent = 'Edit';
+      editBtn.onclick = () => {
+        document.getElementById('project').value = t.project;
+        document.getElementById('task').value = t.task;
+        document.getElementById('time').value = t.time;
+        document.getElementById('tag').value = t.tag;
+        document.getElementById('context').value = t.context;
+        document.getElementById('priority').value = t.priority;
+        openModalBtn.click();
+        tasks = tasks.filter(taskItem => taskItem !== t); // Remove old, will add updated
+        saveTasks();
+        renderTasks();
+        updateTagCloud();
+      };
+
       const deleteBtn = document.createElement('button');
       deleteBtn.className = 'delete-btn';
       deleteBtn.textContent = 'Delete';
@@ -366,6 +405,7 @@ function renderTasks() {
         updateTagCloud();
       };
 
+      btnGroup.appendChild(editBtn);
       btnGroup.appendChild(deleteBtn);
       li.appendChild(taskInfo);
       li.appendChild(btnGroup);
@@ -484,6 +524,13 @@ pauseTaskBtn.addEventListener('click', () => {
 stopTaskBtn.addEventListener('click', () => {
   clearInterval(countdown);
   activeTaskCard.style.display = 'none';
+});
+
+// Easy Time Buttons
+document.querySelectorAll('.time-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    availableTimeInput.value = btn.getAttribute('data-time');
+  });
 });
 
 // Initial Render
