@@ -8,210 +8,202 @@
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      margin: 20px;
-      background: #f9fafb;
-      color: #374151;
+      margin: 0;
+      padding: 20px;
+      background: #f8f9fa;
+      color: #333;
     }
 
     h1 {
       font-size: 28px;
-      color: #111827;
       margin-bottom: 20px;
-      font-weight: 700;
     }
 
     .container {
       display: flex;
-      flex-wrap: wrap;
       gap: 20px;
       max-width: 1200px;
       margin: 0 auto;
-      padding: 20px;
+      flex-wrap: wrap;
     }
 
-    .left-column,
-    .right-column {
-      flex: 0 0 calc(50% - 10px);
-      background: white;
+    .left-column, .right-column {
+      flex: 1 1 45%;
+      background: #ffffff;
       padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      box-sizing: border-box;
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-      }
-      .left-column,
-      .right-column {
-        flex: 1 1 100%;
-      }
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
 
     .add-task-btn {
-      padding: 12px 20px;
       background-color: #3b82f6;
       color: white;
       border: none;
+      padding: 12px 20px;
       border-radius: 8px;
       cursor: pointer;
-      font-size: 16px;
       margin-bottom: 20px;
+      font-size: 16px;
     }
 
     ul {
-      list-style-type: none;
+      list-style: none;
       padding: 0;
       margin: 0;
     }
 
     .project-header {
-      font-size: 20px;
-      font-weight: 600;
-      color: #1f2937;
-      margin-top: 20px;
-      margin-bottom: 10px;
+      font-size: 18px;
+      margin: 20px 0 10px;
     }
 
     .task-card {
-      background: #ffffff;
-      padding: 15px;
-      border-radius: 12px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      background: #f9fafb;
+      padding: 12px 16px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
       margin-bottom: 10px;
       display: flex;
       justify-content: space-between;
-      gap: 10px;
-    }
-
-    .task-info {
-      flex: 1;
-      font-size: 14px;
+      align-items: center;
     }
 
     .task-info span:first-child {
       font-weight: 600;
-      font-size: 16px;
-      color: #1f2937;
       display: block;
-      margin-bottom: 4px;
     }
 
-    .tag, .context {
+    .pill {
       display: inline-block;
-      background-color: #e5e7eb;
+      background: #e2e8f0;
       border-radius: 9999px;
       padding: 4px 10px;
+      margin: 4px 4px 0 0;
       font-size: 12px;
-      margin: 2px 4px 2px 0;
+      color: #475569;
     }
 
     .btn-group {
       display: flex;
-      flex-direction: column;
-      gap: 5px;
+      gap: 6px;
     }
 
-    .edit-btn,
-    .delete-btn {
-      padding: 6px 12px;
-      font-size: 12px;
+    .edit-btn, .delete-btn {
       border: none;
-      border-radius: 8px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
       cursor: pointer;
-      color: white;
     }
 
     .edit-btn {
       background-color: #10b981;
+      color: white;
     }
 
     .delete-btn {
       background-color: #ef4444;
+      color: white;
     }
 
-    .tag-cloud {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 10px 0;
-    }
-
-    .tag-pill {
-      background-color: #e0e7ff;
-      color: #4338ca;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 9999px;
-      cursor: pointer;
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
       font-size: 14px;
     }
 
-    .tag-pill.selected {
-      background-color: #4338ca;
-      color: white;
+    .tag-cloud, .context-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
     }
 
-    .context-pill {
-      background-color: #fef3c7;
-      color: #92400e;
+    .tag-pill {
+      background: #e2e8f0;
+      color: #334155;
+      padding: 6px 12px;
       border-radius: 9999px;
-      padding: 4px 10px;
-      font-size: 12px;
-      margin: 2px 4px 2px 0;
-    }
-
-    .time-btn {
-      background-color: #e0e7ff;
-      color: #4338ca;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 8px;
       cursor: pointer;
-      margin: 5px;
     }
 
-    #suggestTask {
-      margin-top: 10px;
-      background-color: #3b82f6;
+    .tag-pill.selected {
+      background: #3b82f6;
       color: white;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      width: 100%;
-    }
-
-    .suggested-tasks {
-      margin-top: 20px;
     }
 
     .suggestion-card {
-      background: #f9fafb;
-      border: 1px solid #d1d5db;
-      border-radius: 12px;
-      padding: 10px;
-      margin-bottom: 10px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      padding: 16px;
+      border-radius: 8px;
+      margin-top: 10px;
       cursor: pointer;
+      transition: all 0.2s;
     }
 
     .suggestion-card:hover {
-      background: #e0f2fe;
+      background: #eff6ff;
+      border-color: #3b82f6;
     }
 
+    #suggestTask {
+      width: 100%;
+      background-color: #3b82f6;
+      color: white;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    #activeTaskCard {
+      margin-top: 20px;
+      text-align: center;
+      padding: 20px;
+      border-radius: 12px;
+      background: #fefce8;
+      display: none;
+    }
+
+    #pauseTaskBtn, #stopTaskBtn {
+      margin: 10px 5px 0;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    #pauseTaskBtn {
+      background: #fbbf24;
+      color: white;
+    }
+
+    #stopTaskBtn {
+      background: #ef4444;
+      color: white;
+    }
+
+    /* Modal */
     .modal {
       display: none;
       position: fixed;
-      z-index: 1000;
+      z-index: 10;
       left: 0;
       top: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.5);
     }
 
     .modal-content {
-      background-color: #fff;
+      background: white;
       margin: 10% auto;
       padding: 20px;
       border-radius: 12px;
@@ -227,75 +219,93 @@
   </style>
 </head>
 <body>
-  <h1>🛠️ Productivity Task Picker</h1>
 
-  <div class="container">
-    <div class="left-column">
-      <button class="add-task-btn" id="openModalBtn">+ Add Task</button>
-      <h2>Your Tasks</h2>
-      <ul id="taskList"></ul>
-    </div>
+<h1>🛠️ Productivity Task Picker</h1>
 
-    <div class="right-column">
-      <h2>Find a Task</h2>
-      <input type="number" id="availableTime" placeholder="Custom Time (min)" />
-      <div class="tag-cloud" id="tagCloud"></div>
-      <div id="contextFilters" class="tag-cloud">
-        <button class="tag-pill" data-context="Workday">Workday</button>
-        <button class="tag-pill" data-context="Evening">Evening</button>
-        <button class="tag-pill" data-context="Weekend">Weekend</button>
+<div class="container">
+  <div class="left-column">
+    <button class="add-task-btn" id="openModalBtn">+ Add Task</button>
+    <h2>Your Tasks</h2>
+    <ul id="taskList"></ul>
+  </div>
+
+  <div class="right-column">
+    <h2>Find a Task</h2>
+    <input type="number" id="availableTime" placeholder="Custom Time (min)">
+    <div id="tagCloud" class="tag-cloud"></div>
+    <select id="contextFilter">
+      <option value="">All Contexts</option>
+      <option value="Workday">Workday</option>
+      <option value="Evening">Evening</option>
+      <option value="Weekend">Weekend</option>
+    </select>
+    <button id="suggestTask">Suggest a Task</button>
+    <div id="suggestedTasks"></div>
+
+    <div id="activeTaskCard">
+      <div id="activeTaskName"></div>
+      <div id="countdownTimer">00:00</div>
+      <div>
+        <button id="pauseTaskBtn">Pause</button>
+        <button id="stopTaskBtn">Stop</button>
       </div>
-      <button id="suggestTask">Suggest a Task</button>
-      <div id="suggestedTasks" class="suggested-tasks"></div>
     </div>
   </div>
+</div>
 
-  <!-- Modal -->
-  <div id="taskModal" class="modal">
-    <div class="modal-content">
-      <span class="close" id="closeModalBtn">&times;</span>
-      <h2>Add/Edit Task</h2>
-      <form id="taskForm">
-        <input type="text" id="project" placeholder="Project Name" required />
-        <input type="text" id="task" placeholder="Task Name" required />
-        <input type="number" id="time" placeholder="Time (minutes)" required />
-        <input type="text" id="tag" placeholder="Tag (e.g. Work, Fitness)" required />
-        <div>
-          <label>Select Context(s):</label><br/>
-          <input type="checkbox" name="context" value="Workday" /> Workday
-          <input type="checkbox" name="context" value="Evening" /> Evening
-          <input type="checkbox" name="context" value="Weekend" /> Weekend
-        </div>
-        <select id="priority" required>
-          <option value="" disabled selected>Priority</option>
-          <option value="High">High</option>
-          <option value="Medium">Medium</option>
-          <option value="Low">Low</option>
-        </select>
-        <button type="submit">Save Task</button>
-      </form>
-    </div>
+<!-- Modal -->
+<div id="taskModal" class="modal">
+  <div class="modal-content">
+    <span class="close" id="closeModalBtn">&times;</span>
+    <h2>Add Task</h2>
+    <form id="taskForm">
+      <input type="text" id="project" placeholder="Project Name" required>
+      <input type="text" id="task" placeholder="Task Name" required>
+      <input type="number" id="time" placeholder="Time (minutes)" required>
+      <input type="text" id="tag" placeholder="Tag (e.g. Work, Fitness)" required>
+      <select id="context" required>
+        <option value="" disabled selected>Select Context</option>
+        <option value="Workday">Workday</option>
+        <option value="Evening">Evening</option>
+        <option value="Weekend">Weekend</option>
+      </select>
+      <select id="priority" required>
+        <option value="" disabled selected>Priority</option>
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+      </select>
+      <button type="submit" class="add-task-btn">Save Task</button>
+    </form>
   </div>
+</div>
 
 <script>
 let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 let selectedTags = [];
-let selectedContexts = [];
 
 const taskForm = document.getElementById('taskForm');
 const taskList = document.getElementById('taskList');
-const tagCloud = document.getElementById('tagCloud');
-const contextFilters = document.getElementById('contextFilters');
 const openModalBtn = document.getElementById('openModalBtn');
 const closeModalBtn = document.getElementById('closeModalBtn');
 const taskModal = document.getElementById('taskModal');
+const tagCloud = document.getElementById('tagCloud');
+const contextFilter = document.getElementById('contextFilter');
 const suggestTaskBtn = document.getElementById('suggestTask');
-const suggestedTasksContainer = document.getElementById('suggestedTasks');
+const suggestedTasks = document.getElementById('suggestedTasks');
+const availableTimeInput = document.getElementById('availableTime');
+const activeTaskCard = document.getElementById('activeTaskCard');
+const activeTaskName = document.getElementById('activeTaskName');
+const countdownTimer = document.getElementById('countdownTimer');
+const pauseTaskBtn = document.getElementById('pauseTaskBtn');
+const stopTaskBtn = document.getElementById('stopTaskBtn');
 
-openModalBtn.onclick = () => {
-  taskModal.style.display = 'block';
-};
+let countdown;
+let countdownRemaining;
+let isPaused = false;
 
+// Open/Close Modal
+openModalBtn.onclick = () => taskModal.style.display = 'block';
 closeModalBtn.onclick = () => {
   taskModal.style.display = 'none';
   taskForm.reset();
@@ -308,24 +318,12 @@ window.onclick = (e) => {
   }
 };
 
-taskForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const formData = new FormData(taskForm);
-  const project = formData.get('project');
-  const task = formData.get('task');
-  const time = parseInt(formData.get('time'));
-  const tag = formData.get('tag');
-  const priority = formData.get('priority');
-  const contexts = formData.getAll('context');
-
-  tasks.push({ project, task, time, tag, priority, contexts });
+// Save Tasks
+function saveTasks() {
   localStorage.setItem('tasks', JSON.stringify(tasks));
-  renderTasks();
-  updateTagCloud();
-  taskForm.reset();
-  taskModal.style.display = 'none';
-});
+}
 
+// Render Tasks
 function renderTasks() {
   taskList.innerHTML = '';
   const projects = {};
@@ -351,8 +349,8 @@ function renderTasks() {
       taskInfo.className = 'task-info';
       taskInfo.innerHTML = `
         <span>${t.task}</span>
-        <div>${t.tag ? `<span class="tag">${t.tag}</span>` : ''} ${t.contexts.map(c => `<span class="context-pill">${c}</span>`).join('')}</div>
         <div>${t.time} min • ${t.priority}</div>
+        <div><span class="pill">${t.tag}</span> <span class="pill">${t.context}</span></div>
       `;
 
       const btnGroup = document.createElement('div');
@@ -363,7 +361,7 @@ function renderTasks() {
       deleteBtn.textContent = 'Delete';
       deleteBtn.onclick = () => {
         tasks = tasks.filter(taskItem => taskItem !== t);
-        localStorage.setItem('tasks', JSON.stringify(tasks));
+        saveTasks();
         renderTasks();
         updateTagCloud();
       };
@@ -374,11 +372,15 @@ function renderTasks() {
       taskList.appendChild(li);
     });
   });
+
+  updateTagCloud();
 }
 
+// Update Tag Cloud
 function updateTagCloud() {
   const tags = [...new Set(tasks.map(t => t.tag))];
   tagCloud.innerHTML = '';
+
   tags.forEach(tag => {
     const tagBtn = document.createElement('button');
     tagBtn.className = 'tag-pill';
@@ -396,37 +398,43 @@ function updateTagCloud() {
   });
 }
 
-contextFilters.querySelectorAll('.tag-pill').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const context = btn.getAttribute('data-context');
-    if (selectedContexts.includes(context)) {
-      selectedContexts = selectedContexts.filter(c => c !== context);
-      btn.classList.remove('selected');
-    } else {
-      selectedContexts.push(context);
-      btn.classList.add('selected');
-    }
-  });
+// Add/Edit Task
+taskForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const project = document.getElementById('project').value.trim();
+  const task = document.getElementById('task').value.trim();
+  const time = parseInt(document.getElementById('time').value);
+  const tag = document.getElementById('tag').value.trim();
+  const context = document.getElementById('context').value;
+  const priority = document.getElementById('priority').value;
+
+  if (project && task && time > 0 && tag && context && priority) {
+    tasks.push({ project, task, time, tag, context, priority });
+    saveTasks();
+    renderTasks();
+    taskForm.reset();
+    taskModal.style.display = 'none';
+  }
 });
 
+// Suggest Tasks
 suggestTaskBtn.addEventListener('click', () => {
-  const availableTime = parseInt(document.getElementById('availableTime').value) || 9999;
+  const availableTime = parseInt(availableTimeInput.value) || 9999;
+  const selectedContext = contextFilter.value;
 
   let filteredTasks = tasks.filter(t => {
-    const matchesTags = selectedTags.length === 0 || selectedTags.includes(t.tag);
-    const matchesContexts = selectedContexts.length === 0 || t.contexts.some(c => selectedContexts.includes(c));
-    return matchesTags && matchesContexts;
+    const matchTag = selectedTags.length === 0 || selectedTags.includes(t.tag);
+    const matchContext = !selectedContext || t.context === selectedContext;
+    return matchTag && matchContext;
   });
 
   filteredTasks.sort((a, b) => a.time - b.time);
 
-  // Prefer tasks <= availableTime
   const suitableTasks = filteredTasks.filter(t => t.time <= availableTime);
   let suggestions = suitableTasks.length >= 3 ? suitableTasks : filteredTasks;
-
   suggestions = suggestions.slice(0, 3);
 
-  suggestedTasksContainer.innerHTML = '';
+  suggestedTasks.innerHTML = '';
   suggestions.forEach(t => {
     const card = document.createElement('div');
     card.className = 'suggestion-card';
@@ -434,20 +442,52 @@ suggestTaskBtn.addEventListener('click', () => {
       <div><strong>${t.task}</strong></div>
       <div>${t.project}</div>
       <div>${t.time} min • ${t.priority}</div>
-      <div>${t.tag ? `<span class="tag">${t.tag}</span>` : ''} ${t.contexts.map(c => `<span class="context-pill">${c}</span>`).join('')}</div>
+      <div><span class="pill">${t.tag}</span> <span class="pill">${t.context}</span></div>
     `;
     card.onclick = () => startTask(t);
-    suggestedTasksContainer.appendChild(card);
+    suggestedTasks.appendChild(card);
   });
 });
 
+// Timer Logic
 function startTask(task) {
-  alert(`Starting: ${task.task} (${task.time} min)`);
-  // Add your timer start logic here if needed
+  clearInterval(countdown);
+  isPaused = false;
+  activeTaskName.textContent = task.task;
+  countdownRemaining = task.time * 60;
+  activeTaskCard.style.display = 'block';
+  updateCountdown();
+  countdown = setInterval(updateCountdown, 1000);
 }
 
+function updateCountdown() {
+  if (!isPaused) {
+    const minutes = Math.floor(countdownRemaining / 60);
+    const seconds = countdownRemaining % 60;
+    countdownTimer.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+    if (countdownRemaining <= 0) {
+      clearInterval(countdown);
+      alert('Time’s up!');
+      activeTaskCard.style.display = 'none';
+    } else {
+      countdownRemaining--;
+    }
+  }
+}
+
+pauseTaskBtn.addEventListener('click', () => {
+  isPaused = !isPaused;
+  pauseTaskBtn.textContent = isPaused ? 'Resume' : 'Pause';
+});
+
+stopTaskBtn.addEventListener('click', () => {
+  clearInterval(countdown);
+  activeTaskCard.style.display = 'none';
+});
+
+// Initial Render
 renderTasks();
-updateTagCloud();
 </script>
 
 </body>
