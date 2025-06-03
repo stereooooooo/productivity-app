@@ -21,6 +21,7 @@
       border-right: 1px solid #e5e7eb;
       display: flex;
       flex-direction: column;
+      align-items: center;
       overflow-y: auto;
     }
     .sidebar img {
@@ -214,12 +215,18 @@
       background: #ef4444;
       color: white;
     }
+    .app-logo {
+      width: 110px; 
+      height: auto;
+      margin: 0 auto 20px auto;
+      display: block;
+    }
   </style>
 </head>
 <body>
 
 <div class="sidebar">
-  <img src="selectdologo.png" alt="Select + Do Logo">
+  <img src="selectdologo.png" alt="Select + Do Logo" class="app-logo">
   <button class="add-task-btn" id="openModalBtn">+ Add Task</button>
   <div id="taskList"></div>
 </div>
