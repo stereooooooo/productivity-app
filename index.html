@@ -182,6 +182,20 @@
         flex-direction: row;
       }
     }
+    .time-btn {
+  background-color: #e0e7ff;
+  color: #1e3a8a;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.time-btn:hover {
+  background-color: #c7d2fe;
+}
   </style>
 </head>
 <body>
@@ -194,16 +208,30 @@
       <h2>Your Tasks</h2>
       <ul id="taskList"></ul>
 
-      <h2 style="margin-top: 40px;">Find a Task</h2>
-      <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-        <input type="number" id="availableTime" placeholder="Available Time (minutes)">
-        <select id="tagFilter" style="flex: 1;">
-          <option value="">All Tags</option>
-        </select>
-        <button id="suggestTask" style="flex: 0 0 auto;">Suggest a Task</button>
-      </div>
+<h2 style="margin-top: 40px;">Find a Task</h2>
 
-      <div id="suggestedTask"></div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
+  <input type="number" id="availableTime" placeholder="Custom Time (min)" style="flex: 1 1 100px;">
+  
+  <div id="timeButtons" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+    <button type="button" class="time-btn" data-time="5">5 min</button>
+    <button type="button" class="time-btn" data-time="10">10 min</button>
+    <button type="button" class="time-btn" data-time="15">15 min</button>
+    <button type="button" class="time-btn" data-time="20">20 min</button>
+    <button type="button" class="time-btn" data-time="25">25 min</button>
+    <button type="button" class="time-btn" data-time="30">30 min</button>
+    <button type="button" class="time-btn" data-time="45">45 min</button>
+    <button type="button" class="time-btn" data-time="60">1 hr</button>
+  </div>
+
+  <select id="tagFilter" style="flex: 1;">
+    <option value="">All Tags</option>
+  </select>
+  
+  <button id="suggestTask" style="flex: 0 0 auto;">Suggest a Task</button>
+</div>
+
+<div id="suggestedTask"></div>
     </div>
   </div>
 
@@ -391,6 +419,13 @@
     });
 
     renderTasks();
+ 
+    document.querySelectorAll('.time-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById('availableTime').value = btn.getAttribute('data-time');
+  });
+});
+  
   </script>
 </body>
 </html>
