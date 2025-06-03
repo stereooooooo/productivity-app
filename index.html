@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Productivity Task Picker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background: #f4f4f4;
+      color: #333;
+    }
+
+    h1, h2 {
+      color: #222;
+    }
+
+    form, .task-section, .suggest-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    input {
+      padding: 10px;
+      margin: 5px;
+      width: 200px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      padding: 10px 15px;
+      margin: 5px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    #suggestedTask {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #007bff;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛠️ Productivity Task Picker</h1>
+
+  <div class="task-section">
+    <h2>Add a Task</h2>
+    <form id="taskForm">
+      <input type="text" id="project" placeholder="Project Name" required>
+      <input type="text" id="task" placeholder="Task Name" required>
+      <input type="number" id="time" placeholder="Time (minutes)" required>
+      <button type="submit">Add Task</button>
+    </form>
+  </div>
+
+  <div class="task-section">
+    <h2>Your Tasks</h2>
+    <ul id="taskList"></ul>
+  </div>
+
+  <div class="suggest-section">
+    <h2>Find a Task</h2>
+    <input type="number" id="availableTime" placeholder="Available Time (minutes)">
+    <button id="suggestTask">Suggest a Task</button>
+
+    <div id="suggestedTask"></div>
+  </div>
+
+  <script>
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+    const taskForm = document.getElementById('taskForm');
+    const taskList = document.getElementById('taskList');
+    const availableTimeInput = document.getElementById('availableTime');
+    const suggestTaskBtn = document.getElementById('suggestTask');
+    const suggestedTaskDisplay = document.getElementById('suggestedTask');
+
+    function saveTasks() {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    function renderTasks() {
+      taskList.innerHTML = '';
+      tasks.forEach((t, i) => {
+        const li = document.createElement('li');
+        li.textContent = `${t.project}: ${t.task} (${t.time} min) `;
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.style.background = '#dc3545';
+        deleteBtn.style.marginLeft = '10px';
+        deleteBtn.onclick = () => {
+          tasks.splice(i, 1);
+          saveTasks();
+          renderTasks();
+        };
+        li.appendChild(deleteBtn);
+        taskList.appendChild(li);
+      });
+    }
+
+    taskForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const project = document.getElementById('project').value.trim();
+      const task = document.getElementById('task').value.trim();
+      const time = parseInt(document.getElementById('time').value);
+
+      if (project && task && time > 0) {
+        tasks.push({ project, task, time });
+        saveTasks();
+        renderTasks();
+        taskForm.reset();
+      }
+    });
+
+    suggestTaskBtn.addEventListener('click', () => {
+      const availableTime = parseInt(availableTimeInput.value);
+      if (isNaN(availableTime) || availableTime <= 0) {
+        suggestedTaskDisplay.textContent = 'Please enter a valid available time.';
+        return;
+      }
+      const suitableTasks = tasks.filter(t => t.time <= availableTime);
+      if (suitableTasks.length > 0) {
+        const randomTask = suitableTasks[Math.floor(Math.random() * suitableTasks.length)];
+        suggestedTaskDisplay.textContent = `Try: "${randomTask.task}" from project "${randomTask.project}" — estimated ${randomTask.time} min.`;
+      } else {
+        suggestedTaskDisplay.textContent = 'No tasks fit that time — maybe add some quicker ones?';
+      }
+    });
+
+    renderTasks();
+  </script>
+</body>
+</html>
