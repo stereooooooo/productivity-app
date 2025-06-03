@@ -250,12 +250,7 @@
         <option value="Medium">Medium</option>
         <option value="Low">Low</option>
       </select><br>
-      <select id="context" required>
-        <option value="" disabled selected>Context</option>
-        <option value="Workday">Workday</option>
-        <option value="Evening">Evening</option>
-        <option value="Weekend">Weekend</option>
-      </select><br><br>
+      <input type="text" id="context" placeholder="Context (e.g. Workday, Evening)" required><br><br>
       <button type="submit" class="add-task-btn">Save Task</button>
     </form>
   </div>
@@ -361,7 +356,7 @@ function renderTasks() {
       li.innerHTML = `
         <div><strong>${t.task}</strong><br>${t.time} min • ${t.priority}</div>
         <div class="pill">${t.tag}</div>
-        <div class="pill">${t.context}</div>
+        <div class="pill">${t.context.join(', ')}</div>
       `;
       const btnGroup = document.createElement('div');
       btnGroup.className = 'btn-group';
@@ -397,7 +392,7 @@ function editTask(index) {
   document.getElementById('time').value = t.time;
   document.getElementById('tag').value = t.tag;
   document.getElementById('priority').value = t.priority;
-  document.getElementById('context').value = t.context;
+  document.getElementById('context').value = t.context.join(', ');
   taskModal.style.display = 'flex';
 }
 
@@ -407,6 +402,7 @@ function deleteTask(index) {
   renderTasks();
 }
 
+// Add / Edit Task Form Submit
 taskForm.addEventListener('submit', (e) => {
   e.preventDefault();
   const newTask = {
@@ -415,7 +411,7 @@ taskForm.addEventListener('submit', (e) => {
     time: parseInt(document.getElementById('time').value),
     tag: document.getElementById('tag').value.trim(),
     priority: document.getElementById('priority').value,
-    context: document.getElementById('context').value
+    context: document.getElementById('context').value.split(',').map(c => c.trim())
   };
   if (editingIndex !== null) {
     tasks[editingIndex] = newTask;
@@ -451,31 +447,55 @@ document.querySelectorAll('.context-btn').forEach(btn => {
 suggestTaskBtn.addEventListener('click', () => {
   if (!selectedTime) return;
 
-  let filteredTasks = tasks.filter(t => t.time <= selectedTime);
-  if (selectedTags.length > 0) {
-    filteredTasks = filteredTasks.filter(t => selectedTags.some(tag => t.tag.includes(tag)));
-  }
-  if (selectedContext) {
-    filteredTasks = filteredTasks.filter(t => t.context === selectedContext);
-  }
+  suggestTaskBtn.disabled = true;
+  suggestTaskBtn.textContent = 'Suggesting...';
 
-  filteredTasks.sort((a, b) => {
-    const priorityOrder = { High: 1, Medium: 2, Low: 3 };
-    return priorityOrder[a.priority] - priorityOrder[b.priority];
-  });
+  setTimeout(() => {
+    let filteredTasks = tasks.map(task => ({
+      ...task,
+      timeDiff: Math.abs(task.time - selectedTime)
+    }));
 
-  suggestedTasks.innerHTML = '';
-  filteredTasks.slice(0, 3).forEach(task => {
-    const div = document.createElement('div');
-    div.className = 'suggested-task';
-    div.innerHTML = `
-      <strong>${task.task}</strong><br>
-      ${task.project} • ${task.time} min • ${task.priority}<br>
-      <span class="pill">${task.tag}</span> <span class="pill">${task.context}</span>
-    `;
-    div.onclick = () => startTask(task.task, task.time);
-    suggestedTasks.appendChild(div);
-  });
+    // Strict Context Filter
+    if (selectedContext) {
+      filteredTasks = filteredTasks.filter(task => task.context.includes(selectedContext));
+    }
+
+    // Tags Filter (loose match)
+    if (selectedTags.length > 0) {
+      filteredTasks = filteredTasks.filter(task => selectedTags.some(tag => task.tag.includes(tag)));
+    }
+
+    // Sort by Priority first, then by how close the time is
+    filteredTasks.sort((a, b) => {
+      const priorityOrder = { High: 1, Medium: 2, Low: 3 };
+      if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
+        return priorityOrder[a.priority] - priorityOrder[b.priority];
+      }
+      return a.timeDiff - b.timeDiff;
+    });
+
+    suggestedTasks.innerHTML = '';
+
+    if (filteredTasks.length === 0) {
+      suggestedTasks.innerHTML = '<div style="margin-top:20px;color:#6b7280;">No tasks found. Try adjusting your filters.</div>';
+    } else {
+      filteredTasks.slice(0, 3).forEach(task => {
+        const div = document.createElement('div');
+        div.className = 'suggested-task';
+        div.innerHTML = `
+          <strong>${task.task}</strong><br>
+          ${task.project} • ${task.time} min • ${task.priority}<br>
+          <span class="pill">${task.tag}</span> <span class="pill">${task.context.join(', ')}</span>
+        `;
+        div.onclick = () => startTask(task.task, task.time);
+        suggestedTasks.appendChild(div);
+      });
+    }
+
+    suggestTaskBtn.disabled = false;
+    suggestTaskBtn.textContent = 'Suggest a Task';
+  }, 500);
 });
 
 // Timer
