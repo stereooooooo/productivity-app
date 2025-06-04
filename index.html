@@ -250,7 +250,7 @@
         <option value="Medium">Medium</option>
         <option value="Low">Low</option>
       </select><br>
-      <input type="text" id="context" placeholder="Context (e.g. Workday, Evening)" required><br><br>
+      <input type="text" id="context" placeholder="Contexts (e.g. Workday, Evening)" required><br><br>
       <button type="submit" class="add-task-btn">Save Task</button>
     </form>
   </div>
@@ -392,8 +392,7 @@ function editTask(index) {
   document.getElementById('time').value = t.time;
   document.getElementById('tag').value = t.tag;
   document.getElementById('priority').value = t.priority;
-  document.getElementById('context').value = t.context.join(', ');
-  taskModal.style.display = 'flex';
+  document.getElementById('context').value = Array.isArray(t.context) ? t.context.join(', ') : t.context;  taskModal.style.display = 'flex';
 }
 
 function deleteTask(index) {
@@ -411,8 +410,10 @@ taskForm.addEventListener('submit', (e) => {
     time: parseInt(document.getElementById('time').value),
     tag: document.getElementById('tag').value.trim(),
     priority: document.getElementById('priority').value,
-    context: document.getElementById('context').value.split(',').map(c => c.trim())
-  };
+context: document.getElementById('context').value
+  .split(',')
+  .map(c => c.trim())
+  .filter(c => c.length > 0)  };
   if (editingIndex !== null) {
     tasks[editingIndex] = newTask;
     editingIndex = null;
