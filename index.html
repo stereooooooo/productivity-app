@@ -130,7 +130,7 @@
       color: white;
     }
     .tag-pill, .context-btn, .time-btn {
-  transition: background 0.3s, color 0.3s;
+      transition: background 0.3s, color 0.3s;
     }
     .context-btn {
       background: #e5e7eb;
@@ -162,7 +162,7 @@
       border-radius: 8px;
       cursor: pointer;
     }
-    .modal, .timer-modal {
+    .modal, .timer-modal-shell { /* Renamed .timer-modal to .timer-modal-shell for clarity */
       display: none;
       position: fixed;
       z-index: 9999;
@@ -174,7 +174,7 @@
       align-items: center;
       justify-content: center;
     }
-    .modal-content, .timer-modal {
+    .modal-content, .timer-modal-content { /* Renamed .timer-modal to .timer-modal-content */
       background: white;
       padding: 30px;
       border-radius: 10px;
@@ -240,33 +240,101 @@
     <span class="close" id="closeModalBtn">&times;</span>
     <h2>Add Task</h2>
     <form id="taskForm">
-<input type="text" id="project" name="project" placeholder="Project Name" required><br>
-<input type="text" id="task" name="task" placeholder="Task Name" required><br>
-<input type="number" id="time" name="time" placeholder="Time (minutes)" required><br>
-<input type="text" id="tag" name="tag" placeholder="Tag (e.g. Work, Fitness)" required><br>
-<select id="priority" name="priority" required>
-  <option value="" disabled selected>Priority</option>
-  <option value="High">High</option>
-  <option value="Medium">Medium</option>
-  <option value="Low">Low</option>
-</select><br>
-<input type="text" id="context" name="context" placeholder="Contexts (e.g. Workday, Evening)" required><br><br>
-      <button type="submit" class="add-task-btn">Save Task</button>
+      <input type="text" id="project" name="project" placeholder="Project Name" required style="margin-bottom: 10px; width: calc(100% - 20px); padding: 8px;"><br>
+      <input type="text" id="task" name="task" placeholder="Task Name" required style="margin-bottom: 10px; width: calc(100% - 20px); padding: 8px;"><br>
+      <input type="number" id="time" name="time" placeholder="Time (minutes)" required style="margin-bottom: 10px; width: calc(100% - 20px); padding: 8px;"><br>
+      <input type="text" id="tag" name="tag" placeholder="Tag (e.g. Work, Fitness)" required style="margin-bottom: 10px; width: calc(100% - 20px); padding: 8px;"><br>
+      <select id="priority" name="priority" required style="margin-bottom: 10px; width: 100%; padding: 8px;">
+        <option value="" disabled selected>Priority</option>
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+      </select><br>
+      <input type="text" id="context" name="context" placeholder="Contexts (e.g. Workday, Evening)" required style="margin-bottom: 20px; width: calc(100% - 20px); padding: 8px;"><br>
+      <button type="submit" class="add-task-btn" style="width: 100%;">Save Task</button>
     </form>
   </div>
 </div>
 
-<div class="modal timer-modal" id="timerModal">
-  <h1 id="activeTaskName"></h1>
-  <div id="countdownTimer" style="font-size:48px;margin:20px 0;"></div>
-  <div class="timer-controls">
-    <button class="pause-btn" id="pauseTaskBtn">Pause</button>
-    <button class="stop-btn" id="stopTaskBtn">Stop</button>
+<div class="modal timer-modal-shell" id="timerModal"> <div class="timer-modal-content"> <h1 id="activeTaskName"></h1>
+    <div id="countdownTimer" style="font-size:48px;margin:20px 0;"></div>
+    <div class="timer-controls">
+      <button class="pause-btn" id="pauseTaskBtn">Pause</button>
+      <button class="stop-btn" id="stopTaskBtn">Stop</button>
+    </div>
   </div>
 </div>
 
 <script>
-let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+// Robust localStorage Parsing and Task Migration
+let tasks = [];
+try {
+    const storedTasks = localStorage.getItem('tasks');
+    if (storedTasks) {
+        const parsedData = JSON.parse(storedTasks);
+        if (Array.isArray(parsedData)) {
+            tasks = parsedData;
+        } else {
+            console.warn("Stored tasks data is not an array. Initializing with an empty array.");
+            tasks = [];
+            // localStorage.removeItem('tasks'); // Optionally clear if format is severely corrupted
+        }
+    }
+} catch (error) {
+    console.error("Error parsing tasks from localStorage:", error);
+    tasks = []; // Default to empty array on error
+    // localStorage.removeItem('tasks'); // Optionally clear corrupted item
+}
+
+// Migrate individual task structures to ensure data integrity
+tasks = tasks.map(task => {
+    if (task === null || typeof task !== 'object') {
+        return null; // This task entry is malformed, will be filtered out
+    }
+
+    const migratedTask = { ...task }; // Create a shallow copy
+
+    // Ensure 'context' is an array
+    if (migratedTask.context === undefined || migratedTask.context === null) {
+        migratedTask.context = [];
+    } else if (!Array.isArray(migratedTask.context)) {
+        migratedTask.context = String(migratedTask.context)
+                                .split(',')
+                                .map(c => c.trim())
+                                .filter(c => c); // filter out empty strings
+    }
+
+    // Ensure 'tag' is a string
+    if (typeof migratedTask.tag !== 'string') {
+        migratedTask.tag = String(migratedTask.tag || '').trim();
+    }
+    
+    // Ensure 'project' is a string
+    if (typeof migratedTask.project !== 'string') {
+        migratedTask.project = String(migratedTask.project || 'Unassigned').trim();
+    }
+
+    // Ensure 'task' (name) is a string
+    if (typeof migratedTask.task !== 'string') {
+        migratedTask.task = String(migratedTask.task || 'Untitled Task').trim();
+    }
+    
+    // Ensure 'time' is a number
+    if (typeof migratedTask.time !== 'number' || isNaN(migratedTask.time)) {
+        const parsedTime = parseInt(migratedTask.time, 10);
+        migratedTask.time = isNaN(parsedTime) || parsedTime < 0 ? 0 : parsedTime;
+    }
+
+    // Ensure 'priority' is one of the expected values or a default
+    const validPriorities = ["High", "Medium", "Low"];
+    if (!validPriorities.includes(migratedTask.priority)) {
+        migratedTask.priority = "Medium"; // Default priority
+    }
+
+    return migratedTask;
+}).filter(task => task !== null); // Remove any tasks that were malformed
+
+
 let editingIndex = null;
 let selectedTags = [];
 let selectedContext = '';
@@ -291,15 +359,26 @@ const stopTaskBtn = document.getElementById('stopTaskBtn');
 const tagCloud = document.getElementById('tagCloud');
 
 // Open/close modals
-openModalBtn.onclick = () => taskModal.style.display = 'flex';
+openModalBtn.onclick = () => {
+  taskModal.style.display = 'flex';
+  editingIndex = null; // Ensure reset when opening for new task
+  taskForm.reset();
+  // Set default for priority if needed, though "disabled selected" should handle placeholder
+  document.getElementById('priority').value = ""; 
+};
 closeModalBtn.onclick = () => {
   taskModal.style.display = 'none';
   taskForm.reset();
+  editingIndex = null;
 };
 
 window.onclick = (e) => {
-  if (e.target === taskModal) taskModal.style.display = 'none';
-  if (e.target === timerModal) timerModal.style.display = 'none';
+  if (e.target === taskModal) {
+    taskModal.style.display = 'none';
+    taskForm.reset();
+    editingIndex = null;
+  }
+  if (e.target === timerModal) timerModal.style.display = 'none'; // Timer modal might need different closing logic
 };
 
 // Save to localStorage
@@ -309,12 +388,15 @@ function saveTasks() {
 
 // Render tags
 function updateTagCloud() {
-  const tags = [...new Set(tasks.flatMap(task => task.tag.split(',').map(t => t.trim())))];
+  const tags = [...new Set(tasks.flatMap(task => task.tag.split(',').map(t => t.trim()).filter(t => t)))];
   tagCloud.innerHTML = '';
   tags.forEach(tag => {
     const btn = document.createElement('button');
     btn.textContent = tag;
     btn.className = 'tag-pill';
+    if (selectedTags.includes(tag)) { // Re-apply 'selected' class if tag was already selected
+        btn.classList.add('selected');
+    }
     btn.onclick = () => {
       if (selectedTags.includes(tag)) {
         selectedTags = selectedTags.filter(t => t !== tag);
@@ -333,11 +415,12 @@ function renderTasks() {
   taskList.innerHTML = '';
   const projects = {};
   tasks.forEach(task => {
+    if (!task.project) task.project = 'Unassigned'; // Fallback for safety
     if (!projects[task.project]) projects[task.project] = [];
     projects[task.project].push(task);
   });
 
-  Object.keys(projects).forEach(project => {
+  Object.keys(projects).sort().forEach(project => { // Sort project names alphabetically
     const header = document.createElement('div');
     header.className = 'project-header';
     header.innerHTML = `${project} <span>▾</span>`;
@@ -350,13 +433,16 @@ function renderTasks() {
       header.querySelector('span').textContent = ul.style.display === 'none' ? '▸' : '▾';
     };
 
-    projects[project].forEach((t, i) => {
+    projects[project].forEach(t => {
+      const taskIndex = tasks.indexOf(t); // Get the original index in the global 'tasks' array
       const li = document.createElement('li');
       li.className = 'task-card';
+      // Ensure context is an array for .join, already handled by migration but good for clarity
+      const contextDisplay = Array.isArray(t.context) ? t.context.join(', ') : (t.context || '');
       li.innerHTML = `
         <div><strong>${t.task}</strong><br>${t.time} min • ${t.priority}</div>
         <div class="pill">${t.tag}</div>
-        <div class="pill">${t.context.join(', ')}</div>
+        <div class="pill">${contextDisplay}</div>
       `;
       const btnGroup = document.createElement('div');
       btnGroup.className = 'btn-group';
@@ -364,12 +450,13 @@ function renderTasks() {
       const editBtn = document.createElement('button');
       editBtn.textContent = 'Edit';
       editBtn.className = 'edit-btn';
-      editBtn.onclick = () => editTask(tasks.indexOf(t));
+      editBtn.onclick = (e) => { e.stopPropagation(); editTask(taskIndex); };
+
 
       const deleteBtn = document.createElement('button');
       deleteBtn.textContent = 'Delete';
       deleteBtn.className = 'delete-btn';
-      deleteBtn.onclick = () => deleteTask(tasks.indexOf(t));
+      deleteBtn.onclick = (e) => { e.stopPropagation(); deleteTask(taskIndex);};
 
       btnGroup.appendChild(editBtn);
       btnGroup.appendChild(deleteBtn);
@@ -385,6 +472,10 @@ function renderTasks() {
 }
 
 function editTask(index) {
+  if (index < 0 || index >= tasks.length) {
+    console.error("Invalid index for editing task:", index);
+    return;
+  }
   editingIndex = index;
   const t = tasks[index];
   document.getElementById('project').value = t.project;
@@ -392,14 +483,21 @@ function editTask(index) {
   document.getElementById('time').value = t.time;
   document.getElementById('tag').value = t.tag;
   document.getElementById('priority').value = t.priority;
+  // Context is stored as an array, join to string for input field
   document.getElementById('context').value = Array.isArray(t.context) ? t.context.join(', ') : t.context;
   taskModal.style.display = 'flex';
 }
 
 function deleteTask(index) {
-  tasks.splice(index, 1);
-  saveTasks();
-  renderTasks();
+  if (index < 0 || index >= tasks.length) {
+    console.error("Invalid index for deleting task:", index);
+    return;
+  }
+  if (confirm(`Are you sure you want to delete the task "${tasks[index].task}"?`)) {
+    tasks.splice(index, 1);
+    saveTasks();
+    renderTasks();
+  }
 }
 
 // Add / Edit Task Form Submit
@@ -410,24 +508,39 @@ taskForm.addEventListener('submit', (e) => {
     .map(c => c.trim())
     .filter(c => c.length > 0);
 
+  const timeValue = parseInt(document.getElementById('time').value, 10);
+  const projectValue = document.getElementById('project').value.trim();
+  const taskValue = document.getElementById('task').value.trim();
+  const tagValue = document.getElementById('tag').value.trim();
+  const priorityValue = document.getElementById('priority').value;
+
+  // More robust validation
+  if (!projectValue) { alert("Project Name is required."); return; }
+  if (!taskValue) { alert("Task Name is required."); return; }
+  if (isNaN(timeValue) || timeValue < 0) { alert("Please enter a valid, non-negative time in minutes."); return; }
+  if (!tagValue) { alert("Tag is required."); return; }
+  if (!priorityValue) { alert("Priority is required."); return; }
+
+
   const newTask = {
-    project: document.getElementById('project').value.trim(),
-    task: document.getElementById('task').value.trim(),
-    time: parseInt(document.getElementById('time').value),
-    tag: document.getElementById('tag').value.trim(),
-    priority: document.getElementById('priority').value,
+    project: projectValue,
+    task: taskValue,
+    time: timeValue,
+    tag: tagValue,
+    priority: priorityValue,
     context: contextInput
   };
 
   if (editingIndex !== null) {
     tasks[editingIndex] = newTask;
-    editingIndex = null;
   } else {
     tasks.push(newTask);
   }
+  editingIndex = null; // Reset editing index
   saveTasks();
   renderTasks();
   taskForm.reset();
+  document.getElementById('priority').value = ""; // Reset select to placeholder state
   taskModal.style.display = 'none';
 });
 
@@ -436,22 +549,28 @@ document.querySelectorAll('.time-btn').forEach(btn => {
   btn.onclick = () => {
     document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
-    selectedTime = parseInt(btn.getAttribute('data-time'));
+    selectedTime = parseInt(btn.getAttribute('data-time'), 10);
   };
 });
 
 // Context selection
 document.querySelectorAll('.context-btn').forEach(btn => {
   btn.onclick = () => {
-    document.querySelectorAll('.context-btn').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    selectedContext = btn.getAttribute('data-context');
+    const currentSelected = document.querySelector('.context-btn.selected');
+    if (currentSelected && currentSelected !== btn) {
+        currentSelected.classList.remove('selected');
+    }
+    btn.classList.toggle('selected');
+    selectedContext = btn.classList.contains('selected') ? btn.getAttribute('data-context') : '';
   };
 });
 
 // Suggest Task
 suggestTaskBtn.addEventListener('click', () => {
-  if (!selectedTime) return;
+  if (!selectedTime) {
+    alert("Please select how much time you have.");
+    return;
+  }
 
   suggestTaskBtn.disabled = true;
   suggestTaskBtn.textContent = 'Suggesting...';
@@ -462,17 +581,17 @@ suggestTaskBtn.addEventListener('click', () => {
       timeDiff: Math.abs(task.time - selectedTime)
     }));
 
-    // Strict Context Filter
     if (selectedContext) {
-      filteredTasks = filteredTasks.filter(task => task.context.includes(selectedContext));
+      filteredTasks = filteredTasks.filter(task => Array.isArray(task.context) && task.context.includes(selectedContext));
     }
 
-    // Tags Filter (loose match)
     if (selectedTags.length > 0) {
-      filteredTasks = filteredTasks.filter(task => selectedTags.some(tag => task.tag.includes(tag)));
+      filteredTasks = filteredTasks.filter(task => {
+        const taskTags = task.tag.split(',').map(t => t.trim());
+        return selectedTags.some(selTag => taskTags.includes(selTag));
+      });
     }
 
-    // Sort by Priority first, then by how close the time is
     filteredTasks.sort((a, b) => {
       const priorityOrder = { High: 1, Medium: 2, Low: 3 };
       if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
@@ -489,10 +608,11 @@ suggestTaskBtn.addEventListener('click', () => {
       filteredTasks.slice(0, 3).forEach(task => {
         const div = document.createElement('div');
         div.className = 'suggested-task';
+        const contextDisplay = Array.isArray(task.context) ? task.context.join(', ') : (task.context || '');
         div.innerHTML = `
           <strong>${task.task}</strong><br>
           ${task.project} • ${task.time} min • ${task.priority}<br>
-          <span class="pill">${task.tag}</span> <span class="pill">${task.context.join(', ')}</span>
+          <span class="pill">${task.tag}</span> <span class="pill">${contextDisplay}</span>
         `;
         div.onclick = () => startTask(task.task, task.time);
         suggestedTasks.appendChild(div);
@@ -511,23 +631,32 @@ function startTask(taskName, minutes) {
   countdownDuration = minutes * 60;
   countdownRemaining = countdownDuration;
   activeTaskName.textContent = taskName;
-  updateCountdown();
-  timerModal.style.display = 'block';
+  pauseTaskBtn.textContent = 'Pause'; // Reset button text
+  updateCountdown(); // Call once to display time immediately
+  timerModal.style.display = 'flex'; // Use flex to align content like other modals
   countdown = setInterval(updateCountdown, 1000);
 }
 
 function updateCountdown() {
+  if (countdownRemaining < 0) { // Ensure timer stops if it somehow overruns
+      clearInterval(countdown);
+      alert('Time’s up!');
+      timerModal.style.display = 'none';
+      return;
+  }
   if (!isPaused) {
     const min = Math.floor(countdownRemaining / 60);
     const sec = countdownRemaining % 60;
     countdownTimer.textContent = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
-    if (countdownRemaining <= 0) {
+    if (countdownRemaining === 0) { // Check at 0, then decrement for next potential call
       clearInterval(countdown);
-      alert('Time’s up!');
-      timerModal.style.display = 'none';
-    } else {
-      countdownRemaining--;
+      // Timeout for alert to allow UI to update
+      setTimeout(() => {
+        alert('Time’s up!');
+        timerModal.style.display = 'none';
+      }, 100); 
     }
+    countdownRemaining--;
   }
 }
 
