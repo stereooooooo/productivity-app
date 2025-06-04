@@ -324,24 +324,51 @@ closeModalBtn.addEventListener('click', () => {
 
 taskForm.addEventListener('submit', (e) => {
   e.preventDefault();
+
   const project = document.getElementById('project').value.trim();
   const task = document.getElementById('task').value.trim();
   const priority = document.getElementById('priority').value;
 
-  if (!project || !task || !selectedModalTime || !priority || selectedModalTags.size === 0 || selectedModalContexts.size === 0) {
-    alert('Please fill all fields.');
+  if (!project) {
+    alert('Please enter a project name.');
     return;
   }
 
-  tasks.push({
+  if (!task) {
+    alert('Please enter a task name.');
+    return;
+  }
+
+  if (!selectedModalTime) {
+    alert('Please select a time.');
+    return;
+  }
+
+  if (selectedModalTags.size === 0) {
+    alert('Please select at least one tag.');
+    return;
+  }
+
+  if (!priority) {
+    alert('Please select a priority.');
+    return;
+  }
+
+  if (selectedModalContexts.size === 0) {
+    alert('Please select at least one context.');
+    return;
+  }
+
+  const newTask = {
     project,
     task,
     time: selectedModalTime,
     tag: Array.from(selectedModalTags),
     priority,
-    context: Array.from(selectedModalContexts)
-  });
+    context: Array.from(selectedModalContexts),
+  };
 
+  tasks.push(newTask);
   saveTasks();
   renderTasks();
   renderTagCloud();
