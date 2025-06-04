@@ -36,7 +36,7 @@
     <!-- Sidebar -->
     <div class="sidebar w-72 bg-white p-6 border-r border-gray-200 flex flex-col overflow-y-auto hide-scrollbar shadow-lg">
         <!-- Logo - Replaced placeholder with user's uploaded logo -->
-        <img src="selectdologo.png" alt="Select + Do Logo" class="w-32 mb-6 rounded-md">
+        <img src="selectdologo.jpg" alt="Select + Do Logo" class="w-32 mb-6 rounded-md">
         
         <!-- User ID Display -->
         <div id="userIdDisplay" class="text-xs text-gray-500 mb-4 break-all">
@@ -263,43 +263,69 @@
                 const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
                 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
-                // Initialize Firebase app
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
 
-                // Set up authentication listener
+                // Flag to ensure initial setup logic runs only once
+                let initialSetupDone = false;
+
+                // Listen for authentication state changes
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
                         // User is signed in
                         userId = user.uid;
-                        userIdDisplay.textContent = `User ID: ${userId}`; // Display user ID
+                        userIdDisplay.textContent = `User ID: ${userId}`;
                         console.log("User signed in:", userId);
                     } else {
-                        // User is signed out, sign in anonymously if no custom token
-                        if (typeof __initial_auth_token === 'undefined') {
-                            await signInAnonymously(auth);
-                            userId = auth.currentUser?.uid || crypto.randomUUID(); // Fallback for anonymous
-                            userIdDisplay.textContent = `User ID (Anonymous): ${userId}`; // Display anonymous user ID
-                            console.log("Signed in anonymously:", userId);
+                        // User is signed out or initial state, attempt to sign in if not already done
+                        if (!initialSetupDone) {
+                            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token !== '') {
+                                try {
+                                    // Use custom token if available
+                                    await signInWithCustomToken(auth, __initial_auth_token);
+                                    // userId will be set by the subsequent onAuthStateChanged call if successful
+                                    console.log("Attempted sign in with custom token.");
+                                } catch (tokenError) {
+                                    console.error("Error signing in with custom token, falling back to anonymous:", tokenError);
+                                    // Fallback to anonymous if custom token fails
+                                    await signInAnonymously(auth);
+                                    userId = auth.currentUser?.uid || crypto.randomUUID();
+                                    userIdDisplay.textContent = `User ID (Anonymous): ${userId}`;
+                                    console.log("Signed in anonymously after token failure:", userId);
+                                }
+                            } else {
+                                // Sign in anonymously if no custom token is provided
+                                await signInAnonymously(auth);
+                                userId = auth.currentUser?.uid || crypto.randomUUID();
+                                userIdDisplay.textContent = `User ID (Anonymous): ${userId}`;
+                                console.log("Signed in anonymously (no token):", userId);
+                            }
                         }
                     }
-                    isAuthReady = true; // Mark authentication as ready
-                    // Once auth is ready, set up real-time listener for tasks and usage stats
-                    if (userId) {
+
+                    // This block ensures the setup logic runs only once authentication is truly established
+                    // and prevents re-running if a user simply logs out and back in.
+                    if (userId && !isAuthReady) {
+                        isAuthReady = true; // Mark authentication as ready
+                        initialSetupDone = true; // Prevent re-running initial sign-in logic
+                        console.log("Firebase Auth and userId ready. Setting up listeners.");
                         setupTaskListener();
-                        setupUsageStatsListener(); // Setup listener for usage stats
+                        setupUsageStatsListener();
+                    } else if (!userId && !initialSetupDone) {
+                         // Fallback if auth fails to establish a userId after initial attempts.
+                         // Still set isAuthReady to prevent app from being stuck in a loading state,
+                         // but warn user about limited functionality.
+                         isAuthReady = true;
+                         initialSetupDone = true;
+                         console.warn("Firebase Auth setup completed, but no user ID obtained. App might have limited functionality.");
+                         showModal('Authentication Warning', 'Could not establish a user session. Features requiring data persistence may not work correctly.', 'alert');
                     }
                 });
 
-                // Sign in with custom token if available (provided by Canvas environment)
-                if (typeof __initial_auth_token !== 'undefined') {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                }
-
             } catch (error) {
                 console.error("Error initializing Firebase:", error);
-                showModal('Error', 'Failed to initialize the app. Please try again later.', 'alert');
+                showModal('Error', `Failed to initialize the app. Please check your console for details. Error: ${error.message}`, 'alert');
             }
         }
 
@@ -371,10 +397,12 @@
                 console.warn("App not ready, cannot update usage count.");
                 return;
             }
-            const itemRef = doc(db, `artifacts/${__app_id}/users/${userId}/usageStats`, `${type}-${item.toLowerCase()}`);
+            // Ensure the item string is valid for a Firestore document ID (e.g., no slashes)
+            const sanitizedItem = item.toLowerCase().replace(/[^a-z0-9-]/g, '');
+            const itemRef = doc(db, `artifacts/${__app_id}/users/${userId}/usageStats`, `${type}-${sanitizedItem}`);
             try {
-                // Use transaction to safely increment count
-                await setDoc(itemRef, { count: (usageStats[`${type}-${item.toLowerCase()}`] || 0) + 1 }, { merge: true });
+                // Use setDoc with merge:true to safely increment count
+                await setDoc(itemRef, { count: (usageStats[`${type}-${sanitizedItem}`] || 0) + 1 }, { merge: true });
             } catch (e) {
                 console.error(`Error updating usage count for ${type} ${item}:`, e);
             }
@@ -420,9 +448,10 @@
         }
 
         // ---------- INIT RENDER (Called after Firebase is ready)
+        // These can be called immediately as they don't depend on Firestore data
         renderModalTimeButtons();
         renderModalContextButtons();
-        updateFilterDisplay(); // Initial render for filter summary
+        updateFilterDisplay(); // Initial render for filter summary (will be empty until filters are selected)
 
         // ---------- ADD/EDIT TASK MODAL
         openModalBtn.addEventListener('click', () => {
@@ -443,7 +472,7 @@
 
             // Check if Firebase Auth is ready before attempting Firestore operations
             if (!isAuthReady || !userId) {
-                showModal('App Not Ready', 'Please wait a moment for the app to load fully, then try again.', 'alert');
+                showModal('App Not Ready', 'Please wait a moment for the app to load fully and establish a session, then try again. If the issue persists, refresh the page.', 'alert');
                 return;
             }
 
@@ -503,7 +532,7 @@
                 taskModal.classList.add('hidden');
                 taskModal.classList.remove('flex');
                 
-                // Update usage counts for new/updated tasks
+                // Update usage counts for new/updated tasks after successful save
                 selectedModalTags.forEach(tag => updateUsageCount('tag', tag));
                 selectedModalContexts.forEach(context => updateUsageCount('context', context));
 
@@ -511,7 +540,7 @@
             } catch (e) {
                 console.error("Error saving task: ", e);
                 // Provide more specific error if possible, or advise console check
-                showModal('Error', `Failed to save task. Please ensure you have an active internet connection and try again. Technical details: ${e.message}`, 'alert');
+                showModal('Error', `Failed to save task. Please ensure you have an active internet connection and that the app has fully loaded. Technical details: ${e.message}`, 'alert');
             }
         });
 
@@ -641,7 +670,8 @@
                     // No need to decrement usage, just track increments for "most used"
                 } else {
                     selectedContexts.push(context);
-                    updateUsageCount('context', context); // Increment usage when selected
+                    // Update usage count when selected in main filter, too
+                    updateUsageCount('context', context); 
                 }
                 updateFilterDisplay(); // Update display when context is selected
             });
@@ -676,7 +706,8 @@
                         // No need to decrement usage
                     } else {
                         selectedTags.push(tag);
-                        updateUsageCount('tag', tag); // Increment usage when selected
+                        // Update usage count when selected in main filter, too
+                        updateUsageCount('tag', tag); 
                     }
                     updateFilterDisplay(); // Update display when tag is selected
                 };
@@ -741,13 +772,14 @@
 
         // ---------- SUGGEST TASK
         suggestTaskBtn.addEventListener('click', () => {
+            if (!isAuthReady || tasks.length === 0) {
+                showModal('App Not Ready / No Tasks', 'Please wait for the app to load or add some tasks first.', 'alert');
+                return;
+            }
+
             if (!selectedTime && selectedTags.length === 0 && selectedContexts.length === 0) {
                 showModal('Selection Required', 'Please select at least one filter (time, tag, or context) to get a suggestion.', 'alert');
                 return;
-            }
-            if (tasks.length === 0) {
-                 showModal('No Tasks Added', 'Please add some tasks first so the app can suggest them!', 'alert');
-                 return;
             }
 
             let filtered = tasks.map(task => ({
@@ -818,8 +850,8 @@
 
         // ---------- SURPRISE ME!
         surpriseMeBtn.addEventListener('click', () => {
-            if (tasks.length === 0) {
-                showModal('No Tasks Added', 'Please add some tasks first to get a surprise!', 'alert');
+            if (!isAuthReady || tasks.length === 0) {
+                showModal('App Not Ready / No Tasks', 'Please wait for the app to load or add some tasks first to get a surprise!', 'alert');
                 return;
             }
             const randomIndex = Math.floor(Math.random() * tasks.length);
