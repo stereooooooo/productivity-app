@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Select + Do</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -13,6 +13,7 @@
       padding: 0;
       display: flex;
       height: 100vh;
+      overflow: hidden;
     }
     .sidebar {
       width: 280px;
@@ -28,7 +29,7 @@
       margin-bottom: 20px;
     }
     .add-task-btn {
-      background: #3b82f6;
+      background: #2563eb;
       color: white;
       padding: 10px 15px;
       border: none;
@@ -36,6 +37,10 @@
       cursor: pointer;
       margin-bottom: 20px;
       font-size: 14px;
+      transition: background 0.3s;
+    }
+    .add-task-btn:hover {
+      background: #1d4ed8;
     }
     .project-header {
       font-weight: 600;
@@ -54,29 +59,32 @@
     .task-card {
       background: #f3f4f6;
       margin: 8px 0;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 12px;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    .task-card:hover {
+      background: #e5e7eb;
     }
     .pill {
       background: #e5e7eb;
-      padding: 2px 8px;
+      padding: 4px 12px;
       border-radius: 999px;
-      margin-right: 4px;
+      margin: 4px 4px 0 0;
       display: inline-block;
-      font-size: 10px;
+      font-size: 12px;
     }
     .btn-group {
-      margin-top: 8px;
+      margin-top: 10px;
       display: flex;
       gap: 8px;
-      justify-content: center;
     }
     .edit-btn, .delete-btn {
-      padding: 4px 8px;
-      font-size: 10px;
+      padding: 6px 12px;
+      font-size: 12px;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
       cursor: pointer;
     }
     .edit-btn {
@@ -92,240 +100,151 @@
       padding: 30px;
       overflow-y: auto;
     }
-    .time-buttons {
+    .time-buttons, .context-buttons, .tag-cloud {
       display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
       flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
     }
-    .time-btn {
+    .time-btn, .context-btn, .tag-pill {
       background: #e0e7ff;
-      border: none;
+      border: 1px solid transparent;
       padding: 8px 16px;
       border-radius: 20px;
       cursor: pointer;
       font-size: 14px;
-      transition: background 0.3s, color 0.3s;
+      transition: background 0.3s;
     }
-    .time-btn.selected {
-      background: #3b82f6;
-      color: white;
-    }
-    .tag-cloud, .context-buttons {
-      margin-top: 20px;
-      margin-bottom: 20px;
-    }
-    .tag-pill {
-      background: #e5e7eb;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 20px;
-      margin: 5px;
-      cursor: pointer;
-      font-size: 12px;
-    }
-    .tag-pill.selected {
-      background: #3b82f6;
-      color: white;
-    }
-    .tag-pill, .context-btn, .time-btn {
-      transition: background 0.3s, color 0.3s;
-    }
-    .context-btn {
-      background: #e5e7eb;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 10px;
-      margin: 5px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    .context-btn.selected {
+    .time-btn.selected, .context-btn.selected, .tag-pill.selected {
       background: #3b82f6;
       color: white;
     }
     #suggestTask {
-      background: #3b82f6;
+      background: #2563eb;
       color: white;
       width: 100%;
       border: none;
       border-radius: 8px;
-      padding: 10px;
+      padding: 12px;
       font-size: 16px;
       margin-top: 20px;
-      transition: transform 0.1s ease-in-out;
+      transition: background 0.3s;
     }
-    #suggestTask:active {
-      transform: scale(0.98);
+    #suggestTask:hover {
+      background: #1d4ed8;
     }
     .suggested-task {
       background: #f3f4f6;
       padding: 15px;
       margin-top: 10px;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
+      transition: background 0.2s;
     }
-    .modal, .timer-modal {
+    .suggested-task:hover {
+      background: #e5e7eb;
+    }
+    .modal {
       display: none;
       position: fixed;
       z-index: 9999;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.4);
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.5);
       align-items: center;
       justify-content: center;
     }
-    .modal-content, .timer-modal {
+    .modal-content {
       background: white;
       padding: 30px;
       border-radius: 10px;
-      width: 300px;
-      position: relative;
+      width: 90%;
+      max-width: 400px;
       text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
     }
-    .close {
-      position: absolute;
-      right: 15px;
-      top: 10px;
-      font-size: 20px;
+    .modal-content input, .modal-content select {
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      width: 100%;
+      font-size: 14px;
+    }
+    .modal-content button {
+      margin-top: 10px;
+    }
+    .pill-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+    .pill-button {
+      background: #e5e7eb;
+      padding: 6px 12px;
+      border-radius: 999px;
       cursor: pointer;
+      font-size: 12px;
     }
-    .app-logo {
-      width: 110px;
-      height: auto;
-      margin: 0 auto 20px auto;
-      display: block;
+    .pill-button.selected {
+      background: #3b82f6;
+      color: white;
     }
   </style>
 </head>
 <body>
 <div class="sidebar">
-  <img src="https://placehold.co/120x50/3b82f6/ffffff?text=Select+Do" alt="Select + Do Logo" class="app-logo" onerror="this.src='https://placehold.co/120x50/cccccc/000000?text=Logo+Error'; this.onerror=null;">
+  <img src="selectdologo.png" alt="Select + Do Logo">
   <button class="add-task-btn" id="openModalBtn">+ Add Task</button>
   <div id="taskList"></div>
 </div>
-
 <div class="main">
-  <div>
-    <h3>How much time do you have?</h3>
-    <div class="time-buttons">
-      <button class="time-btn" data-time="5">5 min</button>
-      <button class="time-btn" data-time="10">10 min</button>
-      <button class="time-btn" data-time="15">15 min</button>
-      <button class="time-btn" data-time="20">20 min</button>
-      <button class="time-btn" data-time="25">25 min</button>
-      <button class="time-btn" data-time="30">30 min</button>
-      <button class="time-btn" data-time="45">45 min</button>
-      <button class="time-btn" data-time="60">60 min</button>
-    </div>
-
-    <h3>Select a category (Tags)</h3>
-    <div class="tag-cloud" id="tagCloud"></div>
-
-    <h3>Choose a context</h3>
-    <div class="context-buttons">
-      <button class="context-btn" data-context="Workday">Workday</button>
-      <button class="context-btn" data-context="Evening">Evening</button>
-      <button class="context-btn" data-context="Weekend">Weekend</button>
-    </div>
-
-    <button id="suggestTask">Suggest a Task</button>
-    <div id="suggestedTasks"></div>
-  </div>
+  <h3>How much time do you have?</h3>
+  <div class="time-buttons" id="timeButtons"></div>
+  <h3>Select a category (Tags)</h3>
+  <div class="tag-cloud" id="tagCloud"></div>
+  <h3>Choose a context</h3>
+  <div class="context-buttons" id="contextButtons"></div>
+  <button id="suggestTask">Suggest a Task</button>
+  <div id="suggestedTasks"></div>
 </div>
-
-<!-- Modal for Adding Tasks -->
 <div class="modal" id="taskModal">
   <div class="modal-content">
-    <span class="close" id="closeModalBtn">&times;</span>
+    <span class="close" id="closeModalBtn" style="cursor:pointer;align-self:flex-end;">&times;</span>
     <h2>Add Task</h2>
-    <form id="taskForm">
-      <input type="text" id="project" placeholder="Project Name" required><br>
-      <input type="text" id="task" placeholder="Task Name" required><br>
-      <input type="number" id="time" placeholder="Time (minutes)" required><br>
-      <input type="text" id="tag" placeholder="Tags (comma separated)" required><br>
-      <select id="priority" required>
-        <option value="" disabled selected>Priority</option>
-        <option value="High">High</option>
-        <option value="Medium">Medium</option>
-        <option value="Low">Low</option>
-      </select><br>
-      <input type="text" id="context" placeholder="Contexts (comma separated)" required><br><br>
-      <button type="submit" class="add-task-btn">Save Task</button>
-    </form>
-  </div>
-</div>
-
-<!-- Timer Modal -->
-<div class="timer-modal-shell" id="timerModal">
-  <div class="timer-modal-content">
-    <span class="close" id="closeTimerModalBtn">&times;</span>
-    <h1 id="activeTaskName"></h1>
-    <div id="countdownTimer" style="font-size:48px;margin:20px 0;"></div>
-    <div class="timer-controls">
-      <button class="pause-btn" id="pauseTaskBtn">Pause</button>
-      <button class="stop-btn" id="stopTaskBtn">Stop</button>
-    </div>
+    <input type="text" id="project" placeholder="Project Name" required>
+    <input type="text" id="task" placeholder="Task Name" required>
+    <input type="number" id="time" placeholder="Time (minutes)" required>
+    <input type="text" id="tags" placeholder="Tags (comma separated)">
+    <select id="priority" required>
+      <option value="" disabled selected>Priority</option>
+      <option value="High">High</option>
+      <option value="Medium">Medium</option>
+      <option value="Low">Low</option>
+    </select>
+    <input type="text" id="contexts" placeholder="Contexts (comma separated, e.g. Workday, Evening)" required>
+    <button class="add-task-btn" id="saveTaskBtn">Save Task</button>
   </div>
 </div>
 
 <script>
-// --- Data setup ---
+const times = [5, 10, 15, 20, 25, 30, 45, 60];
+const contexts = ['Workday', 'Evening', 'Weekend'];
+const taskList = document.getElementById('taskList');
+const timeButtons = document.getElementById('timeButtons');
+const tagCloud = document.getElementById('tagCloud');
+const contextButtons = document.getElementById('contextButtons');
 let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-let editingIndex = null;
+let selectedTime = null;
 let selectedTags = [];
 let selectedContext = '';
-let selectedTime = null;
-let countdown;
-let countdownDuration;
-let countdownRemaining;
-let isPaused = false;
 
-// DOM Elements
-const taskForm = document.getElementById('taskForm');
-const taskList = document.getElementById('taskList');
-const suggestTaskBtn = document.getElementById('suggestTask');
-const suggestedTasks = document.getElementById('suggestedTasks');
-const openModalBtn = document.getElementById('openModalBtn');
-const closeModalBtn = document.getElementById('closeModalBtn');
-const taskModal = document.getElementById('taskModal');
-const timerModal = document.getElementById('timerModal');
-const activeTaskName = document.getElementById('activeTaskName');
-const countdownTimer = document.getElementById('countdownTimer');
-const pauseTaskBtn = document.getElementById('pauseTaskBtn');
-const stopTaskBtn = document.getElementById('stopTaskBtn');
-const tagCloud = document.getElementById('tagCloud');
-const closeTimerModalBtn = document.getElementById('closeTimerModalBtn');
-
-// Save tasks
 function saveTasks() {
   localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
-// Render Tag Cloud
-function updateTagCloud() {
-  const tags = [...new Set(tasks.flatMap(task => task.tag.split(',').map(t => t.trim())))];
-  tagCloud.innerHTML = '';
-  tags.forEach(tag => {
-    const btn = document.createElement('button');
-    btn.textContent = tag;
-    btn.className = 'tag-pill';
-    btn.onclick = () => {
-      if (selectedTags.includes(tag)) {
-        selectedTags = selectedTags.filter(t => t !== tag);
-        btn.classList.remove('selected');
-      } else {
-        selectedTags.push(tag);
-        btn.classList.add('selected');
-      }
-    };
-    tagCloud.appendChild(btn);
-  });
-}
-
-// Render tasks grouped by project
 function renderTasks() {
   taskList.innerHTML = '';
   const projects = {};
@@ -333,232 +252,128 @@ function renderTasks() {
     if (!projects[task.project]) projects[task.project] = [];
     projects[task.project].push(task);
   });
-
   Object.keys(projects).forEach(project => {
     const header = document.createElement('div');
     header.className = 'project-header';
-    header.innerHTML = `${project} <span>▾</span>`;
+    header.innerHTML = `${project}`;
     const ul = document.createElement('ul');
     ul.className = 'task-list';
-    ul.style.display = 'block'; // Expanded by default
 
-    header.onclick = () => {
-      ul.style.display = ul.style.display === 'none' ? 'block' : 'none';
-      header.querySelector('span').textContent = ul.style.display === 'none' ? '▸' : '▾';
-    };
-
-    projects[project].forEach(t => {
+    projects[project].forEach(task => {
       const li = document.createElement('li');
       li.className = 'task-card';
       li.innerHTML = `
-        <div><strong>${t.task}</strong><br>${t.time} min • ${t.priority}</div>
-        <div class="pill">${t.tag}</div>
-        <div class="pill">${t.context.join(', ')}</div>
+        <div><strong>${task.task}</strong><br>${task.time} min • ${task.priority}</div>
+        <div class="pill">${task.tag}</div>
+        <div class="pill">${task.context.join(', ')}</div>
       `;
-      const btnGroup = document.createElement('div');
-      btnGroup.className = 'btn-group';
-
-      const editBtn = document.createElement('button');
-      editBtn.textContent = 'Edit';
-      editBtn.className = 'edit-btn';
-      editBtn.onclick = () => editTask(tasks.indexOf(t));
-
-      const deleteBtn = document.createElement('button');
-      deleteBtn.textContent = 'Delete';
-      deleteBtn.className = 'delete-btn';
-      deleteBtn.onclick = () => deleteTask(tasks.indexOf(t));
-
-      btnGroup.appendChild(editBtn);
-      btnGroup.appendChild(deleteBtn);
-      li.appendChild(btnGroup);
       ul.appendChild(li);
     });
-
     taskList.appendChild(header);
     taskList.appendChild(ul);
   });
-
-  updateTagCloud();
 }
 
-// Edit task
-function editTask(index) {
-  editingIndex = index;
-  const t = tasks[index];
-  document.getElementById('project').value = t.project;
-  document.getElementById('task').value = t.task;
-  document.getElementById('time').value = t.time;
-  document.getElementById('tag').value = t.tag;
-  document.getElementById('priority').value = t.priority;
-  document.getElementById('context').value = t.context.join(', ');
-  taskModal.style.display = 'flex';
+function renderFilters() {
+  timeButtons.innerHTML = '';
+  times.forEach(time => {
+    const btn = document.createElement('button');
+    btn.className = 'time-btn';
+    btn.textContent = `${time} min`;
+    btn.onclick = () => {
+      selectedTime = time;
+      document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    };
+    timeButtons.appendChild(btn);
+  });
+
+  tagCloud.innerHTML = '';
+  const tags = [...new Set(tasks.flatMap(task => task.tag.split(',').map(t => t.trim())))];
+  tags.forEach(tag => {
+    const btn = document.createElement('button');
+    btn.className = 'tag-pill';
+    btn.textContent = tag;
+    btn.onclick = () => {
+      if (selectedTags.includes(tag)) selectedTags = selectedTags.filter(t => t !== tag);
+      else selectedTags.push(tag);
+      document.querySelectorAll('.tag-pill').forEach(b => b.classList.remove('selected'));
+      selectedTags.forEach(selTag => {
+        document.querySelectorAll('.tag-pill').forEach(b => {
+          if (b.textContent === selTag) b.classList.add('selected');
+        });
+      });
+    };
+    tagCloud.appendChild(btn);
+  });
+
+  contextButtons.innerHTML = '';
+  contexts.forEach(ctx => {
+    const btn = document.createElement('button');
+    btn.className = 'context-btn';
+    btn.textContent = ctx;
+    btn.onclick = () => {
+      selectedContext = ctx;
+      document.querySelectorAll('.context-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    };
+    contextButtons.appendChild(btn);
+  });
 }
 
-// Delete task
-function deleteTask(index) {
-  tasks.splice(index, 1);
-  saveTasks();
-  renderTasks();
-}
-
-// Handle Add/Edit Form Submit
-taskForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const newTask = {
-    project: document.getElementById('project').value.trim(),
-    task: document.getElementById('task').value.trim(),
-    time: parseInt(document.getElementById('time').value),
-    tag: document.getElementById('tag').value.trim(),
-    priority: document.getElementById('priority').value,
-    context: document.getElementById('context').value.split(',').map(c => c.trim()).filter(c => c.length > 0)
-  };
-
-  if (editingIndex !== null) {
-    tasks[editingIndex] = newTask;
-    editingIndex = null;
+function suggestTasks() {
+  let filtered = tasks.filter(task => Math.abs(task.time - selectedTime) <= 15);
+  if (selectedTags.length > 0) {
+    filtered = filtered.filter(task => selectedTags.some(tag => task.tag.toLowerCase().includes(tag.toLowerCase())));
+  }
+  if (selectedContext) {
+    filtered = filtered.filter(task => task.context.includes(selectedContext));
+  }
+  filtered = filtered.slice(0, 3);
+  const suggestedTasks = document.getElementById('suggestedTasks');
+  suggestedTasks.innerHTML = '';
+  if (filtered.length === 0) {
+    suggestedTasks.innerHTML = '<p>No matching tasks. Adjust your filters!</p>';
   } else {
-    tasks.push(newTask);
-  }
-  saveTasks();
-  renderTasks();
-  taskForm.reset();
-  taskModal.style.display = 'none';
-});
-
-// Time Selection
-document.querySelectorAll('.time-btn').forEach(btn => {
-  btn.onclick = () => {
-    document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    selectedTime = parseInt(btn.getAttribute('data-time'));
-  };
-});
-
-// Context Selection
-document.querySelectorAll('.context-btn').forEach(btn => {
-  btn.onclick = () => {
-    document.querySelectorAll('.context-btn').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    selectedContext = btn.getAttribute('data-context');
-  };
-});
-
-// Suggest Task (Soft Match Tags, Strict Match Context, Closest Time)
-suggestTaskBtn.addEventListener('click', () => {
-  if (!selectedTime) return;
-
-  suggestTaskBtn.disabled = true;
-  suggestTaskBtn.textContent = 'Suggesting...';
-
-  setTimeout(() => {
-    let filteredTasks = tasks.map(task => ({
-      ...task,
-      timeDiff: Math.abs(task.time - selectedTime)
-    }));
-
-    // Strict Context Filter
-    if (selectedContext) {
-      filteredTasks = filteredTasks.filter(task => task.context.includes(selectedContext));
-    }
-
-    // Soft Tags Filter: at least one matching tag
-    if (selectedTags.length > 0) {
-      filteredTasks = filteredTasks.filter(task => {
-        const taskTags = task.tag.split(',').map(tag => tag.trim());
-        return selectedTags.some(tag => taskTags.includes(tag));
-      });
-    }
-
-    // Sort by Priority first, then timeDiff
-    filteredTasks.sort((a, b) => {
-      const priorityOrder = { High: 1, Medium: 2, Low: 3 };
-      if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
-        return priorityOrder[a.priority] - priorityOrder[b.priority];
-      }
-      return a.timeDiff - b.timeDiff;
+    filtered.forEach(task => {
+      const div = document.createElement('div');
+      div.className = 'suggested-task';
+      div.innerHTML = `<strong>${task.task}</strong><br>${task.project} • ${task.time} min • ${task.priority}`;
+      suggestedTasks.appendChild(div);
     });
-
-    suggestedTasks.innerHTML = '';
-
-    if (filteredTasks.length === 0) {
-      suggestedTasks.innerHTML = '<div style="margin-top:20px;color:#6b7280;">No tasks found. Try adjusting your filters.</div>';
-    } else {
-      filteredTasks.slice(0, 3).forEach(task => {
-        const div = document.createElement('div');
-        div.className = 'suggested-task';
-        div.innerHTML = `
-          <strong>${task.task}</strong><br>
-          ${task.project} • ${task.time} min • ${task.priority}<br>
-          <span class="pill">${task.tag}</span> <span class="pill">${task.context.join(', ')}</span>
-        `;
-        div.onclick = () => startTask(task.task, task.time);
-        suggestedTasks.appendChild(div);
-      });
-    }
-
-    suggestTaskBtn.disabled = false;
-    suggestTaskBtn.textContent = 'Suggest a Task';
-  }, 500);
-});
-
-// Timer Functions
-function startTask(taskName, minutes) {
-  clearInterval(countdown);
-  isPaused = false;
-  countdownDuration = minutes * 60;
-  countdownRemaining = countdownDuration;
-  activeTaskName.textContent = taskName;
-  updateCountdown();
-  timerModal.style.display = 'flex';
-  countdown = setInterval(updateCountdown, 1000);
-}
-
-function updateCountdown() {
-  if (!isPaused) {
-    const min = Math.floor(countdownRemaining / 60);
-    const sec = countdownRemaining % 60;
-    countdownTimer.textContent = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
-    if (countdownRemaining <= 0) {
-      clearInterval(countdown);
-      alert('Time’s up!');
-      timerModal.style.display = 'none';
-    } else {
-      countdownRemaining--;
-    }
   }
 }
 
-pauseTaskBtn.onclick = () => {
-  isPaused = !isPaused;
-  pauseTaskBtn.textContent = isPaused ? 'Resume' : 'Pause';
+document.getElementById('suggestTask').onclick = suggestTasks;
+
+document.getElementById('openModalBtn').onclick = () => {
+  document.getElementById('taskModal').style.display = 'flex';
 };
 
-stopTaskBtn.onclick = () => {
-  clearInterval(countdown);
-  timerModal.style.display = 'none';
+document.getElementById('closeModalBtn').onclick = () => {
+  document.getElementById('taskModal').style.display = 'none';
 };
 
-// Modal open/close
-openModalBtn.onclick = () => taskModal.style.display = 'flex';
-closeModalBtn.onclick = () => {
-  taskModal.style.display = 'none';
-  taskForm.reset();
-};
-closeTimerModalBtn.onclick = () => {
-  timerModal.style.display = 'none';
-  clearInterval(countdown);
-};
+document.getElementById('saveTaskBtn').onclick = () => {
+  const project = document.getElementById('project').value.trim();
+  const task = document.getElementById('task').value.trim();
+  const time = parseInt(document.getElementById('time').value);
+  const tags = document.getElementById('tags').value.trim();
+  const priority = document.getElementById('priority').value;
+  const contexts = document.getElementById('contexts').value.split(',').map(c => c.trim());
 
-window.onclick = (e) => {
-  if (e.target === taskModal) taskModal.style.display = 'none';
-  if (e.target === timerModal) {
-    timerModal.style.display = 'none';
-    clearInterval(countdown);
+  if (project && task && time && tags && priority && contexts.length > 0) {
+    tasks.push({ project, task, time, tag: tags, priority, context: contexts });
+    saveTasks();
+    renderTasks();
+    renderFilters();
+    document.getElementById('taskModal').style.display = 'none';
+    document.getElementById('taskForm')?.reset();
   }
 };
 
-// Initial Render
 renderTasks();
+renderFilters();
 </script>
 </body>
 </html>
