@@ -392,7 +392,8 @@ function editTask(index) {
   document.getElementById('time').value = t.time;
   document.getElementById('tag').value = t.tag;
   document.getElementById('priority').value = t.priority;
-  document.getElementById('context').value = Array.isArray(t.context) ? t.context.join(', ') : t.context;  taskModal.style.display = 'flex';
+  document.getElementById('context').value = Array.isArray(t.context) ? t.context.join(', ') : t.context;
+  taskModal.style.display = 'flex';
 }
 
 function deleteTask(index) {
