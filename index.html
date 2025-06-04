@@ -22,10 +22,24 @@
       display: flex;
       flex-direction: column;
       overflow-y: auto;
+      scrollbar-width: thin; /* Firefox */
+      scrollbar-color: #d1d5db #f9fafb; /* Firefox */
+    }
+    .sidebar::-webkit-scrollbar { /* Webkit (Chrome, Safari) */
+        width: 8px;
+    }
+    .sidebar::-webkit-scrollbar-track {
+        background: #f9fafb;
+    }
+    .sidebar::-webkit-scrollbar-thumb {
+        background-color: #d1d5db;
+        border-radius: 10px;
+        border: 2px solid #f9fafb;
     }
     .sidebar img {
       width: 120px;
       margin-bottom: 20px;
+      border-radius: 8px; 
     }
     .add-task-btn {
       background: #3b82f6;
@@ -45,6 +59,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding-right: 5px; /* Space for arrow */
     }
     .task-list {
       list-style: none;
@@ -58,13 +73,28 @@
       border-radius: 8px;
       font-size: 12px;
     }
-    .pill {
+    .pill, .modal-pill { /* Added .modal-pill for specific modal styling if needed */
       background: #e5e7eb;
-      padding: 2px 8px;
-      border-radius: 999px;
-      margin-right: 4px;
+      padding: 4px 10px; /* Slightly larger padding */
+      border-radius: 20px; /* Fully rounded */
+      margin-right: 6px;
+      margin-bottom: 6px; /* Added for wrapping */
       display: inline-block;
-      font-size: 10px;
+      font-size: 11px; /* Slightly smaller font for pills */
+      cursor: default; /* Default cursor for display pills */
+      border: 1px solid transparent;
+    }
+    .modal-pill.selectable { /* For selectable pills in modal */
+        cursor: pointer;
+        transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .modal-pill.selectable:hover {
+        background-color: #d1d5db; /* Lighter hover */
+    }
+    .modal-pill.selected {
+        background: #3b82f6;
+        color: white;
+        border-color: #2563eb;
     }
     .btn-group {
       margin-top: 8px;
@@ -92,58 +122,28 @@
       padding: 30px;
       overflow-y: auto;
     }
-    .time-buttons {
+    .time-buttons, .context-buttons, .tag-cloud { /* Shared styling for pill containers */
       display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
       flex-wrap: wrap;
+      gap: 8px; /* Gap between pills */
+      margin-bottom: 15px;
     }
-    .time-btn {
+    .time-btn, .context-btn, .tag-pill { /* Shared styling for clickable pills */
       background: #e0e7ff;
-      border: none;
+      border: 1px solid transparent;
       padding: 8px 16px;
       border-radius: 20px;
       cursor: pointer;
       font-size: 14px;
-      transition: background 0.3s, color 0.3s;
+      transition: background 0.3s, color 0.3s, border-color 0.3s;
     }
-    
-    .time-btn.selected {
+    .time-btn:hover, .context-btn:hover, .tag-pill:hover {
+        background-color: #c7d2fe;
+    }
+    .time-btn.selected, .context-btn.selected, .tag-pill.selected {
       background: #3b82f6;
       color: white;
-    }
-    .tag-cloud, .context-buttons {
-      margin-top: 20px;
-      margin-bottom: 20px;
-    }
-    .tag-pill {
-      background: #e5e7eb;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 20px;
-      margin: 5px;
-      cursor: pointer;
-      font-size: 12px;
-    }
-    .tag-pill.selected {
-      background: #3b82f6;
-      color: white;
-    }
-    .tag-pill, .context-btn, .time-btn {
-      transition: background 0.3s, color 0.3s;
-    }
-    .context-btn {
-      background: #e5e7eb;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 10px;
-      margin: 5px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    .context-btn.selected {
-      background: #3b82f6;
-      color: white;
+      border-color: #2563eb;
     }
     #suggestTask {
       background: #3b82f6;
@@ -162,7 +162,7 @@
       border-radius: 8px;
       cursor: pointer;
     }
-    .modal, .timer-modal-shell { /* Renamed .timer-modal to .timer-modal-shell for clarity */
+    .modal, .timer-modal-shell {
       display: none;
       position: fixed;
       z-index: 9999;
@@ -174,20 +174,31 @@
       align-items: center;
       justify-content: center;
     }
-    .modal-content, .timer-modal-content { /* Renamed .timer-modal to .timer-modal-content */
+    .modal-content, .timer-modal-content {
       background: white;
-      padding: 30px;
+      padding: 20px; /* Reduced padding */
       border-radius: 10px;
-      width: 300px;
+      width: 90%;
+      max-width: 450px; /* Slightly wider modal */
       position: relative;
-      text-align: center;
+      text-align: left; /* Align content to left */
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .modal-content h2 {
+        text-align: center;
+        margin-bottom: 20px;
     }
     .close {
       position: absolute;
       right: 15px;
       top: 10px;
-      font-size: 20px;
+      font-size: 24px;
+      font-weight: bold;
       cursor: pointer;
+      color: #6b7280;
+    }
+    .close:hover {
+      color: #1f2937;
     }
     .app-logo {
       width: 110px;
@@ -195,12 +206,115 @@
       margin: 0 auto 20px auto;
       display: block;
     }
+    /* Form input styling */
+    .modal-content label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    .modal-content input[type="text"],
+    .modal-content input[type="number"], /* Kept for fallback, but will be hidden */
+    .modal-content select {
+      width: calc(100% - 22px); 
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .modal-content select {
+        width: 100%; 
+    }
+    .modal-content button[type="submit"] {
+        width: 100%;
+        padding: 12px;
+        margin-top: 10px; /* Added margin top */
+    }
+    /* Pill container styling in modal */
+    .modal-pill-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 15px;
+        padding: 8px;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        min-height: 40px; /* Ensure it has some height even when empty */
+    }
+    /* Custom tag input area */
+    .custom-tag-area {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    .custom-tag-area input[type="text"] {
+        flex-grow: 1;
+        margin-bottom: 0; /* Remove margin from input inside this area */
+    }
+    .custom-tag-area button {
+        padding: 10px 15px;
+        font-size: 14px;
+        background-color: #4ade80; /* Green for add */
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+    .custom-tag-area button:hover {
+        background-color: #22c55e;
+    }
+
+    /* Custom alert/confirm modal */
+    .custom-dialog-modal {
+        display: none; 
+        position: fixed;
+        z-index: 10000; 
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        align-items: center;
+        justify-content: center;
+    }
+    .custom-dialog-content {
+        background: white;
+        padding: 25px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        width: 90%;
+        max-width: 320px;
+    }
+    .custom-dialog-content p {
+        margin-bottom: 20px;
+        font-size: 16px;
+        color: #374151;
+    }
+    .custom-dialog-buttons button {
+        padding: 10px 20px;
+        margin: 0 10px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+    }
+    .custom-dialog-confirm-btn {
+        background-color: #3b82f6;
+        color: white;
+    }
+    .custom-dialog-cancel-btn {
+        background-color: #e5e7eb;
+        color: #374151;
+    }
   </style>
 </head>
 <body>
 
 <div class="sidebar">
-  <img src="selectdologo.png" alt="Select + Do Logo" class="app-logo">
+  <img src="https://placehold.co/120x50/3b82f6/ffffff?text=Select+Do" alt="Select + Do Logo" class="app-logo" onerror="this.src='https://placehold.co/120x50/cccccc/000000?text=Logo+Error'; this.onerror=null;">
   <button class="add-task-btn" id="openModalBtn">+ Add Task</button>
   <div id="taskList"></div>
 </div>
@@ -219,8 +333,10 @@
       <button class="time-btn" data-time="60">60 min</button>
     </div>
 
-    <h3>Select a category</h3>
-    <div class="tag-cloud" id="tagCloud"></div>
+    <h3>Select a category (Tags)</h3>
+    <div class="tag-cloud" id="tagCloud">
+        <!-- Tags will be populated by JS -->
+    </div>
 
     <h3>Choose a context</h3>
     <div class="context-buttons">
@@ -230,7 +346,6 @@
     </div>
 
     <button id="suggestTask">Suggest a Task</button>
-
     <div id="suggestedTasks"></div>
   </div>
 </div>
@@ -240,23 +355,55 @@
     <span class="close" id="closeModalBtn">&times;</span>
     <h2>Add Task</h2>
     <form id="taskForm">
-      <input type="text" id="project" name="project" placeholder="Project Name" required style="margin-bottom: 10px; width: calc(100% - 20px); padding: 8px;"><br>
-      <input type="text" id="task" name="task" placeholder="Task Name" required style="margin-bottom: 10px; width: calc(100% - 20px); padding: 8px;"><br>
-      <input type="number" id="time" name="time" placeholder="Time (minutes)" required style="margin-bottom: 10px; width: calc(100% - 20px); padding: 8px;"><br>
-      <input type="text" id="tag" name="tag" placeholder="Tag (e.g. Work, Fitness)" required style="margin-bottom: 10px; width: calc(100% - 20px); padding: 8px;"><br>
-      <select id="priority" name="priority" required style="margin-bottom: 10px; width: 100%; padding: 8px;">
-        <option value="" disabled selected>Priority</option>
+      <label for="project">Project Name</label>
+      <input type="text" id="project" name="project" placeholder="Project Name" required><br>
+      
+      <label for="task">Task Name</label>
+      <input type="text" id="task" name="task" placeholder="Task Name" required><br>
+      
+      <label>Time (minutes)</label>
+      <div id="modalTimePillsContainer" class="modal-pill-container time-buttons">
+          <!-- Time pills will be populated by JS -->
+      </div>
+      <!-- Hidden original time input for data submission, will be populated by pill selection -->
+      <input type="number" id="time" name="time" required style="display:none;">
+
+      <label>Tags</label>
+      <div id="modalTagPillsContainer" class="modal-pill-container">
+          <!-- Existing tag pills will be populated by JS -->
+      </div>
+      <div class="custom-tag-area">
+          <input type="text" id="modalCustomTagInput" placeholder="Add new tag">
+          <button type="button" id="modalAddCustomTagBtn">Add Tag</button>
+      </div>
+      <!-- Hidden original tag input for data submission -->
+      <input type="text" id="tagsHiddenInput" name="tagsHiddenInput" style="display:none;">
+
+
+      <label for="priority">Priority</label>
+      <select id="priority" name="priority" required>
+        <option value="" disabled selected>Select Priority</option>
         <option value="High">High</option>
         <option value="Medium">Medium</option>
         <option value="Low">Low</option>
       </select><br>
-      <input type="text" id="context" name="context" placeholder="Contexts (e.g. Workday, Evening)" required style="margin-bottom: 20px; width: calc(100% - 20px); padding: 8px;"><br>
-      <button type="submit" class="add-task-btn" style="width: 100%;">Save Task</button>
+      
+      <label>Contexts</label>
+      <div id="modalContextPillsContainer" class="modal-pill-container context-buttons">
+          <!-- Context pills will be populated by JS -->
+      </div>
+      <!-- Hidden original context input for data submission -->
+      <input type="text" id="contextsHiddenInput" name="contextsHiddenInput" style="display:none;">
+
+      <button type="submit" class="add-task-btn">Save Task</button>
     </form>
   </div>
 </div>
 
-<div class="modal timer-modal-shell" id="timerModal"> <div class="timer-modal-content"> <h1 id="activeTaskName"></h1>
+<div class="timer-modal-shell" id="timerModal">
+  <div class="timer-modal-content">
+    <span class="close" id="closeTimerModalBtn">&times;</span>
+    <h1 id="activeTaskName"></h1>
     <div id="countdownTimer" style="font-size:48px;margin:20px 0;"></div>
     <div class="timer-controls">
       <button class="pause-btn" id="pauseTaskBtn">Pause</button>
@@ -265,85 +412,59 @@
   </div>
 </div>
 
+<div class="custom-dialog-modal" id="customDialogModal">
+    <div class="custom-dialog-content">
+        <p id="customDialogMessage"></p>
+        <div class="custom-dialog-buttons">
+            <button id="customDialogConfirmBtn" class="custom-dialog-confirm-btn">OK</button>
+            <button id="customDialogCancelBtn" class="custom-dialog-cancel-btn">Cancel</button>
+        </div>
+    </div>
+</div>
+
 <script>
-// Robust localStorage Parsing and Task Migration
+// --- Robust localStorage Parsing and Task Migration ---
 let tasks = [];
 try {
     const storedTasks = localStorage.getItem('tasks');
     if (storedTasks) {
         const parsedData = JSON.parse(storedTasks);
-        if (Array.isArray(parsedData)) {
-            tasks = parsedData;
-        } else {
-            console.warn("Stored tasks data is not an array. Initializing with an empty array.");
-            tasks = [];
-            // localStorage.removeItem('tasks'); // Optionally clear if format is severely corrupted
-        }
+        if (Array.isArray(parsedData)) tasks = parsedData;
+        else { console.warn("Stored tasks data not an array."); tasks = []; }
     }
-} catch (error) {
-    console.error("Error parsing tasks from localStorage:", error);
-    tasks = []; // Default to empty array on error
-    // localStorage.removeItem('tasks'); // Optionally clear corrupted item
-}
+} catch (error) { console.error("Error parsing tasks from localStorage:", error); tasks = []; }
 
-// Migrate individual task structures to ensure data integrity
 tasks = tasks.map(task => {
-    if (task === null || typeof task !== 'object') {
-        return null; // This task entry is malformed, will be filtered out
-    }
-
-    const migratedTask = { ...task }; // Create a shallow copy
-
-    // Ensure 'context' is an array
-    if (migratedTask.context === undefined || migratedTask.context === null) {
-        migratedTask.context = [];
-    } else if (!Array.isArray(migratedTask.context)) {
-        migratedTask.context = String(migratedTask.context)
-                                .split(',')
-                                .map(c => c.trim())
-                                .filter(c => c); // filter out empty strings
-    }
-
-    // Ensure 'tag' is a string
-    if (typeof migratedTask.tag !== 'string') {
-        migratedTask.tag = String(migratedTask.tag || '').trim();
-    }
-    
-    // Ensure 'project' is a string
-    if (typeof migratedTask.project !== 'string') {
-        migratedTask.project = String(migratedTask.project || 'Unassigned').trim();
-    }
-
-    // Ensure 'task' (name) is a string
-    if (typeof migratedTask.task !== 'string') {
-        migratedTask.task = String(migratedTask.task || 'Untitled Task').trim();
-    }
-    
-    // Ensure 'time' is a number
-    if (typeof migratedTask.time !== 'number' || isNaN(migratedTask.time)) {
-        const parsedTime = parseInt(migratedTask.time, 10);
-        migratedTask.time = isNaN(parsedTime) || parsedTime < 0 ? 0 : parsedTime;
-    }
-
-    // Ensure 'priority' is one of the expected values or a default
+    if (task === null || typeof task !== 'object') { console.warn("Skipping malformed task:", task); return null; }
+    const migratedTask = { ...task };
+    migratedTask.project = String(migratedTask.project || 'Unassigned').trim();
+    migratedTask.task = String(migratedTask.task || 'Untitled Task').trim();
+    const parsedTime = parseInt(migratedTask.time, 10);
+    migratedTask.time = isNaN(parsedTime) || parsedTime < 0 ? 0 : parsedTime;
+    migratedTask.tag = String(migratedTask.tag || '').trim(); // Tags stored as comma-separated string
     const validPriorities = ["High", "Medium", "Low"];
-    if (!validPriorities.includes(migratedTask.priority)) {
-        migratedTask.priority = "Medium"; // Default priority
+    if (!validPriorities.includes(migratedTask.priority)) migratedTask.priority = "Medium";
+    if (migratedTask.context === undefined || migratedTask.context === null) migratedTask.context = [];
+    else if (!Array.isArray(migratedTask.context)) {
+        migratedTask.context = String(migratedTask.context).split(',').map(c => c.trim()).filter(c => c);
+    } else {
+        migratedTask.context = migratedTask.context.map(c => String(c).trim()).filter(c => c);
     }
-
     return migratedTask;
-}).filter(task => task !== null); // Remove any tasks that were malformed
-
+}).filter(task => task !== null);
+// --- End of Data Migration ---
 
 let editingIndex = null;
-let selectedTags = [];
-let selectedContext = '';
-let selectedTime = null;
-let countdown;
-let countdownDuration;
-let countdownRemaining;
-let isPaused = false;
+let selectedTags = []; // For main page tag cloud filtering
+let selectedContext = ''; // For main page context filtering
+let selectedTime = null; // For main page time filtering
 
+// Modal specific state
+let modalSelectedTimeValue = null;
+let modalSelectedTagSet = new Set(); // Using a Set for unique tags in modal
+let modalSelectedContextSet = new Set(); // Using a Set for unique contexts in modal
+
+// DOM Elements
 const taskForm = document.getElementById('taskForm');
 const taskList = document.getElementById('taskList');
 const suggestTaskBtn = document.getElementById('suggestTask');
@@ -356,45 +477,189 @@ const activeTaskName = document.getElementById('activeTaskName');
 const countdownTimer = document.getElementById('countdownTimer');
 const pauseTaskBtn = document.getElementById('pauseTaskBtn');
 const stopTaskBtn = document.getElementById('stopTaskBtn');
-const tagCloud = document.getElementById('tagCloud');
+const tagCloud = document.getElementById('tagCloud'); // Main page tag cloud
+const closeTimerModalBtn = document.getElementById('closeTimerModalBtn');
 
-// Open/close modals
+// Modal Form Elements
+const modalTimePillsContainer = document.getElementById('modalTimePillsContainer');
+const hiddenTimeInput = document.getElementById('time'); // The hidden input for actual form submission
+const modalTagPillsContainer = document.getElementById('modalTagPillsContainer');
+const modalCustomTagInput = document.getElementById('modalCustomTagInput');
+const modalAddCustomTagBtn = document.getElementById('modalAddCustomTagBtn');
+const hiddenTagsInput = document.getElementById('tagsHiddenInput');
+const modalContextPillsContainer = document.getElementById('modalContextPillsContainer');
+const hiddenContextsInput = document.getElementById('contextsHiddenInput');
+
+
+// Custom Dialog Elements
+const customDialogModal = document.getElementById('customDialogModal');
+const customDialogMessage = document.getElementById('customDialogMessage');
+const customDialogConfirmBtn = document.getElementById('customDialogConfirmBtn');
+const customDialogCancelBtn = document.getElementById('customDialogCancelBtn');
+let customDialogResolve = null;
+
+function showCustomDialog(message, showCancel = false) {
+    customDialogMessage.textContent = message;
+    customDialogModal.style.display = 'flex';
+    customDialogConfirmBtn.style.display = 'inline-block';
+    customDialogCancelBtn.style.display = showCancel ? 'inline-block' : 'none';
+    return new Promise(resolve => { customDialogResolve = resolve; });
+}
+customDialogConfirmBtn.onclick = () => { customDialogModal.style.display = 'none'; if (customDialogResolve) customDialogResolve(true); };
+customDialogCancelBtn.onclick = () => { customDialogModal.style.display = 'none'; if (customDialogResolve) customDialogResolve(false); };
+
+// --- Modal Pill Population and Handling ---
+const PREDEFINED_TIMES = [5, 10, 15, 20, 25, 30, 45, 60];
+const PREDEFINED_CONTEXTS = ["Workday", "Evening", "Weekend"];
+
+function populateModalTimePills() {
+    modalTimePillsContainer.innerHTML = '';
+    PREDEFINED_TIMES.forEach(time => {
+        const pill = document.createElement('button');
+        pill.type = 'button'; // Prevent form submission
+        pill.className = 'modal-pill selectable time-btn'; // Use time-btn for consistent styling
+        pill.textContent = `${time} min`;
+        pill.dataset.time = time;
+        if (modalSelectedTimeValue === time) {
+            pill.classList.add('selected');
+        }
+        pill.onclick = () => {
+            modalSelectedTimeValue = time;
+            hiddenTimeInput.value = time; // Update hidden input
+            populateModalTimePills(); // Re-render to update selection
+        };
+        modalTimePillsContainer.appendChild(pill);
+    });
+}
+
+function populateModalTagPills() {
+    modalTagPillsContainer.innerHTML = '';
+    // Get all unique tags from existing tasks, plus those currently selected for this task
+    const allKnownTags = new Set([...tasks.flatMap(t => t.tag.split(',').map(tag => tag.trim()).filter(tag => tag)), ...modalSelectedTagSet]);
+
+    Array.from(allKnownTags).sort().forEach(tag => {
+        if (!tag) return; // Skip empty tags
+        const pill = document.createElement('button');
+        pill.type = 'button';
+        pill.className = 'modal-pill selectable tag-pill'; // Use tag-pill for styling
+        pill.textContent = tag;
+        if (modalSelectedTagSet.has(tag)) {
+            pill.classList.add('selected');
+        }
+        pill.onclick = () => {
+            if (modalSelectedTagSet.has(tag)) {
+                modalSelectedTagSet.delete(tag);
+            } else {
+                modalSelectedTagSet.add(tag);
+            }
+            hiddenTagsInput.value = Array.from(modalSelectedTagSet).join(',');
+            populateModalTagPills(); // Re-render
+        };
+        modalTagPillsContainer.appendChild(pill);
+    });
+}
+
+modalAddCustomTagBtn.onclick = () => {
+    const newTag = modalCustomTagInput.value.trim();
+    if (newTag) {
+        modalSelectedTagSet.add(newTag);
+        hiddenTagsInput.value = Array.from(modalSelectedTagSet).join(',');
+        modalCustomTagInput.value = ''; // Clear input
+        populateModalTagPills(); // Re-render to show new tag (if not already there and selected)
+    }
+};
+
+function populateModalContextPills() {
+    modalContextPillsContainer.innerHTML = '';
+    PREDEFINED_CONTEXTS.forEach(context => {
+        const pill = document.createElement('button');
+        pill.type = 'button';
+        pill.className = 'modal-pill selectable context-btn'; // Use context-btn for styling
+        pill.textContent = context;
+        pill.dataset.context = context;
+        if (modalSelectedContextSet.has(context)) {
+            pill.classList.add('selected');
+        }
+        pill.onclick = () => {
+            if (modalSelectedContextSet.has(context)) {
+                modalSelectedContextSet.delete(context);
+            } else {
+                modalSelectedContextSet.add(context);
+            }
+            hiddenContextsInput.value = JSON.stringify(Array.from(modalSelectedContextSet)); // Store as JSON array string
+            populateModalContextPills(); // Re-render
+        };
+        modalContextPillsContainer.appendChild(pill);
+    });
+}
+
+function resetModalSelections() {
+    modalSelectedTimeValue = null;
+    modalSelectedTagSet.clear();
+    modalSelectedContextSet.clear();
+    hiddenTimeInput.value = '';
+    hiddenTagsInput.value = '';
+    hiddenContextsInput.value = '';
+    modalCustomTagInput.value = '';
+}
+
+
+// Open/close task modal
 openModalBtn.onclick = () => {
   taskModal.style.display = 'flex';
-  editingIndex = null; // Ensure reset when opening for new task
-  taskForm.reset();
-  // Set default for priority if needed, though "disabled selected" should handle placeholder
+  editingIndex = null; 
+  taskForm.reset(); // Resets native form elements
+  resetModalSelections(); // Reset our custom pill selections
   document.getElementById('priority').value = ""; 
+  
+  // Populate pills for a new task
+  populateModalTimePills();
+  populateModalTagPills();
+  populateModalContextPills();
 };
+
 closeModalBtn.onclick = () => {
   taskModal.style.display = 'none';
-  taskForm.reset();
-  editingIndex = null;
+  // taskForm.reset(); // Already done by open, but good for explicitness
+  // resetModalSelections(); // Also good here
 };
+
+if(closeTimerModalBtn) {
+    closeTimerModalBtn.onclick = () => {
+        timerModal.style.display = 'none';
+        clearInterval(countdown); 
+    };
+}
 
 window.onclick = (e) => {
   if (e.target === taskModal) {
     taskModal.style.display = 'none';
-    taskForm.reset();
-    editingIndex = null;
   }
-  if (e.target === timerModal) timerModal.style.display = 'none'; // Timer modal might need different closing logic
+  if (e.target === timerModal) {
+    timerModal.style.display = 'none';
+    clearInterval(countdown); 
+  }
 };
 
-// Save to localStorage
 function saveTasks() {
-  localStorage.setItem('tasks', JSON.stringify(tasks));
+  try {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+  } catch (error) {
+    console.error("Error saving tasks to localStorage:", error);
+    showCustomDialog("Could not save tasks. Storage might be full.");
+  }
 }
 
-// Render tags
-function updateTagCloud() {
-  const tags = [...new Set(tasks.flatMap(task => task.tag.split(',').map(t => t.trim()).filter(t => t)))];
+function updateTagCloud() { // Main page tag cloud
+  const allTaskTags = [...new Set(tasks.flatMap(task => 
+    typeof task.tag === 'string' ? task.tag.split(',').map(t => t.trim()).filter(t => t) : []
+  ))];
   tagCloud.innerHTML = '';
-  tags.forEach(tag => {
+  allTaskTags.sort().forEach(tag => {
     const btn = document.createElement('button');
     btn.textContent = tag;
-    btn.className = 'tag-pill';
-    if (selectedTags.includes(tag)) { // Re-apply 'selected' class if tag was already selected
+    btn.className = 'tag-pill'; // Main page tag pill
+    if (selectedTags.includes(tag)) { // selectedTags is for main page filtering
         btn.classList.add('selected');
     }
     btn.onclick = () => {
@@ -410,125 +675,127 @@ function updateTagCloud() {
   });
 }
 
-// Render tasks grouped by project
 function renderTasks() {
   taskList.innerHTML = '';
   const projects = {};
   tasks.forEach(task => {
-    if (!task.project) task.project = 'Unassigned'; // Fallback for safety
-    if (!projects[task.project]) projects[task.project] = [];
-    projects[task.project].push(task);
+    const projectName = (typeof task.project === 'string' && task.project.trim()) ? task.project.trim() : 'Unassigned';
+    if (!projects[projectName]) projects[projectName] = [];
+    projects[projectName].push(task);
   });
 
-  Object.keys(projects).sort().forEach(project => { // Sort project names alphabetically
+  Object.keys(projects).sort().forEach(project => {
     const header = document.createElement('div');
     header.className = 'project-header';
     header.innerHTML = `${project} <span>▾</span>`;
     const ul = document.createElement('ul');
     ul.className = 'task-list';
-    ul.style.display = 'block'; // expanded by default
-
+    ul.style.display = 'block'; 
     header.onclick = () => {
-      ul.style.display = ul.style.display === 'none' ? 'block' : 'none';
-      header.querySelector('span').textContent = ul.style.display === 'none' ? '▸' : '▾';
+      const isHidden = ul.style.display === 'none';
+      ul.style.display = isHidden ? 'block' : 'none';
+      header.querySelector('span').textContent = isHidden ? '▾' : '▸';
     };
 
     projects[project].forEach(t => {
-      const taskIndex = tasks.indexOf(t); // Get the original index in the global 'tasks' array
+      const taskIndex = tasks.indexOf(t);
       const li = document.createElement('li');
       li.className = 'task-card';
-      // Ensure context is an array for .join, already handled by migration but good for clarity
-      const contextDisplay = Array.isArray(t.context) ? t.context.join(', ') : (t.context || '');
+      const contextDisplay = Array.isArray(t.context) ? t.context.join(', ') : '';
+      const tagDisplay = typeof t.tag === 'string' ? t.tag : '';
       li.innerHTML = `
         <div><strong>${t.task}</strong><br>${t.time} min • ${t.priority}</div>
-        <div class="pill">${t.tag}</div>
+        <div class="pill">${tagDisplay}</div>
         <div class="pill">${contextDisplay}</div>
       `;
       const btnGroup = document.createElement('div');
       btnGroup.className = 'btn-group';
-
       const editBtn = document.createElement('button');
-      editBtn.textContent = 'Edit';
-      editBtn.className = 'edit-btn';
+      editBtn.textContent = 'Edit'; editBtn.className = 'edit-btn';
       editBtn.onclick = (e) => { e.stopPropagation(); editTask(taskIndex); };
-
-
       const deleteBtn = document.createElement('button');
-      deleteBtn.textContent = 'Delete';
-      deleteBtn.className = 'delete-btn';
-      deleteBtn.onclick = (e) => { e.stopPropagation(); deleteTask(taskIndex);};
-
-      btnGroup.appendChild(editBtn);
-      btnGroup.appendChild(deleteBtn);
+      deleteBtn.textContent = 'Delete'; deleteBtn.className = 'delete-btn';
+      deleteBtn.onclick = async (e) => { 
+          e.stopPropagation(); 
+          const confirmed = await showCustomDialog(`Delete task "${t.task}"?`, true);
+          if (confirmed) deleteTask(taskIndex);
+      };
+      btnGroup.appendChild(editBtn); btnGroup.appendChild(deleteBtn);
       li.appendChild(btnGroup);
       ul.appendChild(li);
     });
-
-    taskList.appendChild(header);
-    taskList.appendChild(ul);
+    taskList.appendChild(header); taskList.appendChild(ul);
   });
-
   updateTagCloud();
 }
 
 function editTask(index) {
   if (index < 0 || index >= tasks.length) {
-    console.error("Invalid index for editing task:", index);
-    return;
+    showCustomDialog("Error: Task not found for editing."); return;
   }
   editingIndex = index;
   const t = tasks[index];
+  taskForm.reset(); // Reset native form elements first
+  resetModalSelections(); // Clear any previous modal selections
+
   document.getElementById('project').value = t.project;
   document.getElementById('task').value = t.task;
-  document.getElementById('time').value = t.time;
-  document.getElementById('tag').value = t.tag;
   document.getElementById('priority').value = t.priority;
-  // Context is stored as an array, join to string for input field
-  document.getElementById('context').value = Array.isArray(t.context) ? t.context.join(', ') : t.context;
+
+  // Set up modal selections for the task being edited
+  modalSelectedTimeValue = t.time;
+  hiddenTimeInput.value = t.time;
+
+  if (typeof t.tag === 'string' && t.tag) {
+    t.tag.split(',').map(tag => tag.trim()).filter(tag => tag).forEach(tag => modalSelectedTagSet.add(tag));
+  }
+  hiddenTagsInput.value = Array.from(modalSelectedTagSet).join(',');
+  
+  if (Array.isArray(t.context)) {
+    t.context.forEach(ctx => modalSelectedContextSet.add(ctx));
+  }
+  hiddenContextsInput.value = JSON.stringify(Array.from(modalSelectedContextSet));
+
+  populateModalTimePills();
+  populateModalTagPills();
+  populateModalContextPills();
   taskModal.style.display = 'flex';
 }
 
 function deleteTask(index) {
   if (index < 0 || index >= tasks.length) {
-    console.error("Invalid index for deleting task:", index);
-    return;
+    showCustomDialog("Error: Task not found for deletion."); return;
   }
-  if (confirm(`Are you sure you want to delete the task "${tasks[index].task}"?`)) {
-    tasks.splice(index, 1);
-    saveTasks();
-    renderTasks();
-  }
+  tasks.splice(index, 1);
+  saveTasks();
+  renderTasks();
 }
 
-// Add / Edit Task Form Submit
 taskForm.addEventListener('submit', (e) => {
   e.preventDefault();
-  const contextInput = document.getElementById('context').value
-    .split(',')
-    .map(c => c.trim())
-    .filter(c => c.length > 0);
-
-  const timeValue = parseInt(document.getElementById('time').value, 10);
+  
   const projectValue = document.getElementById('project').value.trim();
   const taskValue = document.getElementById('task').value.trim();
-  const tagValue = document.getElementById('tag').value.trim();
   const priorityValue = document.getElementById('priority').value;
 
-  // More robust validation
-  if (!projectValue) { alert("Project Name is required."); return; }
-  if (!taskValue) { alert("Task Name is required."); return; }
-  if (isNaN(timeValue) || timeValue < 0) { alert("Please enter a valid, non-negative time in minutes."); return; }
-  if (!tagValue) { alert("Tag is required."); return; }
-  if (!priorityValue) { alert("Priority is required."); return; }
+  // Validation for new pill-based inputs
+  if (!projectValue) { showCustomDialog("Project Name is required."); return; }
+  if (!taskValue) { showCustomDialog("Task Name is required."); return; }
+  if (modalSelectedTimeValue === null || modalSelectedTimeValue <= 0) { 
+      showCustomDialog("Please select a valid time for the task."); return; 
+  }
+  if (modalSelectedTagSet.size === 0) { showCustomDialog("At least one tag is required."); return; }
+  if (!priorityValue) { showCustomDialog("Priority is required."); return; }
+  if (modalSelectedContextSet.size === 0) { showCustomDialog("At least one context is required."); return; }
 
 
   const newTask = {
     project: projectValue,
     task: taskValue,
-    time: timeValue,
-    tag: tagValue,
+    time: modalSelectedTimeValue, // From modal pill selection
+    tag: Array.from(modalSelectedTagSet).join(','), // Comma-separated string from modal tags
     priority: priorityValue,
-    context: contextInput
+    context: Array.from(modalSelectedContextSet) // Array from modal context pills
   };
 
   if (editingIndex !== null) {
@@ -536,62 +803,45 @@ taskForm.addEventListener('submit', (e) => {
   } else {
     tasks.push(newTask);
   }
-  editingIndex = null; // Reset editing index
+  
   saveTasks();
   renderTasks();
-  taskForm.reset();
-  document.getElementById('priority').value = ""; // Reset select to placeholder state
   taskModal.style.display = 'none';
+  // No need to call taskForm.reset() or resetModalSelections() here, 
+  // as openModalBtn.onclick handles it for new tasks, and editTask for edits.
 });
 
-// Time selection
-document.querySelectorAll('.time-btn').forEach(btn => {
+// Main page filter selections
+document.querySelectorAll('.time-btn:not(.modal-pill)').forEach(btn => { // Exclude modal pills
   btn.onclick = () => {
-    document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelectorAll('.time-btn:not(.modal-pill).selected').forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
     selectedTime = parseInt(btn.getAttribute('data-time'), 10);
   };
 });
-
-// Context selection
-document.querySelectorAll('.context-btn').forEach(btn => {
+document.querySelectorAll('.context-btn:not(.modal-pill)').forEach(btn => { // Exclude modal pills
   btn.onclick = () => {
-    const currentSelected = document.querySelector('.context-btn.selected');
-    if (currentSelected && currentSelected !== btn) {
-        currentSelected.classList.remove('selected');
-    }
+    const currentSelected = document.querySelector('.context-btn:not(.modal-pill).selected');
+    if (currentSelected && currentSelected !== btn) currentSelected.classList.remove('selected');
     btn.classList.toggle('selected');
     selectedContext = btn.classList.contains('selected') ? btn.getAttribute('data-context') : '';
   };
 });
 
-// Suggest Task
 suggestTaskBtn.addEventListener('click', () => {
-  if (!selectedTime) {
-    alert("Please select how much time you have.");
-    return;
-  }
-
-  suggestTaskBtn.disabled = true;
-  suggestTaskBtn.textContent = 'Suggesting...';
-
+  if (!selectedTime) { showCustomDialog("Please select how much time you have."); return; }
+  suggestTaskBtn.disabled = true; suggestTaskBtn.textContent = 'Suggesting...';
   setTimeout(() => {
-    let filteredTasks = tasks.map(task => ({
-      ...task,
-      timeDiff: Math.abs(task.time - selectedTime)
-    }));
-
+    let filteredTasks = tasks.map(task => ({ ...task, timeDiff: Math.abs(task.time - selectedTime) }));
     if (selectedContext) {
       filteredTasks = filteredTasks.filter(task => Array.isArray(task.context) && task.context.includes(selectedContext));
     }
-
     if (selectedTags.length > 0) {
       filteredTasks = filteredTasks.filter(task => {
-        const taskTags = task.tag.split(',').map(t => t.trim());
-        return selectedTags.some(selTag => taskTags.includes(selTag));
+        const taskTagsArray = typeof task.tag === 'string' ? task.tag.split(',').map(t => t.trim()) : [];
+        return selectedTags.some(selTag => taskTagsArray.includes(selTag));
       });
     }
-
     filteredTasks.sort((a, b) => {
       const priorityOrder = { High: 1, Medium: 2, Low: 3 };
       if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
@@ -599,75 +849,58 @@ suggestTaskBtn.addEventListener('click', () => {
       }
       return a.timeDiff - b.timeDiff;
     });
-
     suggestedTasks.innerHTML = '';
-
     if (filteredTasks.length === 0) {
-      suggestedTasks.innerHTML = '<div style="margin-top:20px;color:#6b7280;">No tasks found. Try adjusting your filters.</div>';
+      suggestedTasks.innerHTML = '<div style="margin-top:20px;color:#6b7280;">No tasks found. Try adjusting filters or adding tasks.</div>';
     } else {
       filteredTasks.slice(0, 3).forEach(task => {
         const div = document.createElement('div');
         div.className = 'suggested-task';
-        const contextDisplay = Array.isArray(task.context) ? task.context.join(', ') : (task.context || '');
+        const contextDisplay = Array.isArray(task.context) ? task.context.join(', ') : '';
+        const tagDisplay = typeof task.tag === 'string' ? task.tag : '';
         div.innerHTML = `
           <strong>${task.task}</strong><br>
           ${task.project} • ${task.time} min • ${task.priority}<br>
-          <span class="pill">${task.tag}</span> <span class="pill">${contextDisplay}</span>
+          <span class="pill">${tagDisplay}</span> <span class="pill">${contextDisplay}</span>
         `;
         div.onclick = () => startTask(task.task, task.time);
         suggestedTasks.appendChild(div);
       });
     }
-
-    suggestTaskBtn.disabled = false;
-    suggestTaskBtn.textContent = 'Suggest a Task';
+    suggestTaskBtn.disabled = false; suggestTaskBtn.textContent = 'Suggest a Task';
   }, 500);
 });
 
-// Timer
+// Timer Functions
 function startTask(taskName, minutes) {
-  clearInterval(countdown);
-  isPaused = false;
-  countdownDuration = minutes * 60;
-  countdownRemaining = countdownDuration;
+  clearInterval(countdown); isPaused = false;
+  countdownDuration = minutes * 60; countdownRemaining = countdownDuration;
   activeTaskName.textContent = taskName;
-  pauseTaskBtn.textContent = 'Pause'; // Reset button text
-  updateCountdown(); // Call once to display time immediately
-  timerModal.style.display = 'flex'; // Use flex to align content like other modals
-  countdown = setInterval(updateCountdown, 1000);
+  pauseTaskBtn.textContent = 'Pause';
+  updateCountdownDisplay();
+  timerModal.style.display = 'flex';
+  countdown = setInterval(tickTimer, 1000);
 }
-
-function updateCountdown() {
-  if (countdownRemaining < 0) { // Ensure timer stops if it somehow overruns
-      clearInterval(countdown);
-      alert('Time’s up!');
-      timerModal.style.display = 'none';
-      return;
-  }
-  if (!isPaused) {
-    const min = Math.floor(countdownRemaining / 60);
-    const sec = countdownRemaining % 60;
-    countdownTimer.textContent = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
-    if (countdownRemaining === 0) { // Check at 0, then decrement for next potential call
-      clearInterval(countdown);
-      // Timeout for alert to allow UI to update
-      setTimeout(() => {
-        alert('Time’s up!');
-        timerModal.style.display = 'none';
-      }, 100); 
-    }
-    countdownRemaining--;
+function tickTimer() {
+  if (isPaused) return;
+  if (countdownRemaining <= 0) {
+    clearInterval(countdown);
+    showCustomDialog(`Time’s up for "${activeTaskName.textContent}"!`);
+    timerModal.style.display = 'none';
+  } else {
+    countdownRemaining--; updateCountdownDisplay();
   }
 }
-
-pauseTaskBtn.onclick = () => {
-  isPaused = !isPaused;
-  pauseTaskBtn.textContent = isPaused ? 'Resume' : 'Pause';
-};
-
+function updateCountdownDisplay() {
+  const min = Math.floor(countdownRemaining / 60);
+  const sec = countdownRemaining % 60;
+  countdownTimer.textContent = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+}
+pauseTaskBtn.onclick = () => { isPaused = !isPaused; pauseTaskBtn.textContent = isPaused ? 'Resume' : 'Pause'; };
 stopTaskBtn.onclick = () => {
   clearInterval(countdown);
   timerModal.style.display = 'none';
+  showCustomDialog(`Timer for "${activeTaskName.textContent}" stopped.`);
 };
 
 // Initial render
