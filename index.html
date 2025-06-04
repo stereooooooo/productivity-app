@@ -405,18 +405,20 @@ function deleteTask(index) {
 // Add / Edit Task Form Submit
 taskForm.addEventListener('submit', (e) => {
   e.preventDefault();
+  const contextInput = document.getElementById('context').value
+    .split(',')
+    .map(c => c.trim())
+    .filter(c => c.length > 0);
+
   const newTask = {
     project: document.getElementById('project').value.trim(),
     task: document.getElementById('task').value.trim(),
     time: parseInt(document.getElementById('time').value),
     tag: document.getElementById('tag').value.trim(),
     priority: document.getElementById('priority').value,
-    context: document.getElementById('context').value
-      .split(',')
-      .map(c => c.trim())
-      .filter(c => c.length > 0)   // <--- end of .filter
-  };   // <--- close the object here!
-  
+    context: contextInput
+  };
+
   if (editingIndex !== null) {
     tasks[editingIndex] = newTask;
     editingIndex = null;
