@@ -240,17 +240,17 @@
     <span class="close" id="closeModalBtn">&times;</span>
     <h2>Add Task</h2>
     <form id="taskForm">
-      <input type="text" id="project" placeholder="Project Name" required><br>
-      <input type="text" id="task" placeholder="Task Name" required><br>
-      <input type="number" id="time" placeholder="Time (minutes)" required><br>
-      <input type="text" id="tag" placeholder="Tag (e.g. Work, Fitness)" required><br>
-      <select id="priority" required>
-        <option value="" disabled selected>Priority</option>
-        <option value="High">High</option>
-        <option value="Medium">Medium</option>
-        <option value="Low">Low</option>
-      </select><br>
-      <input type="text" id="context" placeholder="Contexts (e.g. Workday, Evening)" required><br><br>
+<input type="text" id="project" name="project" placeholder="Project Name" required><br>
+<input type="text" id="task" name="task" placeholder="Task Name" required><br>
+<input type="number" id="time" name="time" placeholder="Time (minutes)" required><br>
+<input type="text" id="tag" name="tag" placeholder="Tag (e.g. Work, Fitness)" required><br>
+<select id="priority" name="priority" required>
+  <option value="" disabled selected>Priority</option>
+  <option value="High">High</option>
+  <option value="Medium">Medium</option>
+  <option value="Low">Low</option>
+</select><br>
+<input type="text" id="context" name="context" placeholder="Contexts (e.g. Workday, Evening)" required><br><br>
       <button type="submit" class="add-task-btn">Save Task</button>
     </form>
   </div>
