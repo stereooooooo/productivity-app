@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Select + Do</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
+    /* Reset some basics */
+    * {
+      box-sizing: border-box;
+    }
     body {
       font-family: 'Inter', sans-serif;
-      background: #f9fafb;
       margin: 0;
       padding: 0;
       display: flex;
       height: 100vh;
-      overflow: hidden;
+      background-color: #f9fafb;
     }
     .sidebar {
       width: 280px;
@@ -25,31 +28,28 @@
       overflow-y: auto;
     }
     .sidebar img {
-      width: 120px;
+      width: 140px;
       margin-bottom: 20px;
     }
     .add-task-btn {
-      background: #2563eb;
+      background: #3b82f6;
       color: white;
-      padding: 10px 15px;
+      padding: 10px;
       border: none;
       border-radius: 8px;
       cursor: pointer;
       margin-bottom: 20px;
       font-size: 14px;
-      transition: background 0.3s;
-    }
-    .add-task-btn:hover {
-      background: #1d4ed8;
+      width: 100%;
     }
     .project-header {
       font-weight: 600;
-      margin-top: 20px;
       font-size: 16px;
-      cursor: pointer;
+      margin-top: 20px;
+      margin-bottom: 5px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      cursor: pointer;
     }
     .task-list {
       list-style: none;
@@ -60,206 +60,261 @@
       background: #f3f4f6;
       margin: 8px 0;
       padding: 12px;
-      border-radius: 10px;
+      border-radius: 8px;
       font-size: 14px;
-      transition: background 0.2s;
-    }
-    .task-card:hover {
-      background: #e5e7eb;
     }
     .pill {
       background: #e5e7eb;
-      padding: 4px 12px;
-      border-radius: 999px;
-      margin: 4px 4px 0 0;
       display: inline-block;
+      padding: 5px 10px;
+      margin: 4px 4px 0 0;
+      border-radius: 9999px;
       font-size: 12px;
-    }
-    .btn-group {
-      margin-top: 10px;
-      display: flex;
-      gap: 8px;
-    }
-    .edit-btn, .delete-btn {
-      padding: 6px 12px;
-      font-size: 12px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .edit-btn {
-      background: #10b981;
-      color: white;
-    }
-    .delete-btn {
-      background: #ef4444;
-      color: white;
     }
     .main {
       flex: 1;
       padding: 30px;
       overflow-y: auto;
     }
-    .time-buttons, .context-buttons, .tag-cloud {
+    .time-buttons, .tag-cloud, .context-buttons {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 10px;
       margin-bottom: 20px;
     }
     .time-btn, .context-btn, .tag-pill {
-      background: #e0e7ff;
-      border: 1px solid transparent;
+      background: #e5e7eb;
       padding: 8px 16px;
-      border-radius: 20px;
+      border-radius: 9999px;
+      border: none;
       cursor: pointer;
-      font-size: 14px;
       transition: background 0.3s;
     }
     .time-btn.selected, .context-btn.selected, .tag-pill.selected {
       background: #3b82f6;
       color: white;
     }
-    #suggestTask {
-      background: #2563eb;
-      color: white;
-      width: 100%;
-      border: none;
-      border-radius: 8px;
-      padding: 12px;
-      font-size: 16px;
-      margin-top: 20px;
-      transition: background 0.3s;
-    }
-    #suggestTask:hover {
-      background: #1d4ed8;
-    }
     .suggested-task {
       background: #f3f4f6;
       padding: 15px;
+      border-radius: 8px;
       margin-top: 10px;
-      border-radius: 10px;
       cursor: pointer;
-      transition: background 0.2s;
     }
-    .suggested-task:hover {
-      background: #e5e7eb;
+    #suggestTask {
+      width: 100%;
+      background: #3b82f6;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
     }
+    /* Modal */
     .modal {
       display: none;
       position: fixed;
-      z-index: 9999;
-      left: 0; top: 0;
-      width: 100%; height: 100%;
-      background-color: rgba(0,0,0,0.5);
-      align-items: center;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.4);
       justify-content: center;
+      align-items: center;
     }
     .modal-content {
       background: white;
       padding: 30px;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 400px;
+      border-radius: 8px;
+      width: 400px;
+      max-width: 90%;
+    }
+    .modal-content h2 {
+      margin-top: 0;
       text-align: center;
+    }
+    .close {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 24px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #999;
+    }
+    .pill-input-group {
       display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-    .modal-content input, .modal-content select {
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #d1d5db;
-      width: 100%;
-      font-size: 14px;
-    }
-    .modal-content button {
-      margin-top: 10px;
+      gap: 10px;
+      margin-bottom: 15px;
     }
     .pill-container {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      justify-content: center;
+      margin-bottom: 15px;
     }
-    .pill-button {
-      background: #e5e7eb;
-      padding: 6px 12px;
-      border-radius: 999px;
-      cursor: pointer;
-      font-size: 12px;
+    input[type="text"], select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
     }
-    .pill-button.selected {
+    .save-task-btn {
+      width: 100%;
       background: #3b82f6;
       color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
     }
   </style>
 </head>
 <body>
+
 <div class="sidebar">
-  <img src="selectdologo.png" alt="Select + Do Logo">
+  <img src="selectdologo.png" alt="Select + Do Logo" />
   <button class="add-task-btn" id="openModalBtn">+ Add Task</button>
   <div id="taskList"></div>
 </div>
+
 <div class="main">
   <h3>How much time do you have?</h3>
-  <div class="time-buttons" id="timeButtons"></div>
+  <div class="time-buttons">
+    <button class="time-btn" data-time="5">5 min</button>
+    <button class="time-btn" data-time="10">10 min</button>
+    <button class="time-btn" data-time="15">15 min</button>
+    <button class="time-btn" data-time="20">20 min</button>
+    <button class="time-btn" data-time="25">25 min</button>
+    <button class="time-btn" data-time="30">30 min</button>
+    <button class="time-btn" data-time="45">45 min</button>
+    <button class="time-btn" data-time="60">60 min</button>
+  </div>
+
   <h3>Select a category (Tags)</h3>
   <div class="tag-cloud" id="tagCloud"></div>
+
   <h3>Choose a context</h3>
-  <div class="context-buttons" id="contextButtons"></div>
+  <div class="context-buttons">
+    <button class="context-btn" data-context="Workday">Workday</button>
+    <button class="context-btn" data-context="Evening">Evening</button>
+    <button class="context-btn" data-context="Weekend">Weekend</button>
+  </div>
+
   <button id="suggestTask">Suggest a Task</button>
+
   <div id="suggestedTasks"></div>
 </div>
+
+<!-- Modal -->
 <div class="modal" id="taskModal">
   <div class="modal-content">
-    <span class="close" id="closeModalBtn" style="cursor:pointer;align-self:flex-end;">&times;</span>
+    <span class="close" id="closeModalBtn">&times;</span>
     <h2>Add Task</h2>
-    <input type="text" id="project" placeholder="Project Name" required>
-    <input type="text" id="task" placeholder="Task Name" required>
-    <input type="number" id="time" placeholder="Time (minutes)" required>
-    <input type="text" id="tags" placeholder="Tags (comma separated)">
-    <select id="priority" required>
-      <option value="" disabled selected>Priority</option>
-      <option value="High">High</option>
-      <option value="Medium">Medium</option>
-      <option value="Low">Low</option>
-    </select>
-    <input type="text" id="contexts" placeholder="Contexts (comma separated, e.g. Workday, Evening)" required>
-    <button class="add-task-btn" id="saveTaskBtn">Save Task</button>
+    <form id="taskForm">
+      <input type="text" id="project" placeholder="Project Name" required>
+      <input type="text" id="task" placeholder="Task Name" required>
+      
+      <h4>Time (minutes)</h4>
+      <div class="pill-container" id="timePills"></div>
+
+      <h4>Tags</h4>
+      <div class="pill-container" id="tagPills"></div>
+      <div class="pill-input-group">
+        <input type="text" id="newTag" placeholder="Add new tag">
+        <button type="button" onclick="addTag()">Add</button>
+      </div>
+
+      <h4>Priority</h4>
+      <select id="priority" required>
+        <option value="" disabled selected>Priority</option>
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+      </select>
+
+      <h4>Contexts</h4>
+      <div class="pill-container" id="contextPills"></div>
+
+      <button type="submit" class="save-task-btn">Save Task</button>
+    </form>
   </div>
 </div>
 
 <script>
-const times = [5, 10, 15, 20, 25, 30, 45, 60];
-const contexts = ['Workday', 'Evening', 'Weekend'];
-const taskList = document.getElementById('taskList');
-const timeButtons = document.getElementById('timeButtons');
-const tagCloud = document.getElementById('tagCloud');
-const contextButtons = document.getElementById('contextButtons');
+// Data
 let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
 let selectedTime = null;
 let selectedTags = [];
 let selectedContext = '';
 
+// Elements
+const openModalBtn = document.getElementById('openModalBtn');
+const closeModalBtn = document.getElementById('closeModalBtn');
+const taskModal = document.getElementById('taskModal');
+const taskForm = document.getElementById('taskForm');
+const taskList = document.getElementById('taskList');
+const tagCloud = document.getElementById('tagCloud');
+const suggestTaskBtn = document.getElementById('suggestTask');
+const suggestedTasks = document.getElementById('suggestedTasks');
+const timePills = document.getElementById('timePills');
+const tagPills = document.getElementById('tagPills');
+const contextPills = document.getElementById('contextPills');
+const newTagInput = document.getElementById('newTag');
+
+// Open modal
+openModalBtn.onclick = () => {
+  taskModal.style.display = 'flex';
+  resetModal();
+};
+
+// Close modal
+closeModalBtn.onclick = () => {
+  taskModal.style.display = 'none';
+};
+
+// Window click outside modal
+window.onclick = (e) => {
+  if (e.target == taskModal) {
+    taskModal.style.display = 'none';
+  }
+};
+
+// Save to localStorage
 function saveTasks() {
   localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
+// Render task list
 function renderTasks() {
   taskList.innerHTML = '';
-  const projects = {};
+  const grouped = {};
   tasks.forEach(task => {
-    if (!projects[task.project]) projects[task.project] = [];
-    projects[task.project].push(task);
+    if (!grouped[task.project]) grouped[task.project] = [];
+    grouped[task.project].push(task);
   });
-  Object.keys(projects).forEach(project => {
+
+  for (const project in grouped) {
     const header = document.createElement('div');
     header.className = 'project-header';
-    header.innerHTML = `${project}`;
+    header.innerHTML = `${project} <span>▾</span>`;
     const ul = document.createElement('ul');
     ul.className = 'task-list';
+    ul.style.display = 'block';
 
-    projects[project].forEach(task => {
+    header.onclick = () => {
+      ul.style.display = ul.style.display === 'none' ? 'block' : 'none';
+      header.querySelector('span').textContent = ul.style.display === 'none' ? '▸' : '▾';
+    };
+
+    grouped[project].forEach(task => {
       const li = document.createElement('li');
       li.className = 'task-card';
       li.innerHTML = `
@@ -269,111 +324,222 @@ function renderTasks() {
       `;
       ul.appendChild(li);
     });
+
     taskList.appendChild(header);
     taskList.appendChild(ul);
-  });
+  }
+
+  updateTagCloud();
 }
 
-function renderFilters() {
-  timeButtons.innerHTML = '';
-  times.forEach(time => {
-    const btn = document.createElement('button');
-    btn.className = 'time-btn';
-    btn.textContent = `${time} min`;
-    btn.onclick = () => {
-      selectedTime = time;
-      document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-    };
-    timeButtons.appendChild(btn);
-  });
-
+// Update tag cloud
+function updateTagCloud() {
+  const allTags = [...new Set(tasks.flatMap(task => task.tag.split(',').map(t => t.trim())))];
   tagCloud.innerHTML = '';
-  const tags = [...new Set(tasks.flatMap(task => task.tag.split(',').map(t => t.trim())))];
-  tags.forEach(tag => {
+  allTags.forEach(tag => {
     const btn = document.createElement('button');
     btn.className = 'tag-pill';
     btn.textContent = tag;
     btn.onclick = () => {
-      if (selectedTags.includes(tag)) selectedTags = selectedTags.filter(t => t !== tag);
-      else selectedTags.push(tag);
-      document.querySelectorAll('.tag-pill').forEach(b => b.classList.remove('selected'));
-      selectedTags.forEach(selTag => {
-        document.querySelectorAll('.tag-pill').forEach(b => {
-          if (b.textContent === selTag) b.classList.add('selected');
-        });
-      });
+      if (selectedTags.includes(tag)) {
+        selectedTags = selectedTags.filter(t => t !== tag);
+        btn.classList.remove('selected');
+      } else {
+        selectedTags.push(tag);
+        btn.classList.add('selected');
+      }
     };
     tagCloud.appendChild(btn);
   });
-
-  contextButtons.innerHTML = '';
-  contexts.forEach(ctx => {
-    const btn = document.createElement('button');
-    btn.className = 'context-btn';
-    btn.textContent = ctx;
-    btn.onclick = () => {
-      selectedContext = ctx;
-      document.querySelectorAll('.context-btn').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-    };
-    contextButtons.appendChild(btn);
-  });
 }
 
-function suggestTasks() {
-  let filtered = tasks.filter(task => Math.abs(task.time - selectedTime) <= 15);
-  if (selectedTags.length > 0) {
-    filtered = filtered.filter(task => selectedTags.some(tag => task.tag.toLowerCase().includes(tag.toLowerCase())));
+// Modal form submit
+taskForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const project = document.getElementById('project').value.trim();
+  const task = document.getElementById('task').value.trim();
+  const priority = document.getElementById('priority').value;
+  const time = selectedModalTime;
+  const tags = Array.from(selectedModalTags).join(',');
+  const context = Array.from(selectedModalContexts);
+
+  if (!time || !tags.length || !context.length) {
+    alert('Please select time, at least one tag, and at least one context.');
+    return;
   }
+
+  const newTask = {
+    project,
+    task,
+    time,
+    tag: tags,
+    priority,
+    context
+  };
+
+  tasks.push(newTask);
+  saveTasks();
+  renderTasks();
+  taskModal.style.display = 'none';
+});
+
+// Suggest task
+suggestTaskBtn.addEventListener('click', () => {
+  if (!selectedTime) {
+    alert('Please select a time.');
+    return;
+  }
+
+  let filteredTasks = tasks.map(task => ({
+    ...task,
+    timeDiff: Math.abs(task.time - selectedTime)
+  }));
+
   if (selectedContext) {
-    filtered = filtered.filter(task => task.context.includes(selectedContext));
+    filteredTasks = filteredTasks.filter(task => task.context.includes(selectedContext));
   }
-  filtered = filtered.slice(0, 3);
-  const suggestedTasks = document.getElementById('suggestedTasks');
+
+  if (selectedTags.length > 0) {
+    filteredTasks = filteredTasks.filter(task => {
+      const taskTags = task.tag.split(',').map(t => t.trim().toLowerCase());
+      return selectedTags.some(selectedTag => taskTags.includes(selectedTag.toLowerCase()));
+    });
+  }
+
+  filteredTasks.sort((a, b) => {
+    const priorityOrder = { High: 1, Medium: 2, Low: 3 };
+    if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
+      return priorityOrder[a.priority] - priorityOrder[b.priority];
+    }
+    return a.timeDiff - b.timeDiff;
+  });
+
   suggestedTasks.innerHTML = '';
-  if (filtered.length === 0) {
-    suggestedTasks.innerHTML = '<p>No matching tasks. Adjust your filters!</p>';
+
+  if (filteredTasks.length === 0) {
+    suggestedTasks.innerHTML = '<div style="margin-top:20px;color:#6b7280;">No tasks found. Try adjusting your filters.</div>';
   } else {
-    filtered.forEach(task => {
+    filteredTasks.slice(0, 3).forEach(task => {
       const div = document.createElement('div');
       div.className = 'suggested-task';
-      div.innerHTML = `<strong>${task.task}</strong><br>${task.project} • ${task.time} min • ${task.priority}`;
+      div.innerHTML = `
+        <strong>${task.task}</strong><br>
+        ${task.project} • ${task.time} min • ${task.priority}<br>
+        <span class="pill">${task.tag}</span> <span class="pill">${task.context.join(', ')}</span>
+      `;
+      div.onclick = () => {
+        startTaskTimer(task.task, task.time);
+      };
       suggestedTasks.appendChild(div);
     });
   }
+});
+
+// Timer
+function startTaskTimer(taskName, minutes) {
+  alert(`Starting timer for "${taskName}" for ${minutes} minutes!`);
 }
 
-document.getElementById('suggestTask').onclick = suggestTasks;
+// Time buttons
+document.querySelectorAll('.time-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedTime = parseInt(btn.dataset.time);
+  };
+});
 
-document.getElementById('openModalBtn').onclick = () => {
-  document.getElementById('taskModal').style.display = 'flex';
-};
+// Context buttons
+document.querySelectorAll('.context-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.context-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedContext = btn.dataset.context;
+  };
+});
 
-document.getElementById('closeModalBtn').onclick = () => {
-  document.getElementById('taskModal').style.display = 'none';
-};
+// Modal pills
+const predefinedTimes = [5, 10, 15, 20, 25, 30, 45, 60];
+const predefinedContexts = ['Workday', 'Evening', 'Weekend'];
+let selectedModalTime = null;
+let selectedModalTags = new Set();
+let selectedModalContexts = new Set();
 
-document.getElementById('saveTaskBtn').onclick = () => {
-  const project = document.getElementById('project').value.trim();
-  const task = document.getElementById('task').value.trim();
-  const time = parseInt(document.getElementById('time').value);
-  const tags = document.getElementById('tags').value.trim();
-  const priority = document.getElementById('priority').value;
-  const contexts = document.getElementById('contexts').value.split(',').map(c => c.trim());
+function populateTimePills() {
+  timePills.innerHTML = '';
+  predefinedTimes.forEach(t => {
+    const pill = document.createElement('button');
+    pill.className = 'time-btn';
+    pill.textContent = `${t} min`;
+    pill.onclick = () => {
+      timePills.querySelectorAll('.time-btn').forEach(p => p.classList.remove('selected'));
+      pill.classList.add('selected');
+      selectedModalTime = t;
+    };
+    timePills.appendChild(pill);
+  });
+}
 
-  if (project && task && time && tags && priority && contexts.length > 0) {
-    tasks.push({ project, task, time, tag: tags, priority, context: contexts });
-    saveTasks();
-    renderTasks();
-    renderFilters();
-    document.getElementById('taskModal').style.display = 'none';
-    document.getElementById('taskForm')?.reset();
+function populateContextPills() {
+  contextPills.innerHTML = '';
+  predefinedContexts.forEach(c => {
+    const pill = document.createElement('button');
+    pill.className = 'context-btn';
+    pill.textContent = c;
+    pill.onclick = () => {
+      if (selectedModalContexts.has(c)) {
+        selectedModalContexts.delete(c);
+        pill.classList.remove('selected');
+      } else {
+        selectedModalContexts.add(c);
+        pill.classList.add('selected');
+      }
+    };
+    contextPills.appendChild(pill);
+  });
+}
+
+function populateTagPills() {
+  const allTags = [...new Set(tasks.flatMap(task => task.tag.split(',').map(t => t.trim())))];
+  tagPills.innerHTML = '';
+  allTags.forEach(tag => {
+    const pill = document.createElement('button');
+    pill.className = 'tag-pill';
+    pill.textContent = tag;
+    pill.onclick = () => {
+      if (selectedModalTags.has(tag)) {
+        selectedModalTags.delete(tag);
+        pill.classList.remove('selected');
+      } else {
+        selectedModalTags.add(tag);
+        pill.classList.add('selected');
+      }
+    };
+    tagPills.appendChild(pill);
+  });
+}
+
+function addTag() {
+  const tag = newTagInput.value.trim();
+  if (tag && !selectedModalTags.has(tag)) {
+    selectedModalTags.add(tag);
+    newTagInput.value = '';
+    populateTagPills();
   }
-};
+}
+
+function resetModal() {
+  taskForm.reset();
+  selectedModalTime = null;
+  selectedModalTags.clear();
+  selectedModalContexts.clear();
+  populateTimePills();
+  populateContextPills();
+  populateTagPills();
+}
 
 renderTasks();
-renderFilters();
 </script>
+
 </body>
 </html>
