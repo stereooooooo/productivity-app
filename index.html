@@ -35,8 +35,8 @@
 
     <!-- Sidebar -->
     <div class="sidebar w-72 bg-white p-6 border-r border-gray-200 flex flex-col overflow-y-auto hide-scrollbar shadow-lg">
-        <!-- Logo - Using a placeholder image for now -->
-        <img src="https://placehold.co/120x40/60A5FA/FFFFFF?text=Select+Do" alt="Select + Do Logo" class="w-32 mb-6 rounded-md">
+        <!-- Logo - Replaced placeholder with user's uploaded logo -->
+        <img src="selectdologo.jpg" alt="Select + Do Logo" class="w-32 mb-6 rounded-md">
         
         <!-- User ID Display -->
         <div id="userIdDisplay" class="text-xs text-gray-500 mb-4 break-all">
@@ -98,6 +98,10 @@
             <!-- Suggest Task Button -->
             <button id="suggestTask" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75">
                 Suggest a Task
+            </button>
+            <!-- Surprise Me! Button -->
+            <button id="surpriseMeBtn" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg shadow-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-75">
+                Surprise Me!
             </button>
             <!-- Clear Filters Button -->
             <button id="clearFiltersBtn" class="flex-shrink-0 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-6 rounded-lg transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75">
@@ -194,7 +198,7 @@
         let db;
         let auth;
         let userId;
-        let isAuthReady = false;
+        let isAuthReady = false; // Flag to indicate if Firebase auth is ready
 
         // Task data will be stored in this array, synced with Firestore
         let tasks = [];
@@ -209,14 +213,18 @@
         let paused = false;
         let editingTaskId = null; // Stores the ID of the task being edited
 
+        // Usage statistics for tags and contexts (for "Most Used" feature)
+        let usageStats = {}; // { tagName: count, contextName: count }
+
         // Elements
         const timeButtons = document.querySelectorAll('.time-btn');
         const contextButtons = document.querySelectorAll('.context-btn');
         const tagCloud = document.getElementById('tagCloud');
         const suggestTaskBtn = document.getElementById('suggestTask');
+        const surpriseMeBtn = document.getElementById('surpriseMeBtn'); // New Surprise Me button
         const suggestedTasks = document.getElementById('suggestedTasks');
         const taskList = document.getElementById('taskList');
-        const userIdDisplay = document.getElementById('userIdDisplay'); // New element for user ID
+        const userIdDisplay = document.getElementById('userIdDisplay');
 
         const openModalBtn = document.getElementById('openModalBtn');
         const closeModalBtn = document.getElementById('closeModalBtn');
@@ -241,10 +249,9 @@
         const messageModalContent = document.getElementById('messageModalContent');
         const messageModalActions = document.getElementById('messageModalActions');
 
-        const clearFiltersBtn = document.getElementById('clearFiltersBtn'); // New clear filters button
-        const selectedFiltersSummary = document.getElementById('selectedFiltersSummary'); // New filter summary container
-        const summaryContent = document.getElementById('summaryContent'); // Content area for filter summary
-
+        const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+        const selectedFiltersSummary = document.getElementById('selectedFiltersSummary');
+        const summaryContent = document.getElementById('summaryContent');
 
         /**
          * Initializes Firebase and sets up authentication.
@@ -278,9 +285,10 @@
                         }
                     }
                     isAuthReady = true; // Mark authentication as ready
-                    // Once auth is ready, set up real-time listener for tasks
+                    // Once auth is ready, set up real-time listener for tasks and usage stats
                     if (userId) {
                         setupTaskListener();
+                        setupUsageStatsListener(); // Setup listener for usage stats
                     }
                 });
 
@@ -327,6 +335,52 @@
         }
 
         /**
+         * Sets up a real-time listener for usage statistics from Firestore.
+         */
+        function setupUsageStatsListener() {
+            if (!db || !userId) {
+                console.warn("Firestore not initialized or userId not available. Cannot set up usage stats listener.");
+                return;
+            }
+
+            const usageStatsCollectionRef = collection(db, `artifacts/${__app_id}/users/${userId}/usageStats`);
+
+            onSnapshot(usageStatsCollectionRef, (snapshot) => {
+                const fetchedStats = {};
+                snapshot.forEach(doc => {
+                    fetchedStats[doc.id] = doc.data().count;
+                });
+                usageStats = fetchedStats;
+                console.log("Usage stats updated from Firestore:", usageStats);
+                // Re-render relevant parts that depend on usage stats
+                renderModalTags();
+                renderModalContextButtons();
+                renderTagCloud(); // Also affects the main tag cloud sorting
+            }, (error) => {
+                console.error("Error fetching usage stats from Firestore:", error);
+            });
+        }
+
+        /**
+         * Updates the usage count for a given item (tag or context) in Firestore.
+         * @param {string} type - 'tag' or 'context'.
+         * @param {string} item - The name of the tag or context.
+         */
+        async function updateUsageCount(type, item) {
+            if (!isAuthReady || !userId) {
+                console.warn("App not ready, cannot update usage count.");
+                return;
+            }
+            const itemRef = doc(db, `artifacts/${__app_id}/users/${userId}/usageStats`, `${type}-${item.toLowerCase()}`);
+            try {
+                // Use transaction to safely increment count
+                await setDoc(itemRef, { count: (usageStats[`${type}-${item.toLowerCase()}`] || 0) + 1 }, { merge: true });
+            } catch (e) {
+                console.error(`Error updating usage count for ${type} ${item}:`, e);
+            }
+        }
+
+        /**
          * Displays a custom modal for alerts or confirmations.
          * @param {string} title - The title of the modal.
          * @param {string} content - The main message content.
@@ -366,11 +420,9 @@
         }
 
         // ---------- INIT RENDER (Called after Firebase is ready)
-        // Initial renders for modal elements (they don't depend on tasks yet)
         renderModalTimeButtons();
         renderModalContextButtons();
-        // Initial render for filter summary (before any selections are made)
-        updateFilterDisplay();
+        updateFilterDisplay(); // Initial render for filter summary
 
         // ---------- ADD/EDIT TASK MODAL
         openModalBtn.addEventListener('click', () => {
@@ -389,10 +441,17 @@
         taskForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            // Check if Firebase Auth is ready before attempting Firestore operations
+            if (!isAuthReady || !userId) {
+                showModal('App Not Ready', 'Please wait a moment for the app to load fully, then try again.', 'alert');
+                return;
+            }
+
             const project = document.getElementById('project').value.trim();
             const task = document.getElementById('task').value.trim();
             const priority = document.getElementById('priority').value;
 
+            // Validation checks
             if (!project) {
                 showModal('Validation Error', 'Please enter a project name.', 'alert');
                 return;
@@ -443,10 +502,16 @@
                 }
                 taskModal.classList.add('hidden');
                 taskModal.classList.remove('flex');
+                
+                // Update usage counts for new/updated tasks
+                selectedModalTags.forEach(tag => updateUsageCount('tag', tag));
+                selectedModalContexts.forEach(context => updateUsageCount('context', context));
+
                 resetModal(); // Reset form after saving
             } catch (e) {
                 console.error("Error saving task: ", e);
-                showModal('Error', 'Failed to save task. Please try again.', 'alert');
+                // Provide more specific error if possible, or advise console check
+                showModal('Error', `Failed to save task. Please ensure you have an active internet connection and try again. Technical details: ${e.message}`, 'alert');
             }
         });
 
@@ -496,7 +561,17 @@
             modalTags.innerHTML = '';
             // Combine existing task tags with currently selected modal tags
             const allTags = Array.from(new Set([...tasks.flatMap(t => t.tag), ...Array.from(selectedModalTags)]));
-            allTags.sort(); // Sort tags alphabetically for consistency
+            
+            // Sort tags: Most used first, then alphabetically
+            allTags.sort((a, b) => {
+                const countA = usageStats[`tag-${a.toLowerCase()}`] || 0;
+                const countB = usageStats[`tag-${b.toLowerCase()}`] || 0;
+                if (countB !== countA) {
+                    return countB - countA; // Sort by count descending
+                }
+                return a.localeCompare(b); // Then alphabetically
+            });
+
             allTags.forEach(tag => {
                 const btn = document.createElement('button');
                 btn.type = 'button';
@@ -517,7 +592,19 @@
         // ---------- RENDER CONTEXTS (MODAL)
         function renderModalContextButtons() {
             modalContexts.innerHTML = '';
-            ['Workday', 'Evening', 'Weekend'].forEach(context => {
+            const allContexts = ['Workday', 'Evening', 'Weekend'];
+            
+            // Sort contexts: Most used first, then alphabetically
+            allContexts.sort((a, b) => {
+                const countA = usageStats[`context-${a.toLowerCase()}`] || 0;
+                const countB = usageStats[`context-${b.toLowerCase()}`] || 0;
+                if (countB !== countA) {
+                    return countB - countA; // Sort by count descending
+                }
+                return a.localeCompare(b); // Then alphabetically
+            });
+
+            allContexts.forEach(context => {
                 const btn = document.createElement('button');
                 btn.type = 'button';
                 btn.className = `pill-btn bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-medium py-2 px-4 rounded-full transition duration-200 ease-in-out ${selectedModalContexts.has(context) ? 'selected !bg-blue-600 !text-white' : ''}`;
@@ -551,8 +638,10 @@
                 const context = btn.dataset.context;
                 if (selectedContexts.includes(context)) {
                     selectedContexts = selectedContexts.filter(c => c !== context);
+                    // No need to decrement usage, just track increments for "most used"
                 } else {
                     selectedContexts.push(context);
+                    updateUsageCount('context', context); // Increment usage when selected
                 }
                 updateFilterDisplay(); // Update display when context is selected
             });
@@ -564,7 +653,17 @@
         function renderTagCloud() {
             tagCloud.innerHTML = '';
             const tags = [...new Set(tasks.flatMap(t => t.tag))];
-            tags.sort(); // Sort tags alphabetically
+            
+            // Sort tags: Most used first, then alphabetically
+            tags.sort((a, b) => {
+                const countA = usageStats[`tag-${a.toLowerCase()}`] || 0;
+                const countB = usageStats[`tag-${b.toLowerCase()}`] || 0;
+                if (countB !== countA) {
+                    return countB - countA; // Sort by count descending
+                }
+                return a.localeCompare(b); // Then alphabetically
+            });
+
             tags.forEach(tag => {
                 const btn = document.createElement('button');
                 btn.className = `tag-pill bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-medium py-2 px-4 rounded-full transition duration-200 ease-in-out ${selectedTags.includes(tag) ? '!bg-blue-600 !text-white' : ''}`;
@@ -574,8 +673,10 @@
                     btn.classList.toggle('!text-white');
                     if (selectedTags.includes(tag)) {
                         selectedTags = selectedTags.filter(t => t !== tag);
+                        // No need to decrement usage
                     } else {
                         selectedTags.push(tag);
+                        updateUsageCount('tag', tag); // Increment usage when selected
                     }
                     updateFilterDisplay(); // Update display when tag is selected
                 };
@@ -664,7 +765,7 @@
             if (selectedTags.length > 0) {
                 filtered = filtered.filter(task => {
                     const taskTags = task.tag.map(t => t.toLowerCase());
-                    return selectedTags.some(tag => taskTags.some(t => t.includes(tag.toLowerCase())));
+                    return selectedTags.some(tag => taskTags.some(t => taskTags.includes(tag.toLowerCase())));
                 });
             }
 
@@ -714,6 +815,33 @@
                 suggestedTasks.appendChild(div);
             });
         });
+
+        // ---------- SURPRISE ME!
+        surpriseMeBtn.addEventListener('click', () => {
+            if (tasks.length === 0) {
+                showModal('No Tasks Added', 'Please add some tasks first to get a surprise!', 'alert');
+                return;
+            }
+            const randomIndex = Math.floor(Math.random() * tasks.length);
+            const randomTask = tasks[randomIndex];
+            suggestedTasks.innerHTML = ''; // Clear previous suggestions
+            const div = document.createElement('div');
+            div.className = 'suggested-task bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 ease-in-out cursor-pointer';
+            div.innerHTML = `
+                <strong class="text-lg text-gray-900">Surprise Task: ${randomTask.task}</strong>
+                <p class="text-sm text-gray-600">${randomTask.project} • ${randomTask.time} min • <span class="font-semibold text-blue-600">${randomTask.priority}</span></p>
+                <div class="flex flex-wrap gap-2 mt-2">
+                    ${randomTask.tag.map(t => `<span class="pill bg-gray-200 text-gray-700 text-xs px-3 py-1 rounded-full">${t}</span>`).join('')}
+                    ${randomTask.context.map(c => `<span class="pill bg-gray-200 text-gray-700 text-xs px-3 py-1 rounded-full">${c}</span>`).join('')}
+                </div>
+            `;
+            div.onclick = () => startTimer(randomTask.task, randomTask.time);
+            suggestedTasks.appendChild(div);
+
+            // Clear any active filters
+            clearFiltersBtn.click();
+        });
+
 
         // ---------- TASK LIST (Sidebar)
         /**
@@ -875,7 +1003,8 @@
                     updateCountdown();
                     if (countdownTime <= 0) {
                         clearInterval(countdownInterval);
-                        showModal('Time\'s Up!', `Time for "${taskName}" is up!`, 'alert', () => {
+                        // Positive reinforcement on timer completion
+                        showModal('Well Done!', `You successfully completed "${taskName}"!`, 'alert', () => {
                             timerModal.classList.add('hidden');
                             timerModal.classList.remove('flex');
                         });
