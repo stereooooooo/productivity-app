@@ -1,654 +1,911 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Select + Do</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: #f9fafb;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      height: 100vh;
-    }
-    .sidebar {
-      width: 280px;
-      background: #fff;
-      padding: 20px;
-      border-right: 1px solid #e5e7eb;
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-    }
-    .sidebar img {
-      width: 120px;
-      margin-bottom: 20px;
-    }
-    .add-task-btn {
-      background: #3b82f6;
-      color: white;
-      padding: 10px 15px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    .project-header {
-      font-weight: 600;
-      margin-top: 20px;
-      font-size: 16px;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .task-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .task-card {
-      background: #f3f4f6;
-      margin: 8px 0;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 12px;
-    }
-    .pill {
-      background: #e5e7eb;
-      padding: 4px 10px;
-      border-radius: 20px;
-      margin: 5px 5px 0 0;
-      display: inline-block;
-      font-size: 11px;
-    }
-    .btn-group {
-      margin-top: 8px;
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-    }
-    .edit-btn, .delete-btn {
-      padding: 4px 8px;
-      font-size: 10px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .edit-btn {
-      background: #10b981;
-      color: white;
-    }
-    .delete-btn {
-      background: #ef4444;
-      color: white;
-    }
-    .main {
-      flex: 1;
-      padding: 30px;
-      overflow-y: auto;
-    }
-    h3 {
-      margin-top: 0;
-      font-weight: 600;
-    }
-    .time-buttons, .tag-cloud, .context-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    .time-btn, .context-btn, .tag-pill {
-      background: #e0e7ff;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background 0.3s, color 0.3s;
-    }
-    .time-btn.selected, .context-btn.selected, .tag-pill.selected {
-      background: #3b82f6;
-      color: white;
-    }
-    #suggestTask {
-      background: #3b82f6;
-      color: white;
-      width: 100%;
-      border: none;
-      border-radius: 8px;
-      padding: 12px;
-      font-size: 16px;
-      margin-top: 20px;
-      cursor: pointer;
-    }
-    .suggested-task {
-      background: #f3f4f6;
-      padding: 15px;
-      margin-top: 10px;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    .modal, .timer-modal {
-      display: none;
-      position: fixed;
-      z-index: 9999;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.4);
-      align-items: center;
-      justify-content: center;
-    }
-    .modal-content, .timer-modal-content {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      width: 350px;
-      text-align: center;
-    }
-    .close {
-      position: absolute;
-      right: 20px;
-      top: 10px;
-      font-size: 20px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .modal-content input, .modal-content select {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
-      border-radius: 6px;
-      border: 1px solid #d1d5db;
-      font-size: 14px;
-    }
-    .modal-content .pill-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 15px;
-    }
-    .pill-btn {
-      background: #e0e7ff;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background 0.3s, color 0.3s;
-    }
-    .pill-btn.selected {
-      background: #3b82f6;
-      color: white;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <title>Select + Do</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles to override or extend Tailwind if necessary */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Hide scrollbar for a cleaner look */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        /* Basic fade-in animation for modals */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+    </style>
 </head>
-<body>
+<body class="flex h-screen bg-gray-50 text-gray-800">
 
-<div class="sidebar">
-  <img src="selectdologo.png" alt="Select + Do Logo">
-  <button class="add-task-btn" id="openModalBtn">+ Add Task</button>
-  <div id="taskList"></div>
-</div>
+    <!-- Sidebar -->
+    <div class="sidebar w-72 bg-white p-6 border-r border-gray-200 flex flex-col overflow-y-auto hide-scrollbar shadow-lg">
+        <!-- Logo - Using a placeholder image for now -->
+        <img src="https://placehold.co/120x40/60A5FA/FFFFFF?text=Select+Do" alt="Select + Do Logo" class="w-32 mb-6 rounded-md">
+        
+        <!-- User ID Display -->
+        <div id="userIdDisplay" class="text-xs text-gray-500 mb-4 break-all">
+            <!-- User ID will be displayed here -->
+        </div>
 
-<div class="main">
-  <h3>How much time do you have?</h3>
-  <div class="time-buttons" id="timeButtons">
-    <button class="time-btn" data-time="5">5 min</button>
-    <button class="time-btn" data-time="10">10 min</button>
-    <button class="time-btn" data-time="15">15 min</button>
-    <button class="time-btn" data-time="20">20 min</button>
-    <button class="time-btn" data-time="25">25 min</button>
-    <button class="time-btn" data-time="30">30 min</button>
-    <button class="time-btn" data-time="45">45 min</button>
-    <button class="time-btn" data-time="60">60 min</button>
-  </div>
+        <!-- Add Task Button -->
+        <button id="openModalBtn" class="add-task-btn bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-5 rounded-lg shadow-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75">
+            + Add Task
+        </button>
+        
+        <!-- Task List (Projects and Tasks) -->
+        <div id="taskList" class="mt-6 flex-grow">
+            <!-- Tasks will be rendered here by JavaScript -->
+            <p class="text-gray-500 text-sm italic mt-4 text-center">
+                Add tasks here to get suggestions in the main section.
+            </p>
+        </div>
+    </div>
 
-  <h3>Select a category (Tags)</h3>
-  <div class="tag-cloud" id="tagCloud"></div>
+    <!-- Main Content Area -->
+    <div class="main flex-1 p-8 overflow-y-auto hide-scrollbar">
+        <h3 class="text-2xl font-bold mb-6 text-gray-800">How much time do you have?</h3>
+        <!-- Time Filter Buttons -->
+        <div id="timeButtons" class="time-buttons flex flex-wrap gap-3 mb-8">
+            <button class="time-btn bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-medium py-2 px-4 rounded-full transition duration-200 ease-in-out" data-time="5">5 min</button>
+            <button class="time-btn bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-medium py-2 px-4 rounded-full transition duration-200 ease-in-out" data-time="10">10 min</button>
+            <button class="time-btn bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-medium py-2 px-4 rounded-full transition duration-200 ease-in-out" data-time="15">15 min</button>
+            <button class="time-btn bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-medium py-2 px-4 rounded-full transition duration-200 ease-in-out" data-time="20">20 min</button>
+            <button class="time-btn bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-medium py-2 px-4 rounded-full transition duration-200 ease-in-out" data-time="25">25 min</button>
+            <button class="time-btn bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-medium py-2 px-4 rounded-full transition duration-200 ease-in-out" data-time="30">30 min</button>
+            <button class="time-btn bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-medium py-2 px-4 rounded-full transition duration-200 ease-in-out" data-time="45">45 min</button>
+            <button class="time-btn bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-medium py-2 px-4 rounded-full transition duration-200 ease-in-out" data-time="60">60 min</button>
+        </div>
 
-  <h3>Choose a context</h3>
-  <div class="context-buttons" id="contextButtons">
-    <button class="context-btn" data-context="Workday">Workday</button>
-    <button class="context-btn" data-context="Evening">Evening</button>
-    <button class="context-btn" data-context="Weekend">Weekend</button>
-  </div>
+        <h3 class="text-2xl font-bold mb-6 text-gray-800">Select a category (Tags)</h3>
+        <!-- Tag Cloud Filter Buttons -->
+        <div id="tagCloud" class="tag-cloud flex flex-wrap gap-3 mb-8">
+            <!-- Tags will be rendered here by JavaScript -->
+        </div>
 
-  <button id="suggestTask">Suggest a Task</button>
-  <div id="suggestedTasks"></div>
-</div>
+        <h3 class="text-2xl font-bold mb-6 text-gray-800">Choose a context</h3>
+        <!-- Context Filter Buttons -->
+        <div id="contextButtons" class="context-buttons flex flex-wrap gap-3 mb-8">
+            <button class="context-btn bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-medium py-2 px-4 rounded-full transition duration-200 ease-in-out" data-context="Workday">Workday</button>
+            <button class="context-btn bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-medium py-2 px-4 rounded-full transition duration-200 ease-in-out" data-context="Evening">Evening</button>
+            <button class="context-btn bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-medium py-2 px-4 rounded-full transition duration-200 ease-in-out" data-context="Weekend">Weekend</button>
+        </div>
 
-<!-- Add Task Modal -->
-<div class="modal" id="taskModal">
-  <div class="modal-content">
-    <span class="close" id="closeModalBtn">&times;</span>
-    <h2>Add Task</h2>
-    <form id="taskForm">
-      <input type="text" id="project" placeholder="Project Name" required>
-      <input type="text" id="task" placeholder="Task Name" required>
+        <!-- Selected Filters Summary -->
+        <div id="selectedFiltersSummary" class="bg-blue-50 p-4 rounded-lg mb-6 shadow-sm text-sm text-blue-800 hidden">
+            <p class="font-semibold mb-2">Current Filters:</p>
+            <div id="summaryContent" class="flex flex-wrap gap-2">
+                <!-- Summary content will be rendered here -->
+            </div>
+        </div>
 
-      <h4>Time (minutes)</h4>
-      <div class="pill-group" id="modalTimeButtons"></div>
+        <div class="flex flex-col sm:flex-row gap-4 mb-8">
+            <!-- Suggest Task Button -->
+            <button id="suggestTask" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75">
+                Suggest a Task
+            </button>
+            <!-- Clear Filters Button -->
+            <button id="clearFiltersBtn" class="flex-shrink-0 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-6 rounded-lg transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75">
+                Clear Filters
+            </button>
+        </div>
+        
+        <!-- Suggested Tasks Display -->
+        <div id="suggestedTasks" class="mt-6 space-y-4">
+            <!-- Suggested tasks will be rendered here by JavaScript -->
+            <p class="text-gray-600 text-center py-4">
+                No tasks found matching your criteria. Try adjusting filters or adding new tasks!
+            </p>
+        </div>
+    </div>
 
-      <h4>Tags</h4>
-      <div class="pill-group" id="modalTags"></div>
-      <input type="text" id="newTagInput" placeholder="Add new tag">
-      <button type="button" id="addTagBtn">Add</button>
+    <!-- Add/Edit Task Modal -->
+    <div id="taskModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-[9999] hidden p-4">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md relative animate-fade-in-up">
+            <span id="closeModalBtn" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-3xl font-bold cursor-pointer transition duration-200 ease-in-out">&times;</span>
+            <h2 id="modalTitle" class="text-3xl font-bold mb-6 text-center text-gray-800">Add Task</h2>
+            <form id="taskForm" class="space-y-5">
+                <input type="text" id="project" placeholder="Project Name (e.g., 'Home', 'Work')" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-200">
+                <input type="text" id="task" placeholder="Task Name (e.g., 'Read a chapter', 'Organize desk')" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-200">
 
-      <select id="priority" required>
-        <option value="">Priority</option>
-        <option value="High">High</option>
-        <option value="Medium">Medium</option>
-        <option value="Low">Low</option>
-      </select>
+                <h4 class="text-lg font-semibold text-gray-700">Time (minutes)</h4>
+                <div id="modalTimeButtons" class="pill-group flex flex-wrap gap-2">
+                    <!-- Time pills for modal will be rendered here -->
+                </div>
 
-      <h4>Contexts</h4>
-      <div class="pill-group" id="modalContexts"></div>
+                <h4 class="text-lg font-semibold text-gray-700">Tags</h4>
+                <div id="modalTags" class="pill-group flex flex-wrap gap-2 mb-2">
+                    <!-- Tags for modal will be rendered here -->
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" id="newTagInput" placeholder="Add new tag" class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-200">
+                    <button type="button" id="addTagBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75">Add</button>
+                </div>
 
-      <button type="submit" class="add-task-btn">Save Task</button>
-    </form>
-  </div>
-</div>
+                <select id="priority" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white">
+                    <option value="">Select Priority</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                </select>
 
-<!-- Timer Modal -->
-<div class="timer-modal" id="timerModal">
-  <div class="timer-modal-content">
-    <h2 id="timerTaskName"></h2>
-    <div id="countdown" style="font-size:48px; margin:20px 0;"></div>
-    <button id="pauseBtn">Pause</button>
-    <button id="stopBtn">Stop</button>
-  </div>
-</div>
+                <h4 class="text-lg font-semibold text-gray-700">Contexts</h4>
+                <div id="modalContexts" class="pill-group flex flex-wrap gap-2">
+                    <!-- Contexts for modal will be rendered here -->
+                </div>
 
-<script>
-<script>
-let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-let selectedTime = null;
-let selectedTags = [];
-let selectedContexts = [];
-let selectedModalTime = null;
-let selectedModalTags = new Set();
-let selectedModalContexts = new Set();
-let countdownInterval;
-let countdownTime;
-let paused = false;
+                <button type="submit" class="add-task-btn bg-blue-600 hover:bg-blue-700 text-white font-bold w-full py-3 rounded-lg shadow-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75">
+                    Save Task
+                </button>
+            </form>
+        </div>
+    </div>
 
-// Elements
-const timeButtons = document.querySelectorAll('.time-btn');
-const contextButtons = document.querySelectorAll('.context-btn');
-const tagCloud = document.getElementById('tagCloud');
-const suggestTaskBtn = document.getElementById('suggestTask');
-const suggestedTasks = document.getElementById('suggestedTasks');
-const taskList = document.getElementById('taskList');
+    <!-- Timer Modal -->
+    <div id="timerModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-[9999] hidden p-4">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-sm relative text-center animate-fade-in-up">
+            <h2 id="timerTaskName" class="text-3xl font-bold mb-4 text-gray-800"></h2>
+            <div id="countdown" class="text-6xl font-extrabold text-blue-600 my-8">00:00</div>
+            <div class="flex justify-center gap-4">
+                <button id="pauseBtn" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-75">
+                    Pause
+                </button>
+                <button id="stopBtn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-75">
+                    Stop
+                </button>
+            </div>
+        </div>
+    </div>
 
-const openModalBtn = document.getElementById('openModalBtn');
-const closeModalBtn = document.getElementById('closeModalBtn');
-const taskModal = document.getElementById('taskModal');
-const taskForm = document.getElementById('taskForm');
+    <!-- Generic Message/Confirmation Modal -->
+    <div id="messageModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-[10000] hidden p-4">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-sm relative text-center animate-fade-in-up">
+            <h3 id="messageModalTitle" class="text-2xl font-bold mb-4 text-gray-800"></h3>
+            <p id="messageModalContent" class="text-gray-700 mb-6"></p>
+            <div id="messageModalActions" class="flex justify-center gap-4">
+                <!-- Buttons will be rendered here -->
+            </div>
+        </div>
+    </div>
 
-const modalTimeButtons = document.getElementById('modalTimeButtons');
-const modalTags = document.getElementById('modalTags');
-const newTagInput = document.getElementById('newTagInput');
-const addTagBtn = document.getElementById('addTagBtn');
-const modalContexts = document.getElementById('modalContexts');
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, doc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-const timerModal = document.getElementById('timerModal');
-const timerTaskName = document.getElementById('timerTaskName');
-const countdown = document.getElementById('countdown');
-const pauseBtn = document.getElementById('pauseBtn');
-const stopBtn = document.getElementById('stopBtn');
+        // Global variables for Firebase and app state
+        let app;
+        let db;
+        let auth;
+        let userId;
+        let isAuthReady = false;
 
-// ---------- INIT RENDER
-renderTasks();
-renderTagCloud();
-renderModalTimeButtons();
-renderModalContextButtons();
+        // Task data will be stored in this array, synced with Firestore
+        let tasks = [];
+        let selectedTime = null;
+        let selectedTags = [];
+        let selectedContexts = [];
+        let selectedModalTime = null;
+        let selectedModalTags = new Set();
+        let selectedModalContexts = new Set();
+        let countdownInterval;
+        let countdownTime;
+        let paused = false;
+        let editingTaskId = null; // Stores the ID of the task being edited
 
-// ---------- ADD TASK MODAL
-openModalBtn.addEventListener('click', () => {
-  taskModal.style.display = 'flex';
-  resetModal();
-});
+        // Elements
+        const timeButtons = document.querySelectorAll('.time-btn');
+        const contextButtons = document.querySelectorAll('.context-btn');
+        const tagCloud = document.getElementById('tagCloud');
+        const suggestTaskBtn = document.getElementById('suggestTask');
+        const suggestedTasks = document.getElementById('suggestedTasks');
+        const taskList = document.getElementById('taskList');
+        const userIdDisplay = document.getElementById('userIdDisplay'); // New element for user ID
 
-closeModalBtn.addEventListener('click', () => {
-  taskModal.style.display = 'none';
-});
+        const openModalBtn = document.getElementById('openModalBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const taskModal = document.getElementById('taskModal');
+        const taskForm = document.getElementById('taskForm');
+        const modalTitle = document.getElementById('modalTitle');
 
-taskForm.addEventListener('submit', (e) => {
-  e.preventDefault();
+        const modalTimeButtons = document.getElementById('modalTimeButtons');
+        const modalTags = document.getElementById('modalTags');
+        const newTagInput = document.getElementById('newTagInput');
+        const addTagBtn = document.getElementById('addTagBtn');
+        const modalContexts = document.getElementById('modalContexts');
 
-  const project = document.getElementById('project').value.trim();
-  const task = document.getElementById('task').value.trim();
-  const priority = document.getElementById('priority').value;
+        const timerModal = document.getElementById('timerModal');
+        const timerTaskName = document.getElementById('timerTaskName');
+        const countdown = document.getElementById('countdown');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const stopBtn = document.getElementById('stopBtn');
 
-  if (!project) {
-    alert('Please enter a project name.');
-    return;
-  }
+        const messageModal = document.getElementById('messageModal');
+        const messageModalTitle = document.getElementById('messageModalTitle');
+        const messageModalContent = document.getElementById('messageModalContent');
+        const messageModalActions = document.getElementById('messageModalActions');
 
-  if (!task) {
-    alert('Please enter a task name.');
-    return;
-  }
+        const clearFiltersBtn = document.getElementById('clearFiltersBtn'); // New clear filters button
+        const selectedFiltersSummary = document.getElementById('selectedFiltersSummary'); // New filter summary container
+        const summaryContent = document.getElementById('summaryContent'); // Content area for filter summary
 
-  if (!selectedModalTime) {
-    alert('Please select a time.');
-    return;
-  }
 
-  if (selectedModalTags.size === 0) {
-    alert('Please select at least one tag.');
-    return;
-  }
+        /**
+         * Initializes Firebase and sets up authentication.
+         * This function should be called once when the app loads.
+         */
+        async function initializeFirebase() {
+            try {
+                // Get Firebase config and app ID from the global variables provided by the environment
+                const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
-  if (!priority) {
-    alert('Please select a priority.');
-    return;
-  }
+                // Initialize Firebase app
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
 
-  if (selectedModalContexts.size === 0) {
-    alert('Please select at least one context.');
-    return;
-  }
+                // Set up authentication listener
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        // User is signed in
+                        userId = user.uid;
+                        userIdDisplay.textContent = `User ID: ${userId}`; // Display user ID
+                        console.log("User signed in:", userId);
+                    } else {
+                        // User is signed out, sign in anonymously if no custom token
+                        if (typeof __initial_auth_token === 'undefined') {
+                            await signInAnonymously(auth);
+                            userId = auth.currentUser?.uid || crypto.randomUUID(); // Fallback for anonymous
+                            userIdDisplay.textContent = `User ID (Anonymous): ${userId}`; // Display anonymous user ID
+                            console.log("Signed in anonymously:", userId);
+                        }
+                    }
+                    isAuthReady = true; // Mark authentication as ready
+                    // Once auth is ready, set up real-time listener for tasks
+                    if (userId) {
+                        setupTaskListener();
+                    }
+                });
 
-  const newTask = {
-    project,
-    task,
-    time: selectedModalTime,
-    tag: Array.from(selectedModalTags),
-    priority,
-    context: Array.from(selectedModalContexts),
-  };
+                // Sign in with custom token if available (provided by Canvas environment)
+                if (typeof __initial_auth_token !== 'undefined') {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                }
 
-  tasks.push(newTask);
-  saveTasks();
-  renderTasks();
-  renderTagCloud();
-  taskModal.style.display = 'none';
-});
+            } catch (error) {
+                console.error("Error initializing Firebase:", error);
+                showModal('Error', 'Failed to initialize the app. Please try again later.', 'alert');
+            }
+        }
 
-// ---------- TAGS IN MODAL
-addTagBtn.addEventListener('click', () => {
-  const newTag = newTagInput.value.trim();
-  if (newTag && !selectedModalTags.has(newTag)) {
-    selectedModalTags.add(newTag);
-    renderModalTags();
-    newTagInput.value = '';
-  }
-});
+        /**
+         * Sets up a real-time listener for tasks from Firestore.
+         * This function is called once authentication is ready.
+         */
+        function setupTaskListener() {
+            if (!db || !userId) {
+                console.warn("Firestore not initialized or userId not available. Cannot set up task listener.");
+                return;
+            }
 
-function resetModal() {
-  taskForm.reset();
-  selectedModalTime = null;
-  selectedModalTags.clear();
-  selectedModalContexts.clear();
-  renderModalTimeButtons();
-  renderModalTags();
-  renderModalContextButtons();
-}
+            // Define the collection path for private user data
+            const tasksCollectionRef = collection(db, `artifacts/${__app_id}/users/${userId}/tasks`);
 
-// ---------- RENDER TIME PILLS (MODAL)
-function renderModalTimeButtons() {
-  modalTimeButtons.innerHTML = '';
-  [5,10,15,20,25,30,45,60].forEach(time => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'pill-btn';
-    btn.textContent = `${time} min`;
-    if (time === selectedModalTime) btn.classList.add('selected');
-    btn.onclick = () => {
-      selectedModalTime = time;
-      renderModalTimeButtons();
-    };
-    modalTimeButtons.appendChild(btn);
-  });
-}
+            // Set up real-time listener
+            onSnapshot(tasksCollectionRef, (snapshot) => {
+                const fetchedTasks = [];
+                snapshot.forEach(doc => {
+                    // Add the Firestore document ID to the task object
+                    fetchedTasks.push({ id: doc.id, ...doc.data() });
+                });
+                tasks = fetchedTasks; // Update the local tasks array
+                console.log("Tasks updated from Firestore:", tasks);
+                renderTasks(); // Re-render the task list
+                renderTagCloud(); // Re-render the tag cloud for filter options
+                updateFilterDisplay(); // Update the filter summary
+            }, (error) => {
+                console.error("Error fetching tasks from Firestore:", error);
+                showModal('Error', 'Failed to load tasks. Please refresh the page.', 'alert');
+            });
+        }
 
-// ---------- RENDER TAGS (MODAL)
-function renderModalTags() {
-  modalTags.innerHTML = '';
-  const allTags = Array.from(new Set([...tasks.flatMap(t => t.tag), ...selectedModalTags]));
-  allTags.forEach(tag => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'pill-btn';
-    btn.textContent = tag;
-    if (selectedModalTags.has(tag)) btn.classList.add('selected');
-    btn.onclick = () => {
-      if (selectedModalTags.has(tag)) {
-        selectedModalTags.delete(tag);
-      } else {
-        selectedModalTags.add(tag);
-      }
-      renderModalTags();
-    };
-    modalTags.appendChild(btn);
-  });
-}
+        /**
+         * Displays a custom modal for alerts or confirmations.
+         * @param {string} title - The title of the modal.
+         * @param {string} content - The main message content.
+         * @param {'alert'|'confirm'} type - The type of modal ('alert' for OK button, 'confirm' for Yes/No buttons).
+         * @param {function} [callback] - Optional callback function for 'confirm' type, executed if 'Yes' is clicked.
+         */
+        function showModal(title, content, type, callback = null) {
+            messageModalTitle.textContent = title;
+            messageModalContent.textContent = content;
+            messageModalActions.innerHTML = ''; // Clear previous buttons
 
-// ---------- RENDER CONTEXTS (MODAL)
-function renderModalContextButtons() {
-  modalContexts.innerHTML = '';
-  ['Workday', 'Evening', 'Weekend'].forEach(context => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'pill-btn';
-    btn.textContent = context;
-    if (selectedModalContexts.has(context)) btn.classList.add('selected');
-    btn.onclick = () => {
-      if (selectedModalContexts.has(context)) {
-        selectedModalContexts.delete(context);
-      } else {
-        selectedModalContexts.add(context);
-      }
-      renderModalContextButtons();
-    };
-    modalContexts.appendChild(btn);
-  });
-}
+            if (type === 'alert') {
+                const okBtn = document.createElement('button');
+                okBtn.textContent = 'OK';
+                okBtn.className = 'bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-lg transition duration-200 ease-in-out';
+                okBtn.onclick = () => messageModal.classList.add('hidden');
+                messageModalActions.appendChild(okBtn);
+            } else if (type === 'confirm') {
+                const yesBtn = document.createElement('button');
+                yesBtn.textContent = 'Yes';
+                yesBtn.className = 'bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-5 rounded-lg transition duration-200 ease-in-out';
+                yesBtn.onclick = () => {
+                    if (callback) callback(true);
+                    messageModal.classList.add('hidden');
+                };
+                const noBtn = document.createElement('button');
+                noBtn.textContent = 'No';
+                noBtn.className = 'bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-5 rounded-lg transition duration-200 ease-in-out';
+                noBtn.onclick = () => {
+                    if (callback) callback(false);
+                    messageModal.classList.add('hidden');
+                };
+                messageModalActions.append(yesBtn, noBtn);
+            }
+            messageModal.classList.remove('hidden');
+            messageModal.classList.add('flex'); // Ensure it's flex for centering
+        }
 
-// ---------- MAIN FILTER SELECTIONS
-timeButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    timeButtons.forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    selectedTime = parseInt(btn.dataset.time);
-  });
-});
+        // ---------- INIT RENDER (Called after Firebase is ready)
+        // Initial renders for modal elements (they don't depend on tasks yet)
+        renderModalTimeButtons();
+        renderModalContextButtons();
+        // Initial render for filter summary (before any selections are made)
+        updateFilterDisplay();
 
-contextButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    btn.classList.toggle('selected');
-    const context = btn.dataset.context;
-    if (selectedContexts.includes(context)) {
-      selectedContexts = selectedContexts.filter(c => c !== context);
-    } else {
-      selectedContexts.push(context);
-    }
-  });
-});
+        // ---------- ADD/EDIT TASK MODAL
+        openModalBtn.addEventListener('click', () => {
+            editingTaskId = null; // Reset for new task
+            modalTitle.textContent = 'Add Task';
+            taskModal.classList.remove('hidden');
+            taskModal.classList.add('flex');
+            resetModal();
+        });
 
-function renderTagCloud() {
-  tagCloud.innerHTML = '';
-  const tags = [...new Set(tasks.flatMap(t => t.tag))];
-  tags.forEach(tag => {
-    const btn = document.createElement('button');
-    btn.className = 'tag-pill';
-    btn.textContent = tag;
-    btn.onclick = () => {
-      btn.classList.toggle('selected');
-      if (selectedTags.includes(tag)) {
-        selectedTags = selectedTags.filter(t => t !== tag);
-      } else {
-        selectedTags.push(tag);
-      }
-    };
-    tagCloud.appendChild(btn);
-  });
-}
+        closeModalBtn.addEventListener('click', () => {
+            taskModal.classList.add('hidden');
+            taskModal.classList.remove('flex');
+        });
 
-// ---------- SUGGEST TASK
-suggestTaskBtn.addEventListener('click', () => {
-  if (!selectedTime) {
-    alert('Select how much time you have.');
-    return;
-  }
+        taskForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-  let filtered = tasks.map(task => ({
-    ...task,
-    timeDiff: Math.abs(task.time - selectedTime)
-  }));
+            const project = document.getElementById('project').value.trim();
+            const task = document.getElementById('task').value.trim();
+            const priority = document.getElementById('priority').value;
 
-  if (selectedContexts.length > 0) {
-    filtered = filtered.filter(task => selectedContexts.some(ctx => task.context.includes(ctx)));
-  }
+            if (!project) {
+                showModal('Validation Error', 'Please enter a project name.', 'alert');
+                return;
+            }
+            if (!task) {
+                showModal('Validation Error', 'Please enter a task name.', 'alert');
+                return;
+            }
+            if (!selectedModalTime) {
+                showModal('Validation Error', 'Please select a time.', 'alert');
+                return;
+            }
+            if (selectedModalTags.size === 0) {
+                showModal('Validation Error', 'Please select at least one tag.', 'alert');
+                return;
+            }
+            if (!priority) {
+                showModal('Validation Error', 'Please select a priority.', 'alert');
+                return;
+            }
+            if (selectedModalContexts.size === 0) {
+                showModal('Validation Error', 'Please select at least one context.', 'alert');
+                return;
+            }
 
-  if (selectedTags.length > 0) {
-    filtered = filtered.filter(task => {
-      const taskTags = task.tag.map(t => t.toLowerCase());
-      return selectedTags.some(tag => taskTags.some(t => t.includes(tag.toLowerCase())));
-    });
-  }
+            const taskData = {
+                project,
+                task,
+                time: selectedModalTime,
+                tag: Array.from(selectedModalTags),
+                priority,
+                context: Array.from(selectedModalContexts),
+                createdAt: new Date().toISOString() // Add a timestamp for sorting
+            };
 
-  filtered.sort((a, b) => {
-    const priorityMap = { High: 1, Medium: 2, Low: 3 };
-    if (priorityMap[a.priority] !== priorityMap[b.priority]) {
-      return priorityMap[a.priority] - priorityMap[b.priority];
-    }
-    return a.timeDiff - b.timeDiff;
-  });
+            try {
+                if (editingTaskId) {
+                    // Update existing task in Firestore
+                    const taskRef = doc(db, `artifacts/${__app_id}/users/${userId}/tasks`, editingTaskId);
+                    await updateDoc(taskRef, taskData);
+                    console.log("Task updated with ID:", editingTaskId);
+                    showModal('Success', 'Task updated successfully!', 'alert');
+                } else {
+                    // Add new task to Firestore
+                    const docRef = await addDoc(collection(db, `artifacts/${__app_id}/users/${userId}/tasks`), taskData);
+                    console.log("Task added with ID:", docRef.id);
+                    showModal('Success', 'Task added successfully!', 'alert');
+                }
+                taskModal.classList.add('hidden');
+                taskModal.classList.remove('flex');
+                resetModal(); // Reset form after saving
+            } catch (e) {
+                console.error("Error saving task: ", e);
+                showModal('Error', 'Failed to save task. Please try again.', 'alert');
+            }
+        });
 
-  suggestedTasks.innerHTML = '';
-  if (filtered.length === 0) {
-    suggestedTasks.innerHTML = '<p>No tasks found. Try adjusting filters.</p>';
-    return;
-  }
+        // ---------- TAGS IN MODAL
+        addTagBtn.addEventListener('click', () => {
+            const newTag = newTagInput.value.trim();
+            if (newTag && !selectedModalTags.has(newTag)) {
+                selectedModalTags.add(newTag);
+                renderModalTags();
+                newTagInput.value = '';
+            }
+        });
 
-  filtered.slice(0, 3).forEach(task => {
-    const div = document.createElement('div');
-    div.className = 'suggested-task';
-    div.innerHTML = `<strong>${task.task}</strong><br>${task.project} • ${task.time} min • ${task.priority}<br>
-      ${task.tag.map(t => `<span class="pill">${t}</span>`).join('')}
-      ${task.context.map(c => `<span class="pill">${c}</span>`).join('')}`;
-    div.onclick = () => startTimer(task.task, task.time);
-    suggestedTasks.appendChild(div);
-  });
-});
+        /**
+         * Resets the task modal form and selections.
+         */
+        function resetModal() {
+            taskForm.reset();
+            selectedModalTime = null;
+            selectedModalTags.clear();
+            selectedModalContexts.clear();
+            editingTaskId = null; // Ensure editing state is cleared
+            document.getElementById('priority').value = ''; // Reset priority dropdown
+            renderModalTimeButtons();
+            renderModalTags();
+            renderModalContextButtons();
+        }
 
-// ---------- TASK LIST
-function renderTasks() {
-  taskList.innerHTML = '';
-  const projects = {};
-  tasks.forEach(task => {
-    if (!projects[task.project]) projects[task.project] = [];
-    projects[task.project].push(task);
-  });
+        // ---------- RENDER TIME PILLS (MODAL)
+        function renderModalTimeButtons() {
+            modalTimeButtons.innerHTML = '';
+            [5, 10, 15, 20, 25, 30, 45, 60].forEach(time => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `pill-btn bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-medium py-2 px-4 rounded-full transition duration-200 ease-in-out ${time === selectedModalTime ? 'selected !bg-blue-600 !text-white' : ''}`;
+                btn.textContent = `${time} min`;
+                btn.onclick = () => {
+                    selectedModalTime = time;
+                    renderModalTimeButtons();
+                };
+                modalTimeButtons.appendChild(btn);
+            });
+        }
 
-  Object.keys(projects).forEach(project => {
-    const header = document.createElement('div');
-    header.className = 'project-header';
-    header.innerHTML = `${project} <span>▾</span>`;
-    const ul = document.createElement('ul');
-    ul.className = 'task-list';
+        // ---------- RENDER TAGS (MODAL)
+        function renderModalTags() {
+            modalTags.innerHTML = '';
+            // Combine existing task tags with currently selected modal tags
+            const allTags = Array.from(new Set([...tasks.flatMap(t => t.tag), ...Array.from(selectedModalTags)]));
+            allTags.sort(); // Sort tags alphabetically for consistency
+            allTags.forEach(tag => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `pill-btn bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-medium py-2 px-4 rounded-full transition duration-200 ease-in-out ${selectedModalTags.has(tag) ? 'selected !bg-blue-600 !text-white' : ''}`;
+                btn.textContent = tag;
+                btn.onclick = () => {
+                    if (selectedModalTags.has(tag)) {
+                        selectedModalTags.delete(tag);
+                    } else {
+                        selectedModalTags.add(tag);
+                    }
+                    renderModalTags();
+                };
+                modalTags.appendChild(btn);
+            });
+        }
 
-    projects[project].forEach((task, i) => {
-      const li = document.createElement('li');
-      li.className = 'task-card';
-      li.innerHTML = `<div><strong>${task.task}</strong><br>${task.time} min • ${task.priority}</div>
-        ${task.tag.map(t => `<div class="pill">${t}</div>`).join('')}
-        ${task.context.map(c => `<div class="pill">${c}</div>`).join('')}
-      `;
-      const btnGroup = document.createElement('div');
-      btnGroup.className = 'btn-group';
+        // ---------- RENDER CONTEXTS (MODAL)
+        function renderModalContextButtons() {
+            modalContexts.innerHTML = '';
+            ['Workday', 'Evening', 'Weekend'].forEach(context => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `pill-btn bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-medium py-2 px-4 rounded-full transition duration-200 ease-in-out ${selectedModalContexts.has(context) ? 'selected !bg-blue-600 !text-white' : ''}`;
+                btn.textContent = context;
+                btn.onclick = () => {
+                    if (selectedModalContexts.has(context)) {
+                        selectedModalContexts.delete(context);
+                    } else {
+                        selectedModalContexts.add(context);
+                    }
+                    renderModalContextButtons();
+                };
+                modalContexts.appendChild(btn);
+            });
+        }
 
-      const editBtn = document.createElement('button');
-      editBtn.className = 'edit-btn';
-      editBtn.textContent = 'Edit';
-      editBtn.onclick = () => editTask(tasks.indexOf(task));
+        // ---------- MAIN FILTER SELECTIONS
+        timeButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                timeButtons.forEach(b => b.classList.remove('!bg-blue-600', '!text-white'));
+                btn.classList.add('!bg-blue-600', '!text-white');
+                selectedTime = parseInt(btn.dataset.time);
+                updateFilterDisplay(); // Update display when time is selected
+            });
+        });
 
-      const deleteBtn = document.createElement('button');
-      deleteBtn.className = 'delete-btn';
-      deleteBtn.textContent = 'Delete';
-      deleteBtn.onclick = () => deleteTask(tasks.indexOf(task));
+        contextButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                btn.classList.toggle('!bg-blue-600');
+                btn.classList.toggle('!text-white');
+                const context = btn.dataset.context;
+                if (selectedContexts.includes(context)) {
+                    selectedContexts = selectedContexts.filter(c => c !== context);
+                } else {
+                    selectedContexts.push(context);
+                }
+                updateFilterDisplay(); // Update display when context is selected
+            });
+        });
 
-      btnGroup.append(editBtn, deleteBtn);
-      li.appendChild(btnGroup);
-      ul.appendChild(li);
-    });
+        /**
+         * Renders the tag cloud in the main content area based on all available tags.
+         */
+        function renderTagCloud() {
+            tagCloud.innerHTML = '';
+            const tags = [...new Set(tasks.flatMap(t => t.tag))];
+            tags.sort(); // Sort tags alphabetically
+            tags.forEach(tag => {
+                const btn = document.createElement('button');
+                btn.className = `tag-pill bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-medium py-2 px-4 rounded-full transition duration-200 ease-in-out ${selectedTags.includes(tag) ? '!bg-blue-600 !text-white' : ''}`;
+                btn.textContent = tag;
+                btn.onclick = () => {
+                    btn.classList.toggle('!bg-blue-600');
+                    btn.classList.toggle('!text-white');
+                    if (selectedTags.includes(tag)) {
+                        selectedTags = selectedTags.filter(t => t !== tag);
+                    } else {
+                        selectedTags.push(tag);
+                    }
+                    updateFilterDisplay(); // Update display when tag is selected
+                };
+                tagCloud.appendChild(btn);
+            });
+        }
 
-    header.onclick = () => {
-      ul.style.display = ul.style.display === 'none' ? 'block' : 'none';
-    };
+        /**
+         * Updates the display of currently selected filters.
+         */
+        function updateFilterDisplay() {
+            summaryContent.innerHTML = '';
+            let hasFilters = false;
 
-    taskList.appendChild(header);
-    taskList.appendChild(ul);
-  });
-}
+            if (selectedTime) {
+                const timePill = `<span class="bg-blue-200 text-blue-800 text-xs px-3 py-1 rounded-full">Time: ${selectedTime} min</span>`;
+                summaryContent.insertAdjacentHTML('beforeend', timePill);
+                hasFilters = true;
+            }
+            selectedTags.forEach(tag => {
+                const tagPill = `<span class="bg-blue-200 text-blue-800 text-xs px-3 py-1 rounded-full">Tag: ${tag}</span>`;
+                summaryContent.insertAdjacentHTML('beforeend', tagPill);
+                hasFilters = true;
+            });
+            selectedContexts.forEach(context => {
+                const contextPill = `<span class="bg-blue-200 text-blue-800 text-xs px-3 py-1 rounded-full">Context: ${context}</span>`;
+                summaryContent.insertAdjacentHTML('beforeend', contextPill);
+                hasFilters = true;
+            });
 
-// ---------- SAVE + LOAD
-function saveTasks() {
-  localStorage.setItem('tasks', JSON.stringify(tasks));
-}
+            if (hasFilters) {
+                selectedFiltersSummary.classList.remove('hidden');
+            } else {
+                selectedFiltersSummary.classList.add('hidden');
+            }
+        }
 
-// ---------- EDIT + DELETE
-function editTask(index) {
-  // For now: skip — can add later
-  alert('Edit feature coming soon.');
-}
-function deleteTask(index) {
-  if (confirm('Delete this task?')) {
-    tasks.splice(index, 1);
-    saveTasks();
-    renderTasks();
-    renderTagCloud();
-  }
-}
+        /**
+         * Clears all selected filters in the main section.
+         */
+        clearFiltersBtn.addEventListener('click', () => {
+            selectedTime = null;
+            selectedTags = [];
+            selectedContexts = [];
 
-// ---------- TIMER
-function startTimer(taskName, minutes) {
-  timerTaskName.textContent = taskName;
-  countdownTime = minutes * 60;
-  updateCountdown();
-  timerModal.style.display = 'flex';
-  paused = false;
-  clearInterval(countdownInterval);
-  countdownInterval = setInterval(() => {
-    if (!paused) {
-      countdownTime--;
-      updateCountdown();
-      if (countdownTime <= 0) {
-        clearInterval(countdownInterval);
-        alert('Time is up!');
-        timerModal.style.display = 'none';
-      }
-    }
-  }, 1000);
-}
+            // Deselect all time buttons
+            timeButtons.forEach(b => b.classList.remove('!bg-blue-600', '!text-white'));
+            
+            // Deselect all context buttons
+            contextButtons.forEach(b => {
+                b.classList.remove('!bg-blue-600', '!text-white');
+            });
+            
+            // Deselect all tag pills
+            document.querySelectorAll('#tagCloud .tag-pill').forEach(b => {
+                b.classList.remove('!bg-blue-600', '!text-white');
+            });
 
-function updateCountdown() {
-  const min = Math.floor(countdownTime / 60);
-  const sec = countdownTime % 60;
-  countdown.textContent = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
-}
+            updateFilterDisplay(); // Update filter summary to hide it
+            suggestedTasks.innerHTML = '<p class="text-gray-600 text-center py-4">No tasks found matching your criteria. Try adjusting filters or adding new tasks!</p>';
+        });
 
-pauseBtn.addEventListener('click', () => {
-  paused = !paused;
-  pauseBtn.textContent = paused ? 'Resume' : 'Pause';
-});
+        // ---------- SUGGEST TASK
+        suggestTaskBtn.addEventListener('click', () => {
+            if (!selectedTime && selectedTags.length === 0 && selectedContexts.length === 0) {
+                showModal('Selection Required', 'Please select at least one filter (time, tag, or context) to get a suggestion.', 'alert');
+                return;
+            }
+            if (tasks.length === 0) {
+                 showModal('No Tasks Added', 'Please add some tasks first so the app can suggest them!', 'alert');
+                 return;
+            }
 
-stopBtn.addEventListener('click', () => {
-  clearInterval(countdownInterval);
-  timerModal.style.display = 'none';
-});
-</script></script>
+            let filtered = tasks.map(task => ({
+                ...task,
+                // Calculate time difference only if selectedTime is set, otherwise set to 0 to not influence sorting
+                timeDiff: selectedTime !== null ? Math.abs(task.time - selectedTime) : 0
+            }));
 
+            // Apply context filter if any contexts are selected
+            if (selectedContexts.length > 0) {
+                filtered = filtered.filter(task => selectedContexts.some(ctx => task.context.includes(ctx)));
+            }
+
+            // Apply tag filter if any tags are selected
+            if (selectedTags.length > 0) {
+                filtered = filtered.filter(task => {
+                    const taskTags = task.tag.map(t => t.toLowerCase());
+                    return selectedTags.some(tag => taskTags.some(t => t.includes(tag.toLowerCase())));
+                });
+            }
+
+            // If time is selected, filter to only include tasks within or close to the selected time
+            // Add a small buffer for flexibility, e.g., +/- 10 minutes from selected time
+            if (selectedTime !== null) {
+                const timeBuffer = 10; // minutes
+                filtered = filtered.filter(task => 
+                    task.time >= (selectedTime - timeBuffer) && task.time <= (selectedTime + timeBuffer)
+                );
+            }
+            
+            // Sort by priority (High, Medium, Low) then by time difference
+            filtered.sort((a, b) => {
+                const priorityMap = { High: 1, Medium: 2, Low: 3 };
+                // Primary sort by priority
+                if (priorityMap[a.priority] !== priorityMap[b.priority]) {
+                    return priorityMap[a.priority] - priorityMap[b.priority];
+                }
+                // Secondary sort by time difference (only if selectedTime is relevant)
+                if (selectedTime !== null) {
+                    return a.timeDiff - b.timeDiff;
+                }
+                // If no time filter, sort by creation date (newest first)
+                return new Date(b.createdAt) - new Date(a.createdAt);
+            });
+
+            suggestedTasks.innerHTML = '';
+            if (filtered.length === 0) {
+                suggestedTasks.innerHTML = '<p class="text-gray-600 text-center py-4">No tasks found matching your criteria. Try adjusting filters or adding new tasks!</p>';
+                return;
+            }
+
+            // Display up to 3 suggested tasks (or fewer if less available)
+            filtered.slice(0, 3).forEach(task => {
+                const div = document.createElement('div');
+                div.className = 'suggested-task bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 ease-in-out cursor-pointer';
+                div.innerHTML = `
+                    <strong class="text-lg text-gray-900">${task.task}</strong>
+                    <p class="text-sm text-gray-600">${task.project} • ${task.time} min • <span class="font-semibold text-blue-600">${task.priority}</span></p>
+                    <div class="flex flex-wrap gap-2 mt-2">
+                        ${task.tag.map(t => `<span class="pill bg-gray-200 text-gray-700 text-xs px-3 py-1 rounded-full">${t}</span>`).join('')}
+                        ${task.context.map(c => `<span class="pill bg-gray-200 text-gray-700 text-xs px-3 py-1 rounded-full">${c}</span>`).join('')}
+                    </div>
+                `;
+                div.onclick = () => startTimer(task.task, task.time);
+                suggestedTasks.appendChild(div);
+            });
+        });
+
+        // ---------- TASK LIST (Sidebar)
+        /**
+         * Renders the list of tasks grouped by project in the sidebar.
+         */
+        function renderTasks() {
+            taskList.innerHTML = '';
+            const projects = {};
+            // Group tasks by project
+            tasks.forEach(task => {
+                if (!projects[task.project]) projects[task.project] = [];
+                projects[task.project].push(task);
+            });
+
+            // Sort project names alphabetically
+            const sortedProjectNames = Object.keys(projects).sort();
+
+            if (sortedProjectNames.length === 0) {
+                 taskList.innerHTML = `
+                    <p class="text-gray-500 text-sm italic mt-4 text-center">
+                        No tasks added yet. Click "+ Add Task" to start getting suggestions!
+                    </p>
+                `;
+                return;
+            }
+
+            sortedProjectNames.forEach(project => {
+                const header = document.createElement('div');
+                header.className = 'project-header flex justify-between items-center font-semibold text-gray-800 text-lg mt-4 mb-2 cursor-pointer hover:text-blue-600 transition duration-200';
+                header.innerHTML = `${project} <span class="text-gray-500 text-xl">▾</span>`;
+                
+                const ul = document.createElement('ul');
+                ul.className = 'task-list list-none p-0 m-0 space-y-2'; // Tailwind for list styling
+
+                // Sort tasks within each project by creation date (newest first)
+                projects[project].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                projects[project].forEach(task => {
+                    const li = document.createElement('li');
+                    li.className = 'task-card bg-gray-100 p-3 rounded-lg text-sm shadow-sm';
+                    li.innerHTML = `
+                        <div class="font-bold text-gray-900">${task.task}</div>
+                        <div class="text-xs text-gray-600">${task.time} min • <span class="font-medium text-blue-500">${task.priority}</span></div>
+                        <div class="flex flex-wrap gap-1 mt-2">
+                            ${task.tag.map(t => `<span class="pill bg-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded-full">${t}</span>`).join('')}
+                            ${task.context.map(c => `<span class="pill bg-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded-full">${c}</span>`).join('')}
+                        </div>
+                    `;
+                    const btnGroup = document.createElement('div');
+                    btnGroup.className = 'btn-group flex gap-2 mt-3 justify-end';
+
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'edit-btn bg-green-500 hover:bg-green-600 text-white text-xs py-1.5 px-3 rounded-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75';
+                    editBtn.textContent = 'Edit';
+                    // Pass task.id for editing
+                    editBtn.onclick = () => editTask(task.id);
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'delete-btn bg-red-500 hover:bg-red-600 text-white text-xs py-1.5 px-3 rounded-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-75';
+                    deleteBtn.textContent = 'Delete';
+                    // Pass task.id for deleting
+                    deleteBtn.onclick = () => deleteTask(task.id);
+
+                    btnGroup.append(editBtn, deleteBtn);
+                    li.appendChild(btnGroup);
+                    ul.appendChild(li);
+                });
+
+                // Toggle visibility of task list when project header is clicked
+                header.onclick = () => {
+                    ul.classList.toggle('hidden');
+                    const arrow = header.querySelector('span');
+                    if (ul.classList.contains('hidden')) {
+                        arrow.textContent = '▸';
+                    } else {
+                        arrow.textContent = '▾';
+                    }
+                };
+
+                taskList.appendChild(header);
+                taskList.appendChild(ul);
+            });
+        }
+
+        // ---------- EDIT + DELETE
+        /**
+         * Populates the modal with task data for editing.
+         * @param {string} taskId - The ID of the task to edit.
+         */
+        async function editTask(taskId) {
+            const taskToEdit = tasks.find(t => t.id === taskId);
+            if (!taskToEdit) {
+                showModal('Error', 'Task not found for editing.', 'alert');
+                return;
+            }
+
+            editingTaskId = taskId; // Set the ID of the task being edited
+            modalTitle.textContent = 'Edit Task';
+
+            // Populate form fields
+            document.getElementById('project').value = taskToEdit.project;
+            document.getElementById('task').value = taskToEdit.task;
+            document.getElementById('priority').value = taskToEdit.priority;
+
+            // Populate modal time selection
+            selectedModalTime = taskToEdit.time;
+            renderModalTimeButtons();
+
+            // Populate modal tags selection
+            selectedModalTags = new Set(taskToEdit.tag);
+            renderModalTags();
+
+            // Populate modal contexts selection
+            selectedModalContexts = new Set(taskToEdit.context);
+            renderModalContextButtons();
+
+            taskModal.classList.remove('hidden');
+            taskModal.classList.add('flex');
+        }
+
+        /**
+         * Deletes a task from Firestore.
+         * @param {string} taskId - The ID of the task to delete.
+         */
+        function deleteTask(taskId) {
+            showModal('Confirm Delete', 'Are you sure you want to delete this task?', 'confirm', async (confirmed) => {
+                if (confirmed) {
+                    try {
+                        await deleteDoc(doc(db, `artifacts/${__app_id}/users/${userId}/tasks`, taskId));
+                        console.log("Task deleted successfully:", taskId);
+                        showModal('Success', 'Task deleted successfully!', 'alert');
+                    } catch (e) {
+                        console.error("Error deleting task: ", e);
+                        showModal('Error', 'Failed to delete task. Please try again.', 'alert');
+                    }
+                }
+            });
+        }
+
+        // ---------- TIMER
+        /**
+         * Starts the countdown timer for a given task.
+         * @param {string} taskName - The name of the task.
+         * @param {number} minutes - The duration of the timer in minutes.
+         */
+        function startTimer(taskName, minutes) {
+            timerTaskName.textContent = taskName;
+            countdownTime = minutes * 60;
+            updateCountdown();
+            timerModal.classList.remove('hidden');
+            timerModal.classList.add('flex');
+            paused = false;
+            pauseBtn.textContent = 'Pause'; // Reset pause button text
+            clearInterval(countdownInterval); // Clear any existing interval
+
+            countdownInterval = setInterval(() => {
+                if (!paused) {
+                    countdownTime--;
+                    updateCountdown();
+                    if (countdownTime <= 0) {
+                        clearInterval(countdownInterval);
+                        showModal('Time\'s Up!', `Time for "${taskName}" is up!`, 'alert', () => {
+                            timerModal.classList.add('hidden');
+                            timerModal.classList.remove('flex');
+                        });
+                    }
+                }
+            }, 1000);
+        }
+
+        /**
+         * Updates the countdown display.
+         */
+        function updateCountdown() {
+            const min = Math.floor(countdownTime / 60);
+            const sec = countdownTime % 60;
+            countdown.textContent = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+        }
+
+        pauseBtn.addEventListener('click', () => {
+            paused = !paused;
+            pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+        });
+
+        stopBtn.addEventListener('click', () => {
+            clearInterval(countdownInterval);
+            timerModal.classList.add('hidden');
+            timerModal.classList.remove('flex');
+        });
+
+        // Initialize Firebase when the window loads
+        window.onload = initializeFirebase;
+    </script>
 </body>
 </html>
