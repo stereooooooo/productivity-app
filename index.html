@@ -263,6 +263,12 @@
                 const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
                 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
+                // Ensure projectId is present in firebaseConfig, providing a fallback if needed
+                if (!firebaseConfig.projectId) {
+                    firebaseConfig.projectId = 'canvas-app-default-project'; // A generic project ID or one you'd prefer
+                    console.warn("Firebase projectId not provided in __firebase_config. Using default project ID:", firebaseConfig.projectId);
+                }
+
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
