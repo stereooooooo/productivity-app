@@ -201,8 +201,8 @@
       color: #1f2937;
     }
     .app-logo {
-      width: 110px;
-      height: auto;
+      width: 120px; /* Adjusted to match original potentially */
+      height: auto; /* Maintain aspect ratio */
       margin: 0 auto 20px auto;
       display: block;
     }
@@ -314,7 +314,8 @@
 <body>
 
 <div class="sidebar">
-  <img src="https://placehold.co/120x50/3b82f6/ffffff?text=Select+Do" alt="Select + Do Logo" class="app-logo" onerror="this.src='https://placehold.co/120x50/cccccc/000000?text=Logo+Error'; this.onerror=null;">
+  <!-- Updated logo src and kept onerror fallback -->
+  <img src="selectdologo.png" alt="Select + Do Logo" class="app-logo" onerror="this.src='https://placehold.co/120x50/cccccc/000000?text=Logo+Error'; this.onerror=null;">
   <button class="add-task-btn" id="openModalBtn">+ Add Task</button>
   <div id="taskList"></div>
 </div>
@@ -873,34 +874,56 @@ suggestTaskBtn.addEventListener('click', () => {
 
 // Timer Functions
 function startTask(taskName, minutes) {
-  clearInterval(countdown); isPaused = false;
-  countdownDuration = minutes * 60; countdownRemaining = countdownDuration;
-  activeTaskName.textContent = taskName;
-  pauseTaskBtn.textContent = 'Pause';
+  // Updated: Check for valid, positive minutes
+  if (typeof minutes !== 'number' || isNaN(minutes) || minutes <= 0) {
+    showCustomDialog(`Task "${taskName}" has an invalid or zero duration and cannot be timed.`);
+    return;
+  }
+
+  clearInterval(countdown); 
+  isPaused = false;
+  countdownDuration = minutes * 60; 
+  countdownRemaining = countdownDuration;
+  
+  if (activeTaskName) activeTaskName.textContent = taskName;
+  if (pauseTaskBtn) pauseTaskBtn.textContent = 'Pause';
+  
   updateCountdownDisplay();
-  timerModal.style.display = 'flex';
+  
+  if (timerModal) timerModal.style.display = 'flex';
+  
   countdown = setInterval(tickTimer, 1000);
 }
+
 function tickTimer() {
   if (isPaused) return;
   if (countdownRemaining <= 0) {
     clearInterval(countdown);
     showCustomDialog(`Time’s up for "${activeTaskName.textContent}"!`);
-    timerModal.style.display = 'none';
+    if (timerModal) timerModal.style.display = 'none';
   } else {
-    countdownRemaining--; updateCountdownDisplay();
+    countdownRemaining--; 
+    updateCountdownDisplay();
   }
 }
 function updateCountdownDisplay() {
+  if (!countdownTimer) return; // Guard against missing element
   const min = Math.floor(countdownRemaining / 60);
   const sec = countdownRemaining % 60;
   countdownTimer.textContent = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
 }
-pauseTaskBtn.onclick = () => { isPaused = !isPaused; pauseTaskBtn.textContent = isPaused ? 'Resume' : 'Pause'; };
+pauseTaskBtn.onclick = () => { 
+  isPaused = !isPaused; 
+  if (pauseTaskBtn) pauseTaskBtn.textContent = isPaused ? 'Resume' : 'Pause'; 
+};
 stopTaskBtn.onclick = () => {
   clearInterval(countdown);
-  timerModal.style.display = 'none';
-  showCustomDialog(`Timer for "${activeTaskName.textContent}" stopped.`);
+  if (timerModal) timerModal.style.display = 'none';
+  if (activeTaskName && activeTaskName.textContent) { // Check if a task was active
+    showCustomDialog(`Timer for "${activeTaskName.textContent}" stopped.`);
+  } else {
+    showCustomDialog("Timer stopped.");
+  }
 };
 
 // Initial render
@@ -909,3 +932,45 @@ renderTasks();
 
 </body>
 </html>
+```
+
+The key changes are:
+
+* **Logo Update**: The `<img>` tag in the sidebar now has `src="selectdologo.png"`.
+    ```html
+    <img src="selectdologo.png" alt="Select + Do Logo" class="app-logo" onerror="this.src='https://placehold.co/120x50/cccccc/000000?text=Logo+Error'; this.onerror=null;">
+    ```
+* **Timer Activation Fix (`startTask` function)**:
+    * Added a check at the beginning of the `startTask` function to ensure `minutes` is a positive number. If not, it shows a dialog and returns, preventing the timer from starting for invalid durations.
+    * Added some defensive checks for the existence of timer UI elements (`activeTaskName`, `pauseTaskBtn`, `timerModal`, `countdownTimer`) before trying to manipulate them, though these should generally always exist if the HTML is correct.
+    ```javascript
+    function startTask(taskName, minutes) {
+      // Updated: Check for valid, positive minutes
+      if (typeof minutes !== 'number' || isNaN(minutes) || minutes <= 0) {
+        showCustomDialog(`Task "${taskName}" has an invalid or zero duration and cannot be timed.`);
+        return;
+      }
+
+      clearInterval(countdown); 
+      isPaused = false;
+      countdownDuration = minutes * 60; 
+      countdownRemaining = countdownDuration;
+      
+      // Defensive checks for UI elements (optional but good practice)
+      if (activeTaskName) activeTaskName.textContent = taskName;
+      // else { console.error("Debug: activeTaskName element not found in startTask"); }
+
+      if (pauseTaskBtn) pauseTaskBtn.textContent = 'Pause';
+      // else { console.error("Debug: pauseTaskBtn element not found in startTask"); }
+      
+      updateCountdownDisplay();
+      
+      if (timerModal) timerModal.style.display = 'flex';
+      // else { console.error("Debug: timerModal element not found in startTask"); }
+      
+      countdown = setInterval(tickTimer, 1000);
+    }
+    ```
+    I also added a guard clause in `updateCountdownDisplay` and `stopTaskBtn.onclick` for robustness.
+
+These changes should resolve the issues you mentioned. The timer will now only activate for tasks with a valid, positive duration, and your logo should appear if `selectdologo.png` is accessible, otherwise the placeholder will sh
