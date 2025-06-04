@@ -410,10 +410,12 @@ taskForm.addEventListener('submit', (e) => {
     time: parseInt(document.getElementById('time').value),
     tag: document.getElementById('tag').value.trim(),
     priority: document.getElementById('priority').value,
-context: document.getElementById('context').value
-  .split(',')
-  .map(c => c.trim())
-  .filter(c => c.length > 0)  };
+    context: document.getElementById('context').value
+      .split(',')
+      .map(c => c.trim())
+      .filter(c => c.length > 0)   // <--- end of .filter
+  };   // <--- close the object here!
+  
   if (editingIndex !== null) {
     tasks[editingIndex] = newTask;
     editingIndex = null;
