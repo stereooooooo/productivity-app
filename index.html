@@ -257,24 +257,30 @@
          * Initializes Firebase and sets up authentication.
          * This function should be called once when the app loads.
          */
-        async function initializeFirebase() {
-            try {
-                // Get Firebase config and app ID from the global variables provided by the environment
-                const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+async function initializeFirebase() {
+            try {
+                // Your web app's Firebase configuration
+                const firebaseConfig = {
+                  apiKey: "AIzaSyC4a28zisEzhra4tWuxr7TRZsIXpaJVjVk",
+                  authDomain: "select-do-app.firebaseapp.com",
+                  projectId: "select-do-app",
+                  storageBucket: "select-do-app.firebasestorage.app", // Corrected from your console output (was firebasestorage.app)
+                  messagingSenderId: "827674670966",
+                  appId: "1:827674670966:web:29faea29ee65902d1a2c57",
+                  measurementId: "G-3CQSTDP41X"
+                };
 
-                // Ensure projectId is present in firebaseConfig, providing a fallback if needed
-                if (!firebaseConfig.projectId) {
-                    firebaseConfig.projectId = 'canvas-app-default-project'; // A generic project ID or one you'd prefer
-                    console.warn("Firebase projectId not provided in __firebase_config. Using default project ID:", firebaseConfig.projectId);
-                }
+                // You can still keep this if your environment might provide __app_id,
+                // otherwise, firebaseConfig.appId above will be used.
+                const currentAppId = typeof __app_id !== 'undefined' ? __app_id : firebaseConfig.appId;
 
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
 
-                // Flag to ensure initial setup logic runs only once
-                let initialSetupDone = false;
+                // Flag to ensure initial setup logic runs only once
+                let initialSetupDone = false;
+            // ... rest of the function
 
                 // Listen for authentication state changes
                 onAuthStateChanged(auth, async (user) => {
