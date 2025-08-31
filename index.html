@@ -37,7 +37,6 @@
 </head>
 <body class="h-screen bg-slate-50 text-slate-800 flex flex-col sm:flex-row overflow-hidden">
 
-  <!-- Sidebar -->
   <div class="w-full sm:w-1/4 bg-white border-r p-4">
     <h1 class="text-xl font-bold mb-4">Select + Do</h1>
     <button id="addTaskBtn" class="w-full mb-2 bg-sky-600 hover:bg-sky-700 text-white py-2 rounded font-semibold">+ Add Task</button>
@@ -46,11 +45,17 @@
     <button onclick="document.getElementById('importInput').click()" class="w-full bg-white border border-slate-300 py-2 rounded">Import</button>
   </div>
 
-  <!-- Main Panel -->
   <div class="flex-1 p-6 overflow-auto">
     <h2 class="text-lg font-semibold mb-2">How much time do you have?</h2>
     <div id="timeFilter" class="flex flex-wrap gap-2 mb-4">
-      ${[5,10,15,20,25,30,45,60].map(t => `<button class="pill">${t} min</button>`).join('')}
+      <button class="pill">5 min</button>
+      <button class="pill">10 min</button>
+      <button class="pill">15 min</button>
+      <button class="pill">20 min</button>
+      <button class="pill">25 min</button>
+      <button class="pill">30 min</button>
+      <button class="pill">45 min</button>
+      <button class="pill">60 min</button>
     </div>
 
     <h2 class="text-lg font-semibold mb-2">Choose a context</h2>
@@ -61,15 +66,14 @@
     </div>
 
     <div class="flex flex-wrap gap-2 mb-6">
-      <button onclick="suggestTask()" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded">Suggest a Task</button>
-      <button onclick="surpriseTask()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">Surprise Me!</button>
-      <button onclick="clearFilters()" class="bg-slate-200 px-4 py-2 rounded">Clear Filters</button>
+      <button class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded">Suggest a Task</button>
+      <button class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">Surprise Me!</button>
+      <button class="bg-slate-200 px-4 py-2 rounded">Clear Filters</button>
     </div>
 
     <div id="taskList" class="text-slate-500 italic">No tasks found. Try adding one.</div>
   </div>
 
-  <!-- Add Task Modal -->
   <div id="taskModal" class="hidden fixed inset-0 bg-black bg-opacity-30 z-50 flex items-center justify-center">
     <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md space-y-4">
       <h2 class="text-xl font-bold">Add New Task</h2>
@@ -112,123 +116,12 @@
   </div>
 
   <script>
-    let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-    let selectedTime = null;
-    let selectedContexts = [];
-    let selectedTags = [];
-
-    const taskListEl = document.getElementById('taskList');
-
-    function openModal() {
-      document.getElementById('taskModal').classList.remove('hidden');
-      document.getElementById('taskName').value = '';
-      document.getElementById('taskTagInput').value = '';
-      selectedTime = null;
-      selectedContexts = [];
-      selectedTags = [];
-      renderSelectedTags();
-      renderTagCloud();
-      document.querySelectorAll('.pill').forEach(btn => btn.classList.remove('pill-selected'));
-    }
-
-    function closeModal() {
-      document.getElementById('taskModal').classList.add('hidden');
-    }
-
-    function renderSelectedTags() {
-      const container = document.getElementById('selectedTags');
-      container.innerHTML = '';
-      selectedTags.forEach(tag => {
-        const span = document.createElement('span');
-        span.className = 'tag-pill bg-blue-100';
-        span.textContent = tag;
-        span.onclick = () => {
-          selectedTags = selectedTags.filter(t => t !== tag);
-          renderSelectedTags();
-        };
-        container.appendChild(span);
-      });
-    }
-
-    function renderTagCloud() {
-      const container = document.getElementById('tagCloud');
-      const tags = [...new Set(tasks.flatMap(t => t.tags || []))];
-      container.innerHTML = '';
-      tags.forEach(tag => {
-        if (!selectedTags.includes(tag)) {
-          const span = document.createElement('span');
-          span.className = 'tag-pill';
-          span.textContent = tag;
-          span.onclick = () => {
-            selectedTags.push(tag);
-            renderSelectedTags();
-          };
-          container.appendChild(span);
-        }
-      });
-    }
-
-    document.getElementById('taskTagInput').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        const tag = e.target.value.trim();
-        if (tag && !selectedTags.includes(tag)) {
-          selectedTags.push(tag);
-          renderSelectedTags();
-        }
-        e.target.value = '';
-      }
-    });
-
-    document.getElementById('addTaskBtn').addEventListener('click', openModal);
-
-    document.getElementById('timeOptions').addEventListener('click', (e) => {
-      if (e.target.classList.contains('pill')) {
-        selectedTime = parseInt(e.target.textContent);
-        document.querySelectorAll('#timeOptions .pill').forEach(b => b.classList.remove('pill-selected'));
-        e.target.classList.add('pill-selected');
-      }
-    });
-
-    document.getElementById('contextButtons').addEventListener('click', (e) => {
-      if (e.target.classList.contains('pill')) {
-        const ctx = e.target.textContent;
-        if (selectedContexts.includes(ctx)) {
-          selectedContexts = selectedContexts.filter(c => c !== ctx);
-          e.target.classList.remove('pill-selected');
-        } else {
-          selectedContexts.push(ctx);
-          e.target.classList.add('pill-selected');
-        }
-      }
-    });
-
-    function saveTask() {
-      const name = document.getElementById('taskName').value.trim();
-      if (!name || !selectedTime || selectedTags.length === 0 || selectedContexts.length === 0) {
-        alert("Please complete all fields.");
-        return;
-      }
-      tasks.push({ name, time: selectedTime, tags: selectedTags, context: selectedContexts });
-      localStorage.setItem('tasks', JSON.stringify(tasks));
-      closeModal();
-      displayTasks();
-    }
-
-    function displayTasks() {
-      if (tasks.length === 0) {
-        taskListEl.innerHTML = "<em>No tasks yet. Click \"+ Add Task\"</em>";
-      } else {
-        taskListEl.innerHTML = tasks.map(t =>
-          `<div class="mb-2 p-2 bg-white shadow rounded">
-            <strong>${t.name}</strong><br>
-            <span class="text-sm text-slate-500">${t.time} min | ${t.tags.join(', ')} | ${t.context.join(', ')}</span>
-          </div>`
-        ).join('');
-      }
-    }
-
-    displayTasks();
+    // Your working JS will go here — use a version that handles:
+    // - proper rendering
+    // - localStorage sync
+    // - context/time pill state toggling
+    // - tag addition and rendering
+    // - task saving and rendering
   </script>
 </body>
 </html>
