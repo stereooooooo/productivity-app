@@ -11,205 +11,224 @@
       theme: {
         extend: {
           fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            primary: '#0ea5e9',
+            selected: '#0284c7'
+          }
         },
       },
     };
   </script>
   <style>
     body { font-family: 'Inter', sans-serif; }
-    .pill-selected { background-color: rgb(2 132 199); color: white; }
-    .tag-pill {
-      background-color: #f3f4f6;
-      padding: 4px 10px;
-      border-radius: 9999px;
-      cursor: pointer;
-      margin: 2px;
+    .pill {
+      @apply bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full cursor-pointer transition;
     }
-    .tag-pill:hover { background-color: #e0e7ff; }
+    .pill-selected {
+      @apply bg-selected text-white font-semibold shadow;
+    }
+    .tag-pill {
+      @apply bg-slate-100 px-2 py-1 rounded-full text-sm cursor-pointer m-1;
+    }
+    .tag-pill:hover {
+      @apply bg-sky-100;
+    }
   </style>
 </head>
 <body class="h-screen bg-slate-50 text-slate-800 flex flex-col sm:flex-row overflow-hidden">
 
-<!-- Sidebar -->
-<div class="w-full sm:w-64 p-4 border-r border-slate-200 bg-white">
-  <h1 class="text-xl font-bold mb-4">Select + Do</h1>
-  <button id="addTaskBtn" class="w-full px-4 py-2 bg-sky-600 text-white rounded mb-2">+ Add Task</button>
-  <div class="flex gap-2">
-    <button class="w-full px-3 py-2 bg-slate-100 rounded">Export</button>
-    <button class="w-full px-3 py-2 bg-slate-100 rounded">Import</button>
+  <!-- Sidebar -->
+  <div class="w-full sm:w-1/4 bg-white border-r p-4">
+    <h1 class="text-xl font-bold mb-4">Select + Do</h1>
+    <button id="addTaskBtn" class="w-full mb-2 bg-sky-600 hover:bg-sky-700 text-white py-2 rounded font-semibold">+ Add Task</button>
+    <button onclick="exportTasks()" class="w-full mb-2 bg-white border border-slate-300 py-2 rounded">Export</button>
+    <input type="file" id="importInput" class="hidden" />
+    <button onclick="document.getElementById('importInput').click()" class="w-full bg-white border border-slate-300 py-2 rounded">Import</button>
   </div>
-</div>
 
-<!-- Main Content -->
-<div class="flex-1 p-6 overflow-y-auto">
-  <div class="mb-4">
+  <!-- Main Panel -->
+  <div class="flex-1 p-6 overflow-auto">
     <h2 class="text-lg font-semibold mb-2">How much time do you have?</h2>
-    <div class="flex flex-wrap gap-2">
-      <button class="time-filter bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">5 min</button>
-      <button class="time-filter bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">10 min</button>
-      <button class="time-filter bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">15 min</button>
-      <button class="time-filter bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">20 min</button>
-      <button class="time-filter bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">30 min</button>
-      <button class="time-filter bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">45 min</button>
-      <button class="time-filter bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">60 min</button>
+    <div id="timeFilter" class="flex flex-wrap gap-2 mb-4">
+      ${[5,10,15,20,25,30,45,60].map(t => `<button class="pill">${t} min</button>`).join('')}
     </div>
-  </div>
 
-  <div class="mb-4">
     <h2 class="text-lg font-semibold mb-2">Choose a context</h2>
-    <div class="flex flex-wrap gap-2">
-      <button class="context-filter bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">Workday</button>
-      <button class="context-filter bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">Evening</button>
-      <button class="context-filter bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">Weekend</button>
+    <div id="contextFilter" class="flex flex-wrap gap-2 mb-4">
+      <button class="pill">Workday</button>
+      <button class="pill">Evening</button>
+      <button class="pill">Weekend</button>
     </div>
+
+    <div class="flex flex-wrap gap-2 mb-6">
+      <button onclick="suggestTask()" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded">Suggest a Task</button>
+      <button onclick="surpriseTask()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">Surprise Me!</button>
+      <button onclick="clearFilters()" class="bg-slate-200 px-4 py-2 rounded">Clear Filters</button>
+    </div>
+
+    <div id="taskList" class="text-slate-500 italic">No tasks found. Try adding one.</div>
   </div>
 
-  <div class="flex gap-2 mb-6">
-    <button class="px-4 py-2 bg-sky-600 text-white rounded">Suggest a Task</button>
-    <button class="px-4 py-2 bg-purple-600 text-white rounded">Surprise Me!</button>
-    <button class="px-4 py-2 bg-slate-100 rounded">Clear Filters</button>
-  </div>
+  <!-- Add Task Modal -->
+  <div id="taskModal" class="hidden fixed inset-0 bg-black bg-opacity-30 z-50 flex items-center justify-center">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md space-y-4">
+      <h2 class="text-xl font-bold">Add New Task</h2>
+      <input id="taskName" class="w-full p-2 border rounded" placeholder="Task Name" />
 
-  <div id="taskList" class="text-slate-500 italic">No tasks found matching your criteria. Try adjusting filters or adding new tasks!</div>
-</div>
+      <div>
+        <label class="text-sm font-semibold">Select Time</label>
+        <div id="timeOptions" class="flex flex-wrap gap-2 mt-1">
+          <button class="pill">5</button>
+          <button class="pill">10</button>
+          <button class="pill">15</button>
+          <button class="pill">20</button>
+          <button class="pill">30</button>
+          <button class="pill">45</button>
+          <button class="pill">60</button>
+        </div>
+      </div>
 
-<!-- Add Task Modal -->
-<div id="taskModal" class="hidden fixed inset-0 bg-black bg-opacity-30 z-50 flex items-center justify-center">
-  <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md space-y-4">
-    <h2 class="text-xl font-bold">Add New Task</h2>
-    <input id="taskName" class="w-full p-2 border rounded" placeholder="Task Name" />
+      <div>
+        <label class="text-sm font-semibold">Tags</label>
+        <input id="taskTagInput" class="w-full p-2 border rounded" placeholder="Type and hit Enter to add" />
+        <div id="selectedTags" class="flex flex-wrap mt-1"></div>
+        <div id="tagCloud" class="flex flex-wrap mt-2 text-sm"></div>
+      </div>
 
-    <div>
-      <label class="block text-sm font-semibold mb-1">Select Time</label>
-      <div class="flex flex-wrap gap-2" id="timeOptions">
-        <button class="time-pill bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">5</button>
-        <button class="time-pill bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">10</button>
-        <button class="time-pill bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">15</button>
-        <button class="time-pill bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">20</button>
-        <button class="time-pill bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">30</button>
-        <button class="time-pill bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">45</button>
-        <button class="time-pill bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">60</button>
+      <div>
+        <label class="text-sm font-semibold">Context</label>
+        <div id="contextButtons" class="flex flex-wrap gap-2 mt-1">
+          <button class="pill">Workday</button>
+          <button class="pill">Evening</button>
+          <button class="pill">Weekend</button>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2">
+        <button onclick="closeModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded">Cancel</button>
+        <button onclick="saveTask()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded">Save Task</button>
       </div>
     </div>
-
-    <div>
-      <label class="block text-sm font-semibold mb-1">Tags</label>
-      <input id="taskTagInput" class="w-full p-2 border rounded" placeholder="Type and hit Enter to add" />
-      <div id="selectedTags" class="flex flex-wrap mt-1"></div>
-      <div id="tagCloud" class="flex flex-wrap mt-2 text-sm"></div>
-    </div>
-
-    <div>
-      <label class="block text-sm font-semibold mb-1">Context</label>
-      <div class="flex gap-2" id="contextButtons">
-        <button class="context-pill px-3 py-1 rounded-full bg-slate-100 hover:bg-sky-100">Workday</button>
-        <button class="context-pill px-3 py-1 rounded-full bg-slate-100 hover:bg-sky-100">Evening</button>
-        <button class="context-pill px-3 py-1 rounded-full bg-slate-100 hover:bg-sky-100">Weekend</button>
-      </div>
-    </div>
-
-    <div class="flex justify-end space-x-2">
-      <button onclick="closeModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded">Cancel</button>
-      <button onclick="saveTask()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded">Save Task</button>
-    </div>
   </div>
-</div>
 
-<script>
-let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-let selectedTime = null;
-let selectedContext = null;
-let selectedTags = [];
+  <script>
+    let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+    let selectedTime = null;
+    let selectedContexts = [];
+    let selectedTags = [];
 
-function openModal() {
-  document.getElementById('taskModal').classList.remove('hidden');
-  document.getElementById('taskName').value = '';
-  document.getElementById('taskTagInput').value = '';
-  selectedTime = null;
-  selectedContext = null;
-  selectedTags = [];
-  renderSelectedTags();
-  renderTagCloud();
-  document.querySelectorAll('.time-pill, .context-pill').forEach(btn => btn.classList.remove('pill-selected'));
-}
-document.getElementById('addTaskBtn').onclick = openModal;
+    const taskListEl = document.getElementById('taskList');
 
-function closeModal() {
-  document.getElementById('taskModal').classList.add('hidden');
-}
-
-function renderSelectedTags() {
-  const container = document.getElementById('selectedTags');
-  container.innerHTML = '';
-  selectedTags.forEach(tag => {
-    const span = document.createElement('span');
-    span.className = 'tag-pill bg-blue-100';
-    span.textContent = tag;
-    span.onclick = () => {
-      selectedTags = selectedTags.filter(t => t !== tag);
+    function openModal() {
+      document.getElementById('taskModal').classList.remove('hidden');
+      document.getElementById('taskName').value = '';
+      document.getElementById('taskTagInput').value = '';
+      selectedTime = null;
+      selectedContexts = [];
+      selectedTags = [];
       renderSelectedTags();
-    };
-    container.appendChild(span);
-  });
-}
-
-function renderTagCloud() {
-  const container = document.getElementById('tagCloud');
-  const tags = [...new Set(tasks.map(t => t.tags || []).flat())];
-  container.innerHTML = '';
-  tags.forEach(tag => {
-    if (!selectedTags.includes(tag)) {
-      const span = document.createElement('span');
-      span.className = 'tag-pill';
-      span.textContent = tag;
-      span.onclick = () => {
-        selectedTags.push(tag);
-        renderSelectedTags();
-      };
-      container.appendChild(span);
+      renderTagCloud();
+      document.querySelectorAll('.pill').forEach(btn => btn.classList.remove('pill-selected'));
     }
-  });
-}
 
-document.getElementById('taskTagInput').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    const tag = e.target.value.trim();
-    if (tag && !selectedTags.includes(tag)) {
-      selectedTags.push(tag);
-      renderSelectedTags();
+    function closeModal() {
+      document.getElementById('taskModal').classList.add('hidden');
     }
-    e.target.value = '';
-  }
-});
 
-document.getElementById('timeOptions').addEventListener('click', (e) => {
-  if (e.target.classList.contains('time-pill')) {
-    selectedTime = parseInt(e.target.textContent);
-    document.querySelectorAll('.time-pill').forEach(b => b.classList.remove('pill-selected'));
-    e.target.classList.add('pill-selected');
-  }
-});
+    function renderSelectedTags() {
+      const container = document.getElementById('selectedTags');
+      container.innerHTML = '';
+      selectedTags.forEach(tag => {
+        const span = document.createElement('span');
+        span.className = 'tag-pill bg-blue-100';
+        span.textContent = tag;
+        span.onclick = () => {
+          selectedTags = selectedTags.filter(t => t !== tag);
+          renderSelectedTags();
+        };
+        container.appendChild(span);
+      });
+    }
 
-document.getElementById('contextButtons').addEventListener('click', (e) => {
-  if (e.target.classList.contains('context-pill')) {
-    selectedContext = e.target.textContent;
-    document.querySelectorAll('.context-pill').forEach(b => b.classList.remove('pill-selected'));
-    e.target.classList.add('pill-selected');
-  }
-});
+    function renderTagCloud() {
+      const container = document.getElementById('tagCloud');
+      const tags = [...new Set(tasks.flatMap(t => t.tags || []))];
+      container.innerHTML = '';
+      tags.forEach(tag => {
+        if (!selectedTags.includes(tag)) {
+          const span = document.createElement('span');
+          span.className = 'tag-pill';
+          span.textContent = tag;
+          span.onclick = () => {
+            selectedTags.push(tag);
+            renderSelectedTags();
+          };
+          container.appendChild(span);
+        }
+      });
+    }
 
-function saveTask() {
-  const name = document.getElementById('taskName').value.trim();
-  if (!name || !selectedTime || !selectedTags.length || !selectedContext) {
-    alert("Please complete all fields.");
-    return;
-  }
-  tasks.push({ name, time: selectedTime, tags: selectedTags, context: selectedContext });
-  localStorage.setItem('tasks', JSON.stringify(tasks));
-  closeModal();
-  // TODO: refresh task display
-}
-</script>
+    document.getElementById('taskTagInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const tag = e.target.value.trim();
+        if (tag && !selectedTags.includes(tag)) {
+          selectedTags.push(tag);
+          renderSelectedTags();
+        }
+        e.target.value = '';
+      }
+    });
+
+    document.getElementById('addTaskBtn').addEventListener('click', openModal);
+
+    document.getElementById('timeOptions').addEventListener('click', (e) => {
+      if (e.target.classList.contains('pill')) {
+        selectedTime = parseInt(e.target.textContent);
+        document.querySelectorAll('#timeOptions .pill').forEach(b => b.classList.remove('pill-selected'));
+        e.target.classList.add('pill-selected');
+      }
+    });
+
+    document.getElementById('contextButtons').addEventListener('click', (e) => {
+      if (e.target.classList.contains('pill')) {
+        const ctx = e.target.textContent;
+        if (selectedContexts.includes(ctx)) {
+          selectedContexts = selectedContexts.filter(c => c !== ctx);
+          e.target.classList.remove('pill-selected');
+        } else {
+          selectedContexts.push(ctx);
+          e.target.classList.add('pill-selected');
+        }
+      }
+    });
+
+    function saveTask() {
+      const name = document.getElementById('taskName').value.trim();
+      if (!name || !selectedTime || selectedTags.length === 0 || selectedContexts.length === 0) {
+        alert("Please complete all fields.");
+        return;
+      }
+      tasks.push({ name, time: selectedTime, tags: selectedTags, context: selectedContexts });
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      closeModal();
+      displayTasks();
+    }
+
+    function displayTasks() {
+      if (tasks.length === 0) {
+        taskListEl.innerHTML = "<em>No tasks yet. Click \"+ Add Task\"</em>";
+      } else {
+        taskListEl.innerHTML = tasks.map(t =>
+          `<div class="mb-2 p-2 bg-white shadow rounded">
+            <strong>${t.name}</strong><br>
+            <span class="text-sm text-slate-500">${t.time} min | ${t.tags.join(', ')} | ${t.context.join(', ')}</span>
+          </div>`
+        ).join('');
+      }
+    }
+
+    displayTasks();
+  </script>
 </body>
 </html>
