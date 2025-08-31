@@ -1,196 +1,176 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Select + Do</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      .selected {
-        @apply bg-blue-600 text-white font-semibold shadow;
-      }
-      .tag-pill {
-        @apply inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-medium text-gray-800 mr-2 mt-1 cursor-pointer hover:bg-gray-300;
-      }
-      .tag-pill.selected {
-        @apply bg-blue-600 text-white;
-      }
-    </style>
-  </head>
-  <body class="bg-gray-100 min-h-screen">
-    <div class="flex">
-      <!-- Sidebar -->
-      <div class="w-1/4 bg-white border-r p-4">
-        <h1 class="text-2xl font-semibold mb-4">Select + Do</h1>
-        <button onclick="openModal()" class="w-full bg-blue-600 text-white py-2 rounded mb-4">+ Add Task</button>
-        <button onclick="exportTasks()" class="w-full border py-2 rounded mb-2">Export</button>
-        <button onclick="importTasks()" class="w-full border py-2 rounded">Import</button>
-        <div id="taskList" class="mt-4 text-sm text-gray-500">No tasks yet. Click "+ Add Task".</div>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Select + Do</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .pill {
+      @apply inline-block px-3 py-1 text-sm rounded-full border cursor-pointer transition;
+    }
+    .pill.selected {
+      @apply bg-blue-600 text-white border-blue-600;
+    }
+    .tag-pill {
+      @apply inline-block bg-gray-200 px-2 py-1 rounded-full text-sm mr-2 mb-2;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 text-gray-900">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white p-4 shadow">
+      <h1 class="text-2xl font-bold mb-4">Select + Do</h1>
+      <button id="addTaskBtn" class="w-full bg-blue-600 text-white py-2 rounded mb-4">+ Add Task</button>
+      <button class="w-full border py-2 rounded mb-2">Export</button>
+      <button class="w-full border py-2 rounded">Import</button>
+      <ul id="taskList" class="mt-4 space-y-2 text-sm text-gray-700">
+        <!-- Tasks appear here -->
+      </ul>
+    </aside>
+
+    <!-- Main -->
+    <main class="flex-1 p-8">
+      <div class="mb-6">
+        <h2 class="text-lg font-semibold mb-2">How much time do you have?</h2>
+        <div id="timeFilters" class="flex flex-wrap gap-2">
+          ${[5,10,15,20,25,30,45,60].map(t => `<div class="pill" data-time="${t}">${t} min</div>`).join('')}
+        </div>
       </div>
-
-      <!-- Main Content -->
-      <div class="flex-1 p-8">
-        <h2 class="text-xl font-semibold mb-4">How much time do you have?</h2>
-        <div class="flex flex-wrap gap-2 mb-4" id="timeFilters"></div>
-
+      <div class="mb-6">
         <h2 class="text-lg font-semibold mb-2">Choose a context</h2>
-        <div class="flex flex-wrap gap-2 mb-6" id="contextFilters"></div>
-
-        <div class="flex flex-wrap gap-4">
-          <button onclick="suggestTask()" class="bg-blue-600 text-white px-4 py-2 rounded">Suggest a Task</button>
-          <button onclick="surpriseTask()" class="bg-purple-600 text-white px-4 py-2 rounded">Surprise Me!</button>
-          <button onclick="clearFilters()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded">Clear Filters</button>
-        </div>
-
-        <div id="filteredTasks" class="mt-6 text-gray-500">No tasks found. Try adding one.</div>
-      </div>
-    </div>
-
-    <!-- Modal -->
-    <div id="taskModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-      <div class="bg-white rounded shadow-lg p-6 w-full max-w-md">
-        <h2 class="text-xl font-bold mb-4">Add New Task</h2>
-        <input type="text" id="taskName" placeholder="Task Name" class="w-full mb-4 px-3 py-2 border rounded" />
-
-        <div class="mb-4">
-          <p class="mb-2 font-medium">Select Time</p>
-          <div class="flex flex-wrap gap-2" id="timeSelector"></div>
-        </div>
-
-        <div class="mb-4">
-          <p class="mb-2 font-medium">Tags</p>
-          <input id="tagInput" type="text" placeholder="Type and hit Enter to add" class="w-full px-3 py-2 border rounded mb-2" onkeydown="handleTagInput(event)" />
-          <div id="tagDisplay" class="flex flex-wrap"></div>
-        </div>
-
-        <div class="mb-4">
-          <p class="mb-2 font-medium">Context</p>
-          <div class="flex gap-2" id="contextSelector"></div>
-        </div>
-
-        <div class="flex justify-end gap-2">
-          <button onclick="closeModal()" class="bg-gray-200 px-4 py-2 rounded">Cancel</button>
-          <button onclick="saveTask()" class="bg-green-600 text-white px-4 py-2 rounded">Save Task</button>
+        <div id="contextFilters" class="flex gap-2">
+          ${['Workday','Evening','Weekend'].map(c => `<div class="pill" data-context="${c}">${c}</div>`).join('')}
         </div>
       </div>
+      <div class="mb-4 flex gap-2">
+        <button class="bg-blue-600 text-white px-4 py-2 rounded" onclick="suggestTask()">Suggest a Task</button>
+        <button class="bg-purple-600 text-white px-4 py-2 rounded">Surprise Me!</button>
+        <button class="bg-gray-300 text-black px-4 py-2 rounded" onclick="clearFilters()">Clear Filters</button>
+      </div>
+      <div id="filteredTaskMsg" class="text-sm italic text-gray-600">No tasks found. Try adding one.</div>
+    </main>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden">
+    <div class="bg-white rounded-lg p-6 w-full max-w-md">
+      <h3 class="text-lg font-semibold mb-4">Add New Task</h3>
+      <input id="taskName" type="text" placeholder="Task Name" class="w-full mb-3 border px-3 py-2 rounded" />
+
+      <label class="block font-medium mb-1">Select Time</label>
+      <div id="timeSelect" class="flex flex-wrap gap-2 mb-3">
+        ${[5,10,15,20,25,30,45,60].map(t => `<div class="pill" data-time="${t}">${t}</div>`).join('')}
+      </div>
+
+      <label class="block font-medium mb-1">Tags</label>
+      <input id="tagInput" type="text" placeholder="Type and hit Enter to add" class="w-full mb-2 border px-3 py-2 rounded" />
+      <div id="tagCloud" class="flex flex-wrap"></div>
+
+      <label class="block font-medium mb-1">Context</label>
+      <div id="contextSelect" class="flex gap-2 mb-4">
+        ${['Workday','Evening','Weekend'].map(c => `<div class="pill" data-context="${c}">${c}</div>`).join('')}
+      </div>
+
+      <div class="flex justify-end gap-2">
+        <button id="cancelBtn" class="bg-gray-300 px-4 py-2 rounded">Cancel</button>
+        <button id="saveBtn" class="bg-green-600 text-white px-4 py-2 rounded">Save Task</button>
+      </div>
     </div>
+  </div>
 
-    <script>
-      const times = [5, 10, 15, 20, 25, 30, 45, 60];
-      const contexts = ["Workday", "Evening", "Weekend"];
-      let selectedTime = null;
-      let selectedContexts = new Set();
-      let selectedTags = new Set();
-      let allTags = new Set();
-      let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  <script>
+    const addTaskBtn = document.getElementById('addTaskBtn');
+    const modal = document.getElementById('modal');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const taskList = document.getElementById('taskList');
+    const taskName = document.getElementById('taskName');
+    const tagInput = document.getElementById('tagInput');
+    const tagCloud = document.getElementById('tagCloud');
+    const timeSelect = document.getElementById('timeSelect');
+    const contextSelect = document.getElementById('contextSelect');
 
-      function openModal() {
-        document.getElementById("taskModal").classList.remove("hidden");
-        document.getElementById("taskName").value = "";
-        document.getElementById("tagInput").value = "";
-        selectedTime = null;
-        selectedContexts.clear();
-        selectedTags.clear();
-        updateTimeSelector();
-        updateContextSelector();
-        updateTagDisplay();
-      }
+    let selectedTime = null;
+    let selectedTags = [];
+    let selectedContexts = [];
 
-      function closeModal() {
-        document.getElementById("taskModal").classList.add("hidden");
-      }
-
-      function updateTimeSelector() {
-        const container = document.getElementById("timeSelector");
-        container.innerHTML = "";
-        times.forEach(time => {
-          const btn = document.createElement("button");
-          btn.textContent = time;
-          btn.className = `px-3 py-1 rounded border ${selectedTime === time ? 'selected' : ''}`;
-          btn.onclick = () => {
-            selectedTime = time;
-            updateTimeSelector();
-          };
-          container.appendChild(btn);
-        });
-      }
-
-      function updateContextSelector() {
-        const container = document.getElementById("contextSelector");
-        container.innerHTML = "";
-        contexts.forEach(context => {
-          const btn = document.createElement("button");
-          btn.textContent = context;
-          btn.className = `px-3 py-1 rounded border ${selectedContexts.has(context) ? 'selected' : ''}`;
-          btn.onclick = () => {
-            if (selectedContexts.has(context)) {
-              selectedContexts.delete(context);
-            } else {
-              selectedContexts.add(context);
-            }
-            updateContextSelector();
-          };
-          container.appendChild(btn);
-        });
-      }
-
-      function handleTagInput(e) {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          const val = e.target.value.trim();
-          if (val && !selectedTags.has(val)) {
-            selectedTags.add(val);
-            allTags.add(val);
-            e.target.value = "";
-            updateTagDisplay();
+    function updatePillSelection(pillGroup, selectedArr, attr) {
+      pillGroup.querySelectorAll('.pill').forEach(el => {
+        el.addEventListener('click', () => {
+          const value = el.getAttribute(attr);
+          el.classList.toggle('selected');
+          if (selectedArr.includes(value)) {
+            selectedArr.splice(selectedArr.indexOf(value), 1);
+          } else {
+            selectedArr.push(value);
           }
+        });
+      });
+    }
+
+    function renderTasks() {
+      taskList.innerHTML = '';
+      const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+      tasks.forEach(t => {
+        const li = document.createElement('li');
+        li.textContent = `• ${t.name} (${t.time} min)`;
+        taskList.appendChild(li);
+      });
+    }
+
+    addTaskBtn.onclick = () => {
+      taskName.value = '';
+      tagInput.value = '';
+      tagCloud.innerHTML = '';
+      selectedTime = null;
+      selectedTags = [];
+      selectedContexts = [];
+      timeSelect.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
+      contextSelect.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
+      modal.classList.remove('hidden');
+    };
+
+    cancelBtn.onclick = () => modal.classList.add('hidden');
+
+    tagInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const tag = tagInput.value.trim();
+        if (tag && !selectedTags.includes(tag)) {
+          selectedTags.push(tag);
+          const span = document.createElement('span');
+          span.className = 'tag-pill';
+          span.textContent = tag;
+          tagCloud.appendChild(span);
+          tagInput.value = '';
         }
       }
+    });
 
-      function updateTagDisplay() {
-        const container = document.getElementById("tagDisplay");
-        container.innerHTML = "";
-        selectedTags.forEach(tag => {
-          const div = document.createElement("div");
-          div.textContent = tag;
-          div.className = "tag-pill selected";
-          div.onclick = () => {
-            selectedTags.delete(tag);
-            updateTagDisplay();
-          };
-          container.appendChild(div);
-        });
+    saveBtn.onclick = () => {
+      const name = taskName.value.trim();
+      if (!name || selectedTime === null) return;
+      const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+      tasks.push({ name, time: selectedTime, tags: selectedTags, contexts: selectedContexts });
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      modal.classList.add('hidden');
+      renderTasks();
+    };
+
+    timeSelect.addEventListener('click', e => {
+      if (e.target.classList.contains('pill')) {
+        timeSelect.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
+        e.target.classList.add('selected');
+        selectedTime = parseInt(e.target.getAttribute('data-time'));
       }
+    });
 
-      function saveTask() {
-        const name = document.getElementById("taskName").value.trim();
-        if (!name || !selectedTime || selectedContexts.size === 0) return;
-
-        const task = {
-          name,
-          time: selectedTime,
-          tags: Array.from(selectedTags),
-          contexts: Array.from(selectedContexts),
-        };
-
-        tasks.push(task);
-        localStorage.setItem("tasks", JSON.stringify(tasks));
-        closeModal();
-        renderTasks();
-      }
-
-      function renderTasks() {
-        const container = document.getElementById("taskList");
-        container.innerHTML = tasks.map(t => `<div class='mb-2'>• ${t.name} (${t.time} min)</div>`).join('') || "No tasks yet. Click \"+ Add Task\".";
-      }
-
-      window.onload = () => {
-        renderTasks();
-        updateTimeSelector();
-        updateContextSelector();
-        document.getElementById("timeFilters").innerHTML = times.map(t => `<button class='px-3 py-1 bg-blue-100 rounded'>${t} min</button>`).join(" ");
-        document.getElementById("contextFilters").innerHTML = contexts.map(c => `<button class='px-3 py-1 bg-gray-200 rounded'>${c}</button>`).join(" ");
-      };
-    </script>
-  </body>
+    updatePillSelection(contextSelect, selectedContexts, 'data-context');
+    renderTasks();
+  </script>
+</body>
 </html>
