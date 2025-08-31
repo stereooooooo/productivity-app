@@ -17,67 +17,97 @@
   </script>
   <style>
     body { font-family: 'Inter', sans-serif; }
-    .hide-scrollbar::-webkit-scrollbar { display: none; }
-    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .pill-selected { background-color: rgb(2 132 199); color: white; }
-    .modal-bg { background-color: rgba(0, 0, 0, 0.3); }
-    .modal { backdrop-filter: blur(6px); }
+    .tag-pill {
+      background-color: #f3f4f6;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      cursor: pointer;
+      margin: 2px;
+    }
+    .tag-pill:hover { background-color: #e0e7ff; }
   </style>
 </head>
 <body class="h-screen bg-slate-50 text-slate-800 flex flex-col sm:flex-row overflow-hidden">
 
 <!-- Sidebar -->
-<div class="w-full sm:w-1/4 bg-white border-r border-slate-200 p-4 flex flex-col space-y-4">
-  <h1 class="text-2xl font-bold">Select + Do</h1>
-  <button id="addTaskBtn" class="bg-sky-600 text-white py-2 px-4 rounded-lg hover:bg-sky-700 transition">+ Add Task</button>
-  <div class="flex space-x-2">
-    <button id="exportBtn" class="bg-slate-100 px-3 py-2 rounded hover:bg-slate-200">Export</button>
-    <button id="importBtn" class="bg-slate-100 px-3 py-2 rounded hover:bg-slate-200">Import</button>
-  </div>
-  <div id="taskList" class="flex-1 overflow-y-auto hide-scrollbar text-sm text-slate-700">
-    <p class="text-slate-400 italic">No tasks yet. Click "+ Add Task".</p>
+<div class="w-full sm:w-64 p-4 border-r border-slate-200 bg-white">
+  <h1 class="text-xl font-bold mb-4">Select + Do</h1>
+  <button id="addTaskBtn" class="w-full px-4 py-2 bg-sky-600 text-white rounded mb-2">+ Add Task</button>
+  <div class="flex gap-2">
+    <button class="w-full px-3 py-2 bg-slate-100 rounded">Export</button>
+    <button class="w-full px-3 py-2 bg-slate-100 rounded">Import</button>
   </div>
 </div>
 
-<!-- Main Panel -->
-<div class="flex-1 p-6 max-w-5xl mx-auto overflow-y-auto hide-scrollbar space-y-6">
-  <div class="space-y-4">
-    <h2 class="text-xl font-semibold">How much time do you have?</h2>
-    <div class="flex flex-wrap gap-2" id="timeContainer"></div>
+<!-- Main Content -->
+<div class="flex-1 p-6 overflow-y-auto">
+  <div class="mb-4">
+    <h2 class="text-lg font-semibold mb-2">How much time do you have?</h2>
+    <div class="flex flex-wrap gap-2">
+      <button class="time-filter bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">5 min</button>
+      <button class="time-filter bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">10 min</button>
+      <button class="time-filter bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">15 min</button>
+      <button class="time-filter bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">20 min</button>
+      <button class="time-filter bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">30 min</button>
+      <button class="time-filter bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">45 min</button>
+      <button class="time-filter bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">60 min</button>
+    </div>
   </div>
 
-  <div class="space-y-2">
-    <h2 class="text-xl font-semibold">Select a category (Tags)</h2>
-    <div id="tagContainer" class="flex flex-wrap gap-2 text-sm text-slate-500 italic"></div>
+  <div class="mb-4">
+    <h2 class="text-lg font-semibold mb-2">Choose a context</h2>
+    <div class="flex flex-wrap gap-2">
+      <button class="context-filter bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">Workday</button>
+      <button class="context-filter bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">Evening</button>
+      <button class="context-filter bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">Weekend</button>
+    </div>
   </div>
 
-  <div class="space-y-2">
-    <h2 class="text-xl font-semibold">Choose a context</h2>
-    <div class="flex flex-wrap gap-2" id="contextContainer"></div>
+  <div class="flex gap-2 mb-6">
+    <button class="px-4 py-2 bg-sky-600 text-white rounded">Suggest a Task</button>
+    <button class="px-4 py-2 bg-purple-600 text-white rounded">Surprise Me!</button>
+    <button class="px-4 py-2 bg-slate-100 rounded">Clear Filters</button>
   </div>
 
-  <div class="flex flex-wrap gap-3 pt-2">
-    <button id="suggestTaskBtn" class="bg-sky-600 text-white px-4 py-2 rounded-lg hover:bg-sky-700 transition">Suggest a Task</button>
-    <button id="surpriseBtn" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">Surprise Me!</button>
-    <button id="clearFiltersBtn" class="bg-slate-200 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-300 transition">Clear Filters</button>
-  </div>
-
-  <div id="suggestedTask" class="mt-4 text-lg font-semibold text-center text-slate-600 italic">No tasks found matching your criteria.</div>
+  <div id="taskList" class="text-slate-500 italic">No tasks found matching your criteria. Try adjusting filters or adding new tasks!</div>
 </div>
 
 <!-- Add Task Modal -->
-<div id="taskModal" class="hidden fixed inset-0 modal-bg z-50 flex items-center justify-center">
-  <div class="modal bg-white p-6 rounded-lg shadow-lg w-full max-w-md space-y-4">
+<div id="taskModal" class="hidden fixed inset-0 bg-black bg-opacity-30 z-50 flex items-center justify-center">
+  <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md space-y-4">
     <h2 class="text-xl font-bold">Add New Task</h2>
     <input id="taskName" class="w-full p-2 border rounded" placeholder="Task Name" />
-    <input id="taskTime" class="w-full p-2 border rounded" type="number" min="1" placeholder="Time (min)" />
-    <input id="taskTag" class="w-full p-2 border rounded" placeholder="Tag" />
-    <select id="taskContext" class="w-full p-2 border rounded">
-      <option value="">Select context</option>
-      <option>Workday</option>
-      <option>Evening</option>
-      <option>Weekend</option>
-    </select>
+
+    <div>
+      <label class="block text-sm font-semibold mb-1">Select Time</label>
+      <div class="flex flex-wrap gap-2" id="timeOptions">
+        <button class="time-pill bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">5</button>
+        <button class="time-pill bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">10</button>
+        <button class="time-pill bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">15</button>
+        <button class="time-pill bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">20</button>
+        <button class="time-pill bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">30</button>
+        <button class="time-pill bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">45</button>
+        <button class="time-pill bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full">60</button>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm font-semibold mb-1">Tags</label>
+      <input id="taskTagInput" class="w-full p-2 border rounded" placeholder="Type and hit Enter to add" />
+      <div id="selectedTags" class="flex flex-wrap mt-1"></div>
+      <div id="tagCloud" class="flex flex-wrap mt-2 text-sm"></div>
+    </div>
+
+    <div>
+      <label class="block text-sm font-semibold mb-1">Context</label>
+      <div class="flex gap-2" id="contextButtons">
+        <button class="context-pill px-3 py-1 rounded-full bg-slate-100 hover:bg-sky-100">Workday</button>
+        <button class="context-pill px-3 py-1 rounded-full bg-slate-100 hover:bg-sky-100">Evening</button>
+        <button class="context-pill px-3 py-1 rounded-full bg-slate-100 hover:bg-sky-100">Weekend</button>
+      </div>
+    </div>
+
     <div class="flex justify-end space-x-2">
       <button onclick="closeModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded">Cancel</button>
       <button onclick="saveTask()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded">Save Task</button>
@@ -85,120 +115,101 @@
   </div>
 </div>
 
-<!-- Timer Modal -->
-<div id="timerModal" class="hidden fixed inset-0 modal-bg z-50 flex items-center justify-center">
-  <div class="modal bg-white p-6 rounded-lg shadow-lg w-full max-w-sm text-center">
-    <h2 class="text-xl font-bold mb-4">⏳ Timer Started</h2>
-    <p id="countdown" class="text-4xl font-semibold text-sky-600"></p>
-    <button onclick="closeTimer()" class="mt-6 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded">Stop</button>
-  </div>
-</div>
-
 <script>
 let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-let selectedTime = null, selectedContext = null, selectedTag = null;
+let selectedTime = null;
+let selectedContext = null;
+let selectedTags = [];
 
-const timeOptions = [5, 10, 15, 20, 25, 30, 45, 60];
-const contextOptions = ['Workday', 'Evening', 'Weekend'];
+function openModal() {
+  document.getElementById('taskModal').classList.remove('hidden');
+  document.getElementById('taskName').value = '';
+  document.getElementById('taskTagInput').value = '';
+  selectedTime = null;
+  selectedContext = null;
+  selectedTags = [];
+  renderSelectedTags();
+  renderTagCloud();
+  document.querySelectorAll('.time-pill, .context-pill').forEach(btn => btn.classList.remove('pill-selected'));
+}
+document.getElementById('addTaskBtn').onclick = openModal;
 
-function renderFilters() {
-  const timeContainer = document.getElementById('timeContainer');
-  const contextContainer = document.getElementById('contextContainer');
-  timeContainer.innerHTML = timeOptions.map(t => `<button class="time-btn px-3 py-1 rounded-full bg-slate-100 hover:bg-sky-100 text-sm">${t} min</button>`).join('');
-  contextContainer.innerHTML = contextOptions.map(ctx => `<button class="context-btn px-3 py-1 rounded-full bg-slate-100 hover:bg-sky-100 text-sm">${ctx}</button>`).join('');
-
-  document.querySelectorAll('.time-btn').forEach(btn => btn.onclick = () => {
-    selectedTime = parseInt(btn.textContent);
-    document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('pill-selected'));
-    btn.classList.add('pill-selected');
-  });
-
-  document.querySelectorAll('.context-btn').forEach(btn => btn.onclick = () => {
-    selectedContext = btn.textContent;
-    document.querySelectorAll('.context-btn').forEach(b => b.classList.remove('pill-selected'));
-    btn.classList.add('pill-selected');
-  });
+function closeModal() {
+  document.getElementById('taskModal').classList.add('hidden');
 }
 
-function renderTasks() {
-  const list = document.getElementById('taskList');
-  const tagContainer = document.getElementById('tagContainer');
-  list.innerHTML = '';
-  if (tasks.length === 0) return list.innerHTML = '<p class="text-slate-400 italic">No tasks yet. Click "+ Add Task".</p>';
-  tasks.forEach((t, i) => {
-    const card = document.createElement('div');
-    card.className = 'border rounded p-3 mb-3 bg-white shadow-sm space-y-1';
-    card.innerHTML = `<div class="font-semibold">${t.name}</div><div class="text-xs text-slate-500">${t.time} min · ${t.context} · ${t.tag}</div><div class="flex gap-2 text-xs"><button onclick="startTimer(${t.time})" class="text-emerald-600 hover:underline">Start</button><button onclick="deleteTask(${i})" class="text-red-600 hover:underline">Delete</button></div>`;
-    list.appendChild(card);
-  });
-
-  const uniqueTags = [...new Set(tasks.map(t => t.tag))];
-  tagContainer.innerHTML = '';
-  uniqueTags.forEach(tag => {
-    const btn = document.createElement('button');
-    btn.textContent = tag;
-    btn.className = 'tag-btn px-3 py-1 rounded-full bg-slate-100 hover:bg-sky-100';
-    btn.onclick = () => {
-      selectedTag = tag === selectedTag ? null : tag;
-      document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('pill-selected'));
-      if (selectedTag) btn.classList.add('pill-selected');
+function renderSelectedTags() {
+  const container = document.getElementById('selectedTags');
+  container.innerHTML = '';
+  selectedTags.forEach(tag => {
+    const span = document.createElement('span');
+    span.className = 'tag-pill bg-blue-100';
+    span.textContent = tag;
+    span.onclick = () => {
+      selectedTags = selectedTags.filter(t => t !== tag);
+      renderSelectedTags();
     };
-    tagContainer.appendChild(btn);
+    container.appendChild(span);
   });
 }
+
+function renderTagCloud() {
+  const container = document.getElementById('tagCloud');
+  const tags = [...new Set(tasks.map(t => t.tags || []).flat())];
+  container.innerHTML = '';
+  tags.forEach(tag => {
+    if (!selectedTags.includes(tag)) {
+      const span = document.createElement('span');
+      span.className = 'tag-pill';
+      span.textContent = tag;
+      span.onclick = () => {
+        selectedTags.push(tag);
+        renderSelectedTags();
+      };
+      container.appendChild(span);
+    }
+  });
+}
+
+document.getElementById('taskTagInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const tag = e.target.value.trim();
+    if (tag && !selectedTags.includes(tag)) {
+      selectedTags.push(tag);
+      renderSelectedTags();
+    }
+    e.target.value = '';
+  }
+});
+
+document.getElementById('timeOptions').addEventListener('click', (e) => {
+  if (e.target.classList.contains('time-pill')) {
+    selectedTime = parseInt(e.target.textContent);
+    document.querySelectorAll('.time-pill').forEach(b => b.classList.remove('pill-selected'));
+    e.target.classList.add('pill-selected');
+  }
+});
+
+document.getElementById('contextButtons').addEventListener('click', (e) => {
+  if (e.target.classList.contains('context-pill')) {
+    selectedContext = e.target.textContent;
+    document.querySelectorAll('.context-pill').forEach(b => b.classList.remove('pill-selected'));
+    e.target.classList.add('pill-selected');
+  }
+});
 
 function saveTask() {
   const name = document.getElementById('taskName').value.trim();
-  const time = parseInt(document.getElementById('taskTime').value);
-  const tag = document.getElementById('taskTag').value.trim();
-  const context = document.getElementById('taskContext').value;
-  if (!name || !time || !tag || !context) return alert("Please fill all fields.");
-  tasks.push({ name, time, tag, context });
+  if (!name || !selectedTime || !selectedTags.length || !selectedContext) {
+    alert("Please complete all fields.");
+    return;
+  }
+  tasks.push({ name, time: selectedTime, tags: selectedTags, context: selectedContext });
   localStorage.setItem('tasks', JSON.stringify(tasks));
   closeModal();
-  renderTasks();
+  // TODO: refresh task display
 }
-
-function deleteTask(i) {
-  tasks.splice(i, 1);
-  localStorage.setItem('tasks', JSON.stringify(tasks));
-  renderTasks();
-}
-
-function closeModal() { document.getElementById('taskModal').classList.add('hidden'); }
-function closeTimer() { document.getElementById('timerModal').classList.add('hidden'); clearInterval(timerInterval); }
-
-let timerInterval;
-function startTimer(mins) {
-  const display = document.getElementById('countdown');
-  let sec = mins * 60;
-  document.getElementById('timerModal').classList.remove('hidden');
-  const tick = () => {
-    const m = Math.floor(sec / 60), s = sec % 60;
-    display.textContent = `${m}:${s.toString().padStart(2, '0')}`;
-    if (sec-- <= 0) clearInterval(timerInterval);
-  };
-  tick();
-  timerInterval = setInterval(tick, 1000);
-}
-
-document.getElementById('addTaskBtn').onclick = () => document.getElementById('taskModal').classList.remove('hidden');
-document.getElementById('clearFiltersBtn').onclick = () => {
-  selectedTime = selectedContext = selectedTag = null;
-  document.querySelectorAll('.time-btn, .context-btn, .tag-btn').forEach(b => b.classList.remove('pill-selected'));
-  document.getElementById('suggestedTask').textContent = 'Filters cleared.';
-};
-
-document.getElementById('suggestTaskBtn').onclick = () => {
-  const result = tasks.filter(t => (!selectedTime || t.time == selectedTime) && (!selectedContext || t.context === selectedContext) && (!selectedTag || t.tag === selectedTag));
-  document.getElementById('suggestedTask').textContent = result.length ? `👉 ${result[0].name}` : 'No tasks found matching your criteria.';
-};
-document.getElementById('surpriseBtn').onclick = () => {
-  document.getElementById('suggestedTask').textContent = tasks.length ? `🎲 ${tasks[Math.floor(Math.random() * tasks.length)].name}` : 'No tasks yet.';
-};
-
-renderFilters();
-renderTasks();
 </script>
 </body>
 </html>
