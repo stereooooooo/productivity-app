@@ -1,127 +1,196 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Select + Do</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: { sans: ['Inter', 'sans-serif'] },
-          colors: {
-            primary: '#0ea5e9',
-            selected: '#0284c7'
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Select + Do</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .selected {
+        @apply bg-blue-600 text-white font-semibold shadow;
+      }
+      .tag-pill {
+        @apply inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-medium text-gray-800 mr-2 mt-1 cursor-pointer hover:bg-gray-300;
+      }
+      .tag-pill.selected {
+        @apply bg-blue-600 text-white;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 min-h-screen">
+    <div class="flex">
+      <!-- Sidebar -->
+      <div class="w-1/4 bg-white border-r p-4">
+        <h1 class="text-2xl font-semibold mb-4">Select + Do</h1>
+        <button onclick="openModal()" class="w-full bg-blue-600 text-white py-2 rounded mb-4">+ Add Task</button>
+        <button onclick="exportTasks()" class="w-full border py-2 rounded mb-2">Export</button>
+        <button onclick="importTasks()" class="w-full border py-2 rounded">Import</button>
+        <div id="taskList" class="mt-4 text-sm text-gray-500">No tasks yet. Click "+ Add Task".</div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="flex-1 p-8">
+        <h2 class="text-xl font-semibold mb-4">How much time do you have?</h2>
+        <div class="flex flex-wrap gap-2 mb-4" id="timeFilters"></div>
+
+        <h2 class="text-lg font-semibold mb-2">Choose a context</h2>
+        <div class="flex flex-wrap gap-2 mb-6" id="contextFilters"></div>
+
+        <div class="flex flex-wrap gap-4">
+          <button onclick="suggestTask()" class="bg-blue-600 text-white px-4 py-2 rounded">Suggest a Task</button>
+          <button onclick="surpriseTask()" class="bg-purple-600 text-white px-4 py-2 rounded">Surprise Me!</button>
+          <button onclick="clearFilters()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded">Clear Filters</button>
+        </div>
+
+        <div id="filteredTasks" class="mt-6 text-gray-500">No tasks found. Try adding one.</div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="taskModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+      <div class="bg-white rounded shadow-lg p-6 w-full max-w-md">
+        <h2 class="text-xl font-bold mb-4">Add New Task</h2>
+        <input type="text" id="taskName" placeholder="Task Name" class="w-full mb-4 px-3 py-2 border rounded" />
+
+        <div class="mb-4">
+          <p class="mb-2 font-medium">Select Time</p>
+          <div class="flex flex-wrap gap-2" id="timeSelector"></div>
+        </div>
+
+        <div class="mb-4">
+          <p class="mb-2 font-medium">Tags</p>
+          <input id="tagInput" type="text" placeholder="Type and hit Enter to add" class="w-full px-3 py-2 border rounded mb-2" onkeydown="handleTagInput(event)" />
+          <div id="tagDisplay" class="flex flex-wrap"></div>
+        </div>
+
+        <div class="mb-4">
+          <p class="mb-2 font-medium">Context</p>
+          <div class="flex gap-2" id="contextSelector"></div>
+        </div>
+
+        <div class="flex justify-end gap-2">
+          <button onclick="closeModal()" class="bg-gray-200 px-4 py-2 rounded">Cancel</button>
+          <button onclick="saveTask()" class="bg-green-600 text-white px-4 py-2 rounded">Save Task</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const times = [5, 10, 15, 20, 25, 30, 45, 60];
+      const contexts = ["Workday", "Evening", "Weekend"];
+      let selectedTime = null;
+      let selectedContexts = new Set();
+      let selectedTags = new Set();
+      let allTags = new Set();
+      let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+      function openModal() {
+        document.getElementById("taskModal").classList.remove("hidden");
+        document.getElementById("taskName").value = "";
+        document.getElementById("tagInput").value = "";
+        selectedTime = null;
+        selectedContexts.clear();
+        selectedTags.clear();
+        updateTimeSelector();
+        updateContextSelector();
+        updateTagDisplay();
+      }
+
+      function closeModal() {
+        document.getElementById("taskModal").classList.add("hidden");
+      }
+
+      function updateTimeSelector() {
+        const container = document.getElementById("timeSelector");
+        container.innerHTML = "";
+        times.forEach(time => {
+          const btn = document.createElement("button");
+          btn.textContent = time;
+          btn.className = `px-3 py-1 rounded border ${selectedTime === time ? 'selected' : ''}`;
+          btn.onclick = () => {
+            selectedTime = time;
+            updateTimeSelector();
+          };
+          container.appendChild(btn);
+        });
+      }
+
+      function updateContextSelector() {
+        const container = document.getElementById("contextSelector");
+        container.innerHTML = "";
+        contexts.forEach(context => {
+          const btn = document.createElement("button");
+          btn.textContent = context;
+          btn.className = `px-3 py-1 rounded border ${selectedContexts.has(context) ? 'selected' : ''}`;
+          btn.onclick = () => {
+            if (selectedContexts.has(context)) {
+              selectedContexts.delete(context);
+            } else {
+              selectedContexts.add(context);
+            }
+            updateContextSelector();
+          };
+          container.appendChild(btn);
+        });
+      }
+
+      function handleTagInput(e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          const val = e.target.value.trim();
+          if (val && !selectedTags.has(val)) {
+            selectedTags.add(val);
+            allTags.add(val);
+            e.target.value = "";
+            updateTagDisplay();
           }
-        },
-      },
-    };
-  </script>
-  <style>
-    body { font-family: 'Inter', sans-serif; }
-    .pill {
-      @apply bg-slate-100 hover:bg-sky-100 px-3 py-1 rounded-full cursor-pointer transition;
-    }
-    .pill-selected {
-      @apply bg-selected text-white font-semibold shadow;
-    }
-    .tag-pill {
-      @apply bg-slate-100 px-2 py-1 rounded-full text-sm cursor-pointer m-1;
-    }
-    .tag-pill:hover {
-      @apply bg-sky-100;
-    }
-  </style>
-</head>
-<body class="h-screen bg-slate-50 text-slate-800 flex flex-col sm:flex-row overflow-hidden">
+        }
+      }
 
-  <div class="w-full sm:w-1/4 bg-white border-r p-4">
-    <h1 class="text-xl font-bold mb-4">Select + Do</h1>
-    <button id="addTaskBtn" class="w-full mb-2 bg-sky-600 hover:bg-sky-700 text-white py-2 rounded font-semibold">+ Add Task</button>
-    <button onclick="exportTasks()" class="w-full mb-2 bg-white border border-slate-300 py-2 rounded">Export</button>
-    <input type="file" id="importInput" class="hidden" />
-    <button onclick="document.getElementById('importInput').click()" class="w-full bg-white border border-slate-300 py-2 rounded">Import</button>
-  </div>
+      function updateTagDisplay() {
+        const container = document.getElementById("tagDisplay");
+        container.innerHTML = "";
+        selectedTags.forEach(tag => {
+          const div = document.createElement("div");
+          div.textContent = tag;
+          div.className = "tag-pill selected";
+          div.onclick = () => {
+            selectedTags.delete(tag);
+            updateTagDisplay();
+          };
+          container.appendChild(div);
+        });
+      }
 
-  <div class="flex-1 p-6 overflow-auto">
-    <h2 class="text-lg font-semibold mb-2">How much time do you have?</h2>
-    <div id="timeFilter" class="flex flex-wrap gap-2 mb-4">
-      <button class="pill">5 min</button>
-      <button class="pill">10 min</button>
-      <button class="pill">15 min</button>
-      <button class="pill">20 min</button>
-      <button class="pill">25 min</button>
-      <button class="pill">30 min</button>
-      <button class="pill">45 min</button>
-      <button class="pill">60 min</button>
-    </div>
+      function saveTask() {
+        const name = document.getElementById("taskName").value.trim();
+        if (!name || !selectedTime || selectedContexts.size === 0) return;
 
-    <h2 class="text-lg font-semibold mb-2">Choose a context</h2>
-    <div id="contextFilter" class="flex flex-wrap gap-2 mb-4">
-      <button class="pill">Workday</button>
-      <button class="pill">Evening</button>
-      <button class="pill">Weekend</button>
-    </div>
+        const task = {
+          name,
+          time: selectedTime,
+          tags: Array.from(selectedTags),
+          contexts: Array.from(selectedContexts),
+        };
 
-    <div class="flex flex-wrap gap-2 mb-6">
-      <button class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded">Suggest a Task</button>
-      <button class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">Surprise Me!</button>
-      <button class="bg-slate-200 px-4 py-2 rounded">Clear Filters</button>
-    </div>
+        tasks.push(task);
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        closeModal();
+        renderTasks();
+      }
 
-    <div id="taskList" class="text-slate-500 italic">No tasks found. Try adding one.</div>
-  </div>
+      function renderTasks() {
+        const container = document.getElementById("taskList");
+        container.innerHTML = tasks.map(t => `<div class='mb-2'>• ${t.name} (${t.time} min)</div>`).join('') || "No tasks yet. Click \"+ Add Task\".";
+      }
 
-  <div id="taskModal" class="hidden fixed inset-0 bg-black bg-opacity-30 z-50 flex items-center justify-center">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md space-y-4">
-      <h2 class="text-xl font-bold">Add New Task</h2>
-      <input id="taskName" class="w-full p-2 border rounded" placeholder="Task Name" />
-
-      <div>
-        <label class="text-sm font-semibold">Select Time</label>
-        <div id="timeOptions" class="flex flex-wrap gap-2 mt-1">
-          <button class="pill">5</button>
-          <button class="pill">10</button>
-          <button class="pill">15</button>
-          <button class="pill">20</button>
-          <button class="pill">30</button>
-          <button class="pill">45</button>
-          <button class="pill">60</button>
-        </div>
-      </div>
-
-      <div>
-        <label class="text-sm font-semibold">Tags</label>
-        <input id="taskTagInput" class="w-full p-2 border rounded" placeholder="Type and hit Enter to add" />
-        <div id="selectedTags" class="flex flex-wrap mt-1"></div>
-        <div id="tagCloud" class="flex flex-wrap mt-2 text-sm"></div>
-      </div>
-
-      <div>
-        <label class="text-sm font-semibold">Context</label>
-        <div id="contextButtons" class="flex flex-wrap gap-2 mt-1">
-          <button class="pill">Workday</button>
-          <button class="pill">Evening</button>
-          <button class="pill">Weekend</button>
-        </div>
-      </div>
-
-      <div class="flex justify-end gap-2">
-        <button onclick="closeModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded">Cancel</button>
-        <button onclick="saveTask()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded">Save Task</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // Your working JS will go here — use a version that handles:
-    // - proper rendering
-    // - localStorage sync
-    // - context/time pill state toggling
-    // - tag addition and rendering
-    // - task saving and rendering
-  </script>
-</body>
+      window.onload = () => {
+        renderTasks();
+        updateTimeSelector();
+        updateContextSelector();
+        document.getElementById("timeFilters").innerHTML = times.map(t => `<button class='px-3 py-1 bg-blue-100 rounded'>${t} min</button>`).join(" ");
+        document.getElementById("contextFilters").innerHTML = contexts.map(c => `<button class='px-3 py-1 bg-gray-200 rounded'>${c}</button>`).join(" ");
+      };
+    </script>
+  </body>
 </html>
