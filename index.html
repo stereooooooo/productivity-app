@@ -3,12 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Select + Do</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://rsms.me/">
   <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
   
-  <!-- PWA Manifest -->
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#3b82f6">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -54,30 +56,30 @@
     body.overflow-hidden {
       overflow: hidden;
     }
-           /* Project collapse/expand animations */
-     .project-content {
-       transition: all 0.3s ease-in-out;
-       overflow: hidden;
+          /* Project collapse/expand animations */
+      .project-content {
+        transition: all 0.3s ease-in-out;
+        overflow: hidden;
+      }
+      .project-content.collapsed {
+        max-height: 0;
+        opacity: 0;
+        margin: 0;
+        padding: 0;
+      }
+      .project-content.expanded {
+        max-height: 1000px;
+        opacity: 1;
+      }
+      .collapse-icon {
+        transition: transform 0.3s ease-in-out;
+      }
+      .collapse-icon.collapsed {
+        transform: rotate(-90deg);
+      }
+            .collapse-icon.expanded {
+       transform: rotate(0deg);
      }
-     .project-content.collapsed {
-       max-height: 0;
-       opacity: 0;
-       margin: 0;
-       padding: 0;
-     }
-     .project-content.expanded {
-       max-height: 1000px;
-       opacity: 1;
-     }
-     .collapse-icon {
-       transition: transform 0.3s ease-in-out;
-     }
-     .collapse-icon.collapsed {
-       transform: rotate(-90deg);
-     }
-         .collapse-icon.expanded {
-      transform: rotate(0deg);
-    }
     /* Completed section collapse/expand animations */
     .completed-content {
       transition: all 0.3s ease-in-out;
@@ -149,11 +151,15 @@
       user-select: none;
       -webkit-user-select: none;
     }
+    
+    /* Essential: Hidden class for sidebar and modal functionality */
+    .hidden {
+      display: none !important;
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans overflow-x-hidden">
 
-  <!-- Login Screen -->
   <div id="loginScreen" class="flex h-screen w-screen items-center justify-center">
     <div class="text-center p-8 bg-white rounded-xl shadow-md border border-slate-200">
         <img src="selectdologo.png" alt="Select + Do Logo" class="w-48 h-auto mb-6 mx-auto">
@@ -166,62 +172,55 @@
     </div>
   </div>
 
-  <!-- Main Application Wrapper -->
   <div id="mainApp" class="hidden flex-col md:flex-row md:h-screen">
-     <!-- Mobile Header -->
-    <div class="md:hidden flex justify-between items-center p-4 bg-white border-b border-slate-200 fixed top-0 left-0 right-0 z-50">
+    <div id="mobileHeader" class="md:hidden flex justify-between items-center p-4 bg-white border-b border-slate-200 fixed top-0 left-0 right-0 z-50">
         <img src="selectdologo.png" alt="Select + Do Logo" class="w-32 h-auto">
         <button id="menuBtn" class="text-slate-600 hover:text-blue-500 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 touch-manipulation active:bg-slate-100 transition-colors">
             <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
         </button>
     </div>
 
-    <!-- Sidebar -->
     <div id="sidebar" class="w-full md:w-1/3 md:max-w-xs p-4 sm:p-6 bg-white border-r border-slate-200 flex flex-col shrink-0 
-        md:relative md:flex fixed inset-0 z-40 hidden
+        md:relative md:flex fixed inset-0 z-50 md:block hidden
         transform transition-transform duration-300 ease-in-out md:transform-none">
-       <!-- Mobile close button -->
         <button id="closeMenuBtn" class="md:hidden absolute top-4 right-4 text-slate-500 hover:text-slate-800 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 touch-manipulation active:bg-slate-100 transition-colors">
             <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
 
-      <div class="flex justify-between items-center mb-6">
-        <img src="selectdologo.png" alt="Select + Do Logo" class="w-36 h-auto hidden md:block">
+      <div class="flex justify-between items-center mb-2">
+        <img src="selectdologo.png" alt="Select + Do Logo" class="w-32 h-auto">
       </div>
 
-      <button id="addTaskBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg transition-colors text-base font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 touch-manipulation active:bg-blue-700">
+      <button id="addTaskBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg transition-colors text-base font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 touch-manipulation active:bg-blue-700 mt-8 md:mt-0">
         + Add New Task
       </button>
 
       <div class="flex space-x-2 my-4">
         <div id="streakDisplay" class="flex-1 flex items-center justify-center bg-slate-100 rounded-lg px-3 py-1.5">
-          <!-- Streak content will be generated by JS -->
-        </div>
+          </div>
         <button id="viewStatsBtn" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 rounded-lg transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">View Stats</button>
       </div>
       
-       <div class="mb-4 relative">
-        <svg class="w-5 h-5 text-slate-400 absolute top-1/2 left-3 -translate-y-1/2 pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" /></svg>
-        <input id="globalSearchInput" type="text" placeholder="Search all tasks..." class="w-full border border-slate-200 p-2 pl-10 rounded-lg text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
-       </div>
+        <div class="mb-4 relative">
+         <svg class="w-5 h-5 text-slate-400 absolute top-1/2 left-3 -translate-y-1/2 pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" /></svg>
+         <input id="globalSearchInput" type="text" placeholder="Search all tasks..." class="w-full border border-slate-200 p-2 pl-10 rounded-lg text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
+        </div>
 
-       <div class="mb-4">
-        <input id="quickAddTaskInput" type="text" placeholder="Quick Add: task :15 #tag @ctx ^proj" class="w-full border border-slate-200 p-2 rounded-lg text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
-       </div>
+        <div class="mb-4">
+         <input id="quickAddTaskInput" type="text" placeholder="Quick Add: task :15 #tag @ctx ^proj" class="w-full border border-slate-200 p-2 rounded-lg text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
+        </div>
       
       <div id="projectsContainer" class="space-y-4 overflow-y-auto flex-grow -mx-2 px-2">
-        <!-- Projects and tasks will be rendered here -->
-      </div>
+        </div>
 
-       <div class="mt-4 pt-2 border-t border-slate-100 relative">
-         <div class="flex items-center justify-between mb-2">
-           <span class="text-xs text-slate-500">Projects: <span id="projectCount" class="font-medium text-slate-600">0</span></span>
-         </div>
-         <input id="newProjectInput" type="text" placeholder="+ New Project" class="w-full border border-slate-200 p-2 rounded-lg text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
-         <div id="projectAutocomplete" class="absolute top-full left-0 right-0 bg-white border border-slate-200 rounded-lg shadow-lg mt-1 max-h-32 overflow-y-auto hidden z-10">
-           <!-- Auto-complete suggestions will appear here -->
-         </div>
-       </div>
+        <div class="mt-4 pt-2 border-t border-slate-100 relative">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs text-slate-500">Projects: <span id="projectCount" class="font-medium text-slate-600">0</span></span>
+          </div>
+          <input id="newProjectInput" type="text" placeholder="+ New Project" class="w-full border border-slate-200 p-2 rounded-lg text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
+          <div id="projectAutocomplete" class="absolute top-full left-0 right-0 bg-white border border-slate-200 rounded-lg shadow-lg mt-1 max-h-32 overflow-y-auto hidden z-10">
+            </div>
+        </div>
 
       <div class="flex items-center justify-between cursor-pointer hover:bg-slate-50 p-2 rounded-lg transition-colors mt-4" id="completedTodayHeader">
         <h2 class="font-semibold text-slate-900">Completed Today</h2>
@@ -232,14 +231,11 @@
         </button>
       </div>
       <div id="completedTaskList" class="space-y-1 overflow-y-auto max-h-[50vh] md:max-h-full -mx-2 px-2 completed-content expanded">
-        <!-- Completed tasks will be rendered here -->
-      </div>
-       <div id="userDisplay" class="mt-auto pt-4 border-t border-slate-100 flex items-center">
-            <!-- User info and logout button will be here -->
-       </div>
+        </div>
+        <div id="userDisplay" class="mt-auto pt-4 border-t border-slate-100 flex items-center">
+            </div>
     </div>
 
-    <!-- Main Content -->
     <div class="flex-1 p-4 md:p-8 md:overflow-y-auto max-w-4xl pt-20 md:pt-8">
       <div class="mb-6 bg-white p-5 rounded-xl border border-slate-200">
         <h2 class="font-semibold text-slate-900 mb-3 text-lg">Find a task</h2>
@@ -265,22 +261,49 @@
         </div>
       </div>
       <div id="filteredTaskList" class="space-y-4">
-          <!-- Suggested task will appear here -->
-      </div>
+          </div>
     </div>
   </div>
 
-  <!-- Modal for Adding/Editing Tasks -->
   <div id="modalOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-start md:items-center hidden z-[60] p-4 pt-20 md:pt-4">
-    <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
-      <h2 id="modalTitle" class="text-lg font-bold mb-4 text-slate-900">Add New Task</h2>
+    <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md relative">
+      <div class="flex items-center justify-between mb-4">
+        <h2 id="modalTitle" class="text-lg font-bold text-slate-900">Add New Task</h2>
+        <button id="closeModalBtn" class="text-red-600 hover:text-red-800 hover:bg-red-100 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors border-2 border-red-300 bg-white">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
       <input id="taskName" type="text" placeholder="Task Name (e.g., 'Draft project proposal')" class="w-full mb-4 border border-slate-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none"/>
       
       <label class="block mb-2 font-medium text-slate-700">Project</label>
       <select id="projectSelect" class="w-full mb-4 border border-slate-300 p-2 rounded-lg bg-white focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none"></select>
 
-      <label class="block mb-2 font-medium text-slate-700">Time Required (minutes)</label>
-      <div id="modalTimeButtons" class="flex flex-wrap gap-2 mb-4"></div>
+      <label class="block mb-2 font-medium text-slate-700">Task Type</label>
+      <div class="bg-slate-50 p-3 rounded-lg mb-4">
+        <label class="flex items-center">
+          <input id="taskDivisible" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mr-2">
+          <span class="text-sm text-slate-700">This task can be done in chunks (Progress Task)</span>
+        </label>
+        <p class="text-xs text-slate-500 mt-1">Check this for tasks like "Read article" or "Draft proposal" that you can work on over multiple sessions.</p>
+      </div>
+
+      <div id="atomicTimeSection">
+        <label class="block mb-2 font-medium text-slate-700">Time Required (minutes)</label>
+        <div id="modalTimeButtons" class="flex flex-wrap gap-2 mb-4"></div>
+      </div>
+
+      <div id="progressTimeSection" class="hidden">
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block mb-2 font-medium text-slate-700">Total Time (Goal)</label>
+            <div id="modalTotalTimeButtons" class="flex flex-wrap gap-2"></div>
+          </div>
+          <div>
+            <label class="block mb-2 font-medium text-slate-700">Min. Session Time</label>
+            <div id="modalMinSessionButtons" class="flex flex-wrap gap-2"></div>
+          </div>
+        </div>
+      </div>
       
       <label class="block mb-2 font-medium text-slate-700">Context</label>
       <div id="modalContextButtons" class="flex flex-wrap gap-2 mb-4"></div>
@@ -304,21 +327,18 @@
     </div>
   </div>
 
-   <!-- Stats Modal -->
-  <div id="statsModalOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-[60] p-4">
+    <div id="statsModalOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-[60] p-4">
     <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
       <h2 class="text-lg font-bold mb-4 text-slate-900">Your Stats</h2>
       <div id="statsContent" class="space-y-3">
-        <!-- Stats will be injected here -->
-      </div>
+        </div>
       <div class="flex justify-end mt-6">
         <button id="closeStatsBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Close</button>
       </div>
     </div>
   </div>
 
-   <!-- Project Delete Confirmation Modal -->
-  <div id="projectDeleteModalOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-[60] p-4">
+    <div id="projectDeleteModalOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-[60] p-4">
     <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
       <div class="flex items-center mb-4">
         <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
@@ -330,8 +350,7 @@
       </div>
       
       <div id="projectDeleteContent" class="mb-6">
-        <!-- Content will be injected here -->
-      </div>
+        </div>
       
       <div class="flex justify-end space-x-3">
         <button id="cancelProjectDeleteBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500">Cancel</button>
@@ -340,7 +359,6 @@
     </div>
   </div>
 
-  <!-- Stop Focus Session Confirmation Modal -->
   <div id="stopFocusModalOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-[150] p-4">
     <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
       <div class="flex items-center mb-4">
@@ -363,7 +381,6 @@
     </div>
   </div>
 
-  <!-- Focus Mode Overlay -->
   <div id="focusOverlay" class="fixed inset-0 bg-white z-[100] flex flex-col justify-center items-center text-center hidden p-4">
     <h1 id="focusTaskName" class="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800 mb-8"></h1>
     <div id="focusTimerDisplay" class="text-6xl sm:text-7xl lg:text-9xl font-mono font-bold text-blue-500 mb-12"></div>
@@ -387,6 +404,10 @@
   <input type="file" id="importFile" class="hidden" accept=".json">
 
   <script type="module">
+    // Version: 2024-01-15-v2 - Force cache refresh
+    console.log('🚀 NEW VERSION LOADED - ATOMIC VS PROGRESS TASKS ENABLED!');
+
+    
     // --- Firebase SDKs ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -414,6 +435,8 @@
     let streakData = { currentStreak: 0, lastCompletedDate: null };
     let modalTagList = [];
     let modalSelectedTime = null;
+    let modalSelectedTotalTime = null;
+    let modalSelectedMinSessionTime = null;
     let modalSelectedContexts = [];
     let modalSelectedEnergy = null;
     let editingTaskId = null;
@@ -453,6 +476,7 @@
     const focusCompleteBtn = document.getElementById('focusCompleteBtn');
     const menuBtn = document.getElementById('menuBtn');
     const closeMenuBtn = document.getElementById('closeMenuBtn');
+    const mobileHeader = document.getElementById('mobileHeader');
     const globalSearchInput = document.getElementById('globalSearchInput');
 
     // --- CORE FUNCTIONS ---
@@ -472,7 +496,7 @@
         initializeStreak();
         updateProjectCount();
     };
-      
+    
     const handleGoogleLogin = () => {
         const provider = new GoogleAuthProvider();
         signInWithPopup(auth, provider).catch(error => {
@@ -576,7 +600,7 @@
             projectsContainer.appendChild(projectDiv);
         });
     };
-      
+    
     const renderCompletedTasks = () => {
         const today = new Date().toISOString().slice(0, 10);
         const tasksCompletedToday = completedTasks.filter(task => task.completedAt && task.completedAt.slice(0, 10) === today);
@@ -652,20 +676,41 @@
         document.getElementById('taskName').value = '';
         document.getElementById('taskTags').value = '';
         document.getElementById('taskRecurring').checked = false;
+        document.getElementById('taskDivisible').checked = false;
         modalTagList = [];
         modalSelectedTime = null;
+        modalSelectedTotalTime = null;
+        modalSelectedMinSessionTime = null;
         modalSelectedContexts = [];
         modalSelectedEnergy = null;
         editingTaskId = null;
         document.getElementById('projectSelect').value = 'inbox';
         renderTagPreview();
-        document.querySelectorAll('.modal-time-btn, .modal-context-btn, .modal-energy-btn').forEach(b => {b.classList.remove('bg-blue-500','text-white','border-blue-500');b.classList.add('bg-white','text-slate-700')});
+        toggleTimeSections();
+        document.querySelectorAll('.modal-time-btn, .modal-total-time-btn, .modal-min-session-btn, .modal-context-btn, .modal-energy-btn').forEach(b => {b.classList.remove('bg-blue-500','text-white','border-blue-500');b.classList.add('bg-white','text-slate-700')});
     };
     const openModal = (mode = 'add') => {
         document.body.classList.add('overflow-hidden');
         populateProjectDropdown();
         document.getElementById('modalTitle').textContent = mode === 'add' ? 'Add New Task' : 'Edit Task';
         modalOverlay.classList.remove('hidden');
+        
+        // Test if new elements exist
+        const taskDivisible = document.getElementById('taskDivisible');
+        const atomicSection = document.getElementById('atomicTimeSection');
+        const progressSection = document.getElementById('progressTimeSection');
+        
+        console.log('=== MODAL OPENED ===');
+        console.log('taskDivisible element:', taskDivisible);
+        console.log('atomicTimeSection element:', atomicSection);
+        console.log('progressTimeSection element:', progressSection);
+        
+        if (taskDivisible && atomicSection && progressSection) {
+            console.log('All new elements found!');
+            toggleTimeSections();
+        } else {
+            console.log('Some elements missing - checking HTML...');
+        }
     };
     const closeModal = () => {
         document.body.classList.remove('overflow-hidden');
@@ -680,10 +725,21 @@
         const name = document.getElementById('taskName').value.trim();
         const projectId = document.getElementById('projectSelect').value;
         const isRecurring = document.getElementById('taskRecurring').checked;
-        if (!name || !modalSelectedTime || modalSelectedContexts.length === 0 || !modalSelectedEnergy) {
-          alert('Please provide a task name, time, context, and energy level.');
-          return;
+        const taskDivisible = document.getElementById('taskDivisible');
+        const isDivisible = taskDivisible ? taskDivisible.checked : false;
+        
+        // Validation for Atomic tasks
+        if (!isDivisible && (!name || !modalSelectedTime || modalSelectedContexts.length === 0 || !modalSelectedEnergy)) {
+            alert('Please provide a task name, time, context, and energy level.');
+            return;
         }
+        
+        // Validation for Progress tasks
+        if (isDivisible && (!name || !modalSelectedTotalTime || !modalSelectedMinSessionTime || modalSelectedContexts.length === 0 || !modalSelectedEnergy)) {
+            alert('Please provide a task name, total time, minimum session time, context, and energy level.');
+            return;
+        }
+        
         if (!editingTaskId) {
             const isDuplicate = tasks.some(task => task.name.toLowerCase() === name.toLowerCase());
             if (isDuplicate) {
@@ -691,16 +747,49 @@
                 return;
             }
         }
-        if (editingTaskId) {
-          const taskIndex = tasks.findIndex(t => t.id === editingTaskId);
-          if (taskIndex > -1) tasks[taskIndex] = { ...tasks[taskIndex], name, time: modalSelectedTime, contexts: [...modalSelectedContexts], energy: modalSelectedEnergy, tags: [...modalTagList], projectId, isRecurring };
+        
+        // Create task object based on type
+        let taskData;
+        if (isDivisible) {
+            // Progress Task
+            taskData = {
+                id: editingTaskId || `task_${Date.now()}`,
+                name,
+                isDivisible: true,
+                totalTime: modalSelectedTotalTime,
+                minSessionTime: modalSelectedMinSessionTime,
+                timeSpent: 0,
+                contexts: [...modalSelectedContexts],
+                energy: modalSelectedEnergy,
+                tags: [...modalTagList],
+                projectId,
+                isRecurring
+            };
         } else {
-          tasks.push({ id: `task_${Date.now()}`, name, time: modalSelectedTime, contexts: [...modalSelectedContexts], energy: modalSelectedEnergy, tags: [...modalTagList], projectId, isRecurring });
+            // Atomic Task
+            taskData = {
+                id: editingTaskId || `task_${Date.now()}`,
+                name,
+                time: modalSelectedTime,
+                isDivisible: false,
+                contexts: [...modalSelectedContexts],
+                energy: modalSelectedEnergy,
+                tags: [...modalTagList],
+                projectId,
+                isRecurring
+            };
+        }
+        
+        if (editingTaskId) {
+            const taskIndex = tasks.findIndex(t => t.id === editingTaskId);
+            if (taskIndex > -1) tasks[taskIndex] = taskData;
+        } else {
+            tasks.push(taskData);
         }
         saveDataToFirestore();
         closeModal();
     };
-      
+    
     const updateStreak = () => {
         const today = new Date();
         const todayStr = today.toISOString().slice(0, 10);
@@ -972,7 +1061,7 @@
                 <span class="font-medium text-slate-600">Tasks Completed Today</span>
                 <span class="font-bold text-slate-800 text-lg">${tasksToday}</span>
             </div>
-             <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
+               <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
                 <span class="font-medium text-slate-600">Current Streak</span>
                 <span class="font-bold text-orange-500 text-lg">${streakData.currentStreak} days</span>
             </div>
@@ -1068,28 +1157,28 @@
         focusOverlay.classList.remove('hidden');
         startTimer();
     };
-      
+    
     const renderSuggestedTask = (task, isSurprise = false) => {
-          const div = document.createElement('div');
-          const baseClasses = 'bg-white border rounded-xl p-4 animate-fade-in flex items-center justify-between';
-          div.className = isSurprise
-              ? `${baseClasses} border-2 border-blue-500 shadow-lg`
-              : `${baseClasses} border-slate-200`;
-          
-          div.innerHTML = `
-              <div class="flex-grow">
-                <h3 class="font-bold text-slate-900 flex items-center">
-                  ${task.name}
-                  ${task.isRecurring ? `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2 text-blue-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>` : ''}
-                </h3>
-                <p class="text-sm text-slate-500">Time: ${task.time} min | Energy: ${task.energy}</p>
+        const div = document.createElement('div');
+        const baseClasses = 'bg-white border rounded-xl p-4 animate-fade-in flex items-center justify-between';
+        div.className = isSurprise
+            ? `${baseClasses} border-2 border-blue-500 shadow-lg`
+            : `${baseClasses} border-slate-200`;
+        
+        div.innerHTML = `
+            <div class="flex-grow">
+              <h3 class="font-bold text-slate-900 flex items-center">
+                ${task.name}
+                ${task.isRecurring ? `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2 text-blue-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>` : ''}
+              </h3>
+              <p class="text-sm text-slate-500">Time: ${task.time} min | Energy: ${task.energy}</p>
                  <div class="flex flex-wrap gap-2 mt-2 ${task.tags.length === 0 ? 'hidden' : ''}">
-                    ${task.tags.map(tag => `<span class="text-xs bg-slate-100 text-slate-600 font-medium px-2 py-1 rounded-md">${tag}</span>`).join('')}
-                </div>
-              </div>
-              <button data-task-id="${task.id}" class="start-btn ml-4 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg transition-colors font-semibold shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600">Start</button>
-          `;
-          filteredList.appendChild(div);
+                   ${task.tags.map(tag => `<span class="text-xs bg-slate-100 text-slate-600 font-medium px-2 py-1 rounded-md">${tag}</span>`).join('')}
+                 </div>
+            </div>
+            <button data-task-id="${task.id}" class="start-btn ml-4 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg transition-colors font-semibold shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600">Start</button>
+        `;
+        filteredList.appendChild(div);
     };
 
     const applyFiltersAndSuggest = (mode = 'suggest') => {
@@ -1105,10 +1194,10 @@
         } else {
             const potentialTasks = tasks.filter(task => {
                 const timeMatches = () => {
-                  if (!selectedTimeFilter) return true;
-                  let tolerance = 5;
-                  if (selectedTimeFilter >= 30) tolerance = 10;
-                  return task.time <= selectedTimeFilter + tolerance;
+                    if (!selectedTimeFilter) return true;
+                    let tolerance = 5;
+                    if (selectedTimeFilter >= 30) tolerance = 10;
+                    return task.time <= selectedTimeFilter + tolerance;
                 };
                 const contextMatches = selectedContextFilters.length === 0 || task.contexts.some(c => selectedContextFilters.includes(c));
                 const energyMatches = () => {
@@ -1131,7 +1220,7 @@
             }
         }
     };
-      
+    
     const applySmartDefaults = () => {
         const now = new Date();
         const hour = now.getHours();
@@ -1204,7 +1293,7 @@
         e.target.value = '';
         openModal('add');
     };
-      
+    
     const handleAddProject = (e) => {
         if (e.key !== 'Enter' || !e.target.value.trim()) return;
         const projectName = e.target.value.trim();
@@ -1268,7 +1357,7 @@
             projectCountElement.textContent = totalProjects;
         }
     };
-      
+    
     const initializeStreak = () => {
         const today = new Date();
         const todayStr = today.toISOString().slice(0, 10);
@@ -1284,6 +1373,26 @@
         renderStreak();
     };
 
+    const toggleTimeSections = () => {
+        const taskDivisible = document.getElementById('taskDivisible');
+        const atomicSection = document.getElementById('atomicTimeSection');
+        const progressSection = document.getElementById('progressTimeSection');
+        
+        if (!taskDivisible || !atomicSection || !progressSection) {
+            return;
+        }
+        
+        const isDivisible = taskDivisible.checked;
+        
+        if (isDivisible) {
+            atomicSection.classList.add('hidden');
+            progressSection.classList.remove('hidden');
+        } else {
+            atomicSection.classList.remove('hidden');
+            progressSection.classList.add('hidden');
+        }
+    };
+
     const renderFilterButtons = () => {
         const timeOptions = [5, 10, 15, 20, 25, 30, 45, 60];
         const contextOptions = ['Workday', 'Evening', 'Weekend', 'Home'];
@@ -1297,12 +1406,20 @@
         createButtons(contextOptions, 'contextFilters', 'context-filter', 'context');
         createButtons(energyOptions, 'energyFilters', 'energy-filter', 'energy');
         createButtons(timeOptions, 'modalTimeButtons', 'modal-time-btn', 'time');
+        
+        // Only create new button sets if the containers exist
+        const totalTimeContainer = document.getElementById('modalTotalTimeButtons');
+        const minSessionContainer = document.getElementById('modalMinSessionButtons');
+        if (totalTimeContainer) createButtons(timeOptions, 'modalTotalTimeButtons', 'modal-total-time-btn', 'time');
+        if (minSessionContainer) createButtons(timeOptions, 'modalMinSessionButtons', 'modal-min-session-btn', 'time');
         createButtons(contextOptions, 'modalContextButtons', 'modal-context-btn', 'context');
         createButtons(energyOptions, 'modalEnergyButtons', 'modal-energy-btn', 'energy');
     };
-      
+    
     const initializeEventListeners = () => {
         // --- Mobile Menu Toggle ---
+
+        
         menuBtn.addEventListener('click', () => {
             sidebar.classList.remove('hidden');
             sidebar.classList.add('flex');
@@ -1313,24 +1430,39 @@
         });
         
         document.getElementById('loginBtn').onclick = handleGoogleLogin;
-        document.getElementById('addTaskBtn').onclick = () => openModal('add');
+        const addTaskBtn = document.getElementById('addTaskBtn');
+        if (addTaskBtn) {
+            addTaskBtn.onclick = () => openModal('add');
+        }
         document.getElementById('suggestTaskBtn').onclick = () => applyFiltersAndSuggest('suggest');
         document.getElementById('surpriseMeBtn').onclick = () => applyFiltersAndSuggest('surprise');
         document.getElementById('clearFiltersBtn').onclick = () => {
-          selectedTimeFilter = null; selectedContextFilters = []; selectedEnergyFilter = null;
-          document.querySelectorAll('.time-filter, .context-filter, .energy-filter').forEach(b => {b.classList.remove('bg-blue-500','text-white','border-blue-500');b.classList.add('bg-white','text-slate-700')});
-          filteredList.innerHTML = '';
+         selectedTimeFilter = null; selectedContextFilters = []; selectedEnergyFilter = null;
+         document.querySelectorAll('.time-filter, .context-filter, .energy-filter').forEach(b => {b.classList.remove('bg-blue-500','text-white','border-blue-500');b.classList.add('bg-white','text-slate-700')});
+         filteredList.innerHTML = '';
         };
         document.getElementById('cancelTaskBtn').onclick = closeModal;
+        
+
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        if (closeModalBtn) {
+            closeModalBtn.onclick = closeModal;
+        }
         document.getElementById('saveTaskBtn').onclick = saveTask;
         document.getElementById('taskTags').addEventListener('keypress', e => {
-          if (e.key === 'Enter' && e.target.value.trim()) {
-            e.preventDefault();
-            if (!modalTagList.includes(e.target.value.trim())) modalTagList.push(e.target.value.trim());
-            e.target.value = '';
-            renderTagPreview();
-          }
+         if (e.key === 'Enter' && e.target.value.trim()) {
+           e.preventDefault();
+           if (!modalTagList.includes(e.target.value.trim())) modalTagList.push(e.target.value.trim());
+           e.target.value = '';
+           renderTagPreview();
+         }
         });
+
+        // Add event listener for divisibility checkbox (if it exists)
+        const taskDivisible = document.getElementById('taskDivisible');
+        if (taskDivisible) {
+            taskDivisible.addEventListener('change', toggleTimeSections);
+        }
 
         document.getElementById('quickAddTaskInput').addEventListener('keypress', handleQuickAdd);
         document.getElementById('newProjectInput').addEventListener('keypress', handleAddProject);
@@ -1426,13 +1558,37 @@
         handleModalButtonClick('modalContextButtons', '.modal-context-btn', () => modalSelectedContexts, true);
 
         focusPauseBtn.onclick = () => {
-          isPaused = !isPaused;
-          document.getElementById('focusPauseText').textContent = isPaused ? 'Resume' : 'Pause';
-          document.getElementById('pauseIcon').classList.toggle('hidden');
-          document.getElementById('playIcon').classList.toggle('hidden');
+         isPaused = !isPaused;
+         document.getElementById('focusPauseText').textContent = isPaused ? 'Resume' : 'Pause';
+         document.getElementById('pauseIcon').classList.toggle('hidden');
+         document.getElementById('playIcon').classList.toggle('hidden');
         };
         focusStopBtn.onclick = () => stopFocusSession();
         focusCompleteBtn.onclick = () => markTaskDone(currentFocusTaskId);
+
+        // --- UX Improvement: Add listeners for closing modals ---
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target.id === 'modalOverlay') closeModal();
+        });
+        statsModalOverlay.addEventListener('click', (e) => {
+            if (e.target.id === 'statsModalOverlay') closeStatsModal();
+        });
+        projectDeleteModalOverlay.addEventListener('click', (e) => {
+            if (e.target.id === 'projectDeleteModalOverlay') closeProjectDeleteModal();
+        });
+        stopFocusModalOverlay.addEventListener('click', (e) => {
+            if (e.target.id === 'stopFocusModalOverlay') closeStopFocusModal();
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (!stopFocusModalOverlay.classList.contains('hidden')) closeStopFocusModal();
+                else if (!projectDeleteModalOverlay.classList.contains('hidden')) closeProjectDeleteModal();
+                else if (!statsModalOverlay.classList.contains('hidden')) closeStatsModal();
+                else if (!modalOverlay.classList.contains('hidden')) closeModal();
+                else if (sidebar.classList.contains('flex') && window.innerWidth < 768) closeMenuBtn.click();
+            }
+        });
 
         // Event Delegation for dynamic buttons
         document.addEventListener('click', (e) => {
@@ -1546,7 +1702,9 @@
     };
     
     const handleAuthStateChange = (user) => {
+      console.log('🔐 Auth state changed:', user ? 'User logged in' : 'User logged out');
       if (user) {
+            console.log('✅ User authenticated, showing main app');
             currentUser = user;
             loginScreen.classList.add('hidden');
             mainApp.classList.remove('hidden');
@@ -1565,6 +1723,7 @@
             loadDataFromFirestore(user.uid);
             applySmartDefaults();
         } else {
+            console.log('❌ No user authenticated, showing login screen');
             currentUser = null;
             if (unsubscribeFromData) {
               unsubscribeFromData();
@@ -1576,16 +1735,36 @@
     };
 
     // --- INITIALIZE APP ---
-    renderFilterButtons();
-    initializeEventListeners();
-    onAuthStateChanged(auth, handleAuthStateChange);
+    console.log('🚀 Starting app initialization...');
+    try {
+      renderFilterButtons();
+      console.log('✅ renderFilterButtons completed');
+    } catch (error) {
+      console.error('❌ renderFilterButtons failed:', error);
+    }
+    
+    try {
+      initializeEventListeners();
+      console.log('✅ initializeEventListeners completed');
+    } catch (error) {
+      console.error('❌ initializeEventListeners failed:', error);
+    }
+    
+    try {
+      onAuthStateChanged(auth, handleAuthStateChange);
+      console.log('✅ onAuthStateChanged completed');
+    } catch (error) {
+      console.error('❌ onAuthStateChanged failed:', error);
+    }
+    
+    console.log('🎉 App initialization completed!');
     
     // Register Service Worker for PWA
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
           .then(registration => {
-            console.log('SW registered: ', registration);
+            console.log('Service Worker registered successfully');
           })
           .catch(registrationError => {
             console.log('SW registration failed: ', registrationError);
@@ -1595,4 +1774,3 @@
   </script>
 </body>
 </html>
-
