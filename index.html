@@ -834,29 +834,18 @@
         };
 
         // Event Delegation for dynamic buttons
-        projectsContainer.addEventListener('click', (e) => {
+        document.addEventListener('click', (e) => {
             const editButton = e.target.closest('.edit-btn');
-            const deleteButton = e.target.closest('.delete-btn');
-            if (editButton) {
-                editTask(editButton.dataset.taskId);
-            }
-            if (deleteButton) {
-                deleteTask(deleteButton.dataset.taskId);
-            }
-        });
-        
-        filteredList.addEventListener('click', (e) => {
-            const startButton = e.target.closest('.start-btn');
-            if (startButton) {
-                startFocusSession(startButton.dataset.taskId);
-            }
-        });
+            if (editButton) editTask(editButton.dataset.taskId);
 
-        document.getElementById('tagPreview').addEventListener('click', (e) => {
-             const removeButton = e.target.closest('.remove-tag-btn');
-            if (removeButton) {
-                removeTag(parseInt(removeButton.dataset.tagIndex));
-            }
+            const deleteButton = e.target.closest('.delete-btn');
+            if (deleteButton) deleteTask(deleteButton.dataset.taskId);
+
+            const startButton = e.target.closest('.start-btn');
+            if (startButton) startFocusSession(startButton.dataset.taskId);
+
+            const removeTagButton = e.target.closest('.remove-tag-btn');
+            if (removeTagButton) removeTag(parseInt(removeTagButton.dataset.tagIndex));
         });
 
       };
