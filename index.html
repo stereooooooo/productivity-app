@@ -160,9 +160,9 @@
 
   <script type="module">
     // --- Firebase SDKs ---
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // --- PASTE YOUR FIREBASE CONFIGURATION HERE ---
     const firebaseConfig = {
@@ -199,7 +199,7 @@
     let currentFocusTaskId = null;
     const originalTitle = document.title;
     let currentUser = null;
-    let unsubscribeFromData = null;
+    let unsubscribeFromData = null; 
 
     // --- DOM ELEMENTS ---
     const loginScreen = document.getElementById('loginScreen');
@@ -236,6 +236,7 @@
         const provider = new GoogleAuthProvider();
         signInWithPopup(auth, provider).catch(error => {
             console.error("Login failed: ", error);
+            alert("Login failed. Check the console for details. This might be due to the auth provider not being enabled in your Firebase project.");
         });
     };
 
@@ -433,6 +434,45 @@
             stopFocusSession(false);
         }
     };
+
+    // --- TIMER AND FOCUS FUNCTIONS (RESTORED) ---
+    const updateTimerDisplay = () => {
+        const minutes = Math.floor(remainingSeconds / 60).toString().padStart(2, '0');
+        const seconds = (remainingSeconds % 60).toString().padStart(2, '0');
+        const timeString = `${minutes}:${seconds}`;
+        focusTimerDisplay.textContent = timeString;
+        document.title = `${timeString} - ${focusTaskName.textContent}`;
+    };
+
+    const startTimer = () => {
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            if (!isPaused) {
+                remainingSeconds--;
+                updateTimerDisplay();
+                if (remainingSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    document.title = "Time's up! - Select + Do";
+                    focusPauseBtn.classList.add('hidden');
+                    focusStopBtn.classList.add('hidden');
+                    focusCompleteBtn.classList.remove('hidden');
+                    // Optional: Play a sound
+                    new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg").play().catch(e => console.log("Sound play failed:", e));
+                }
+            }
+        }, 1000);
+    };
+    
+    const stopFocusSession = (confirmFirst = true) => {
+        if (confirmFirst && !confirm("Are you sure you want to stop the focus session?")) return;
+        clearInterval(timerInterval);
+        timerInterval = null;
+        isPaused = false;
+        currentFocusTaskId = null;
+        focusOverlay.classList.add('hidden');
+        document.title = originalTitle;
+    };
+
     const startFocusSession = (taskId) => {
         const task = tasks.find(t => t.id === taskId);
         if (!task) {
@@ -442,7 +482,7 @@
         currentFocusTaskId = taskId;
         remainingSeconds = task.time * 60;
         focusTaskName.textContent = task.name;
-        updateTimerDisplay();
+        updateTimerDisplay(); // This was missing
         
         document.getElementById('focusPauseText').textContent = 'Pause';
         document.getElementById('pauseIcon').classList.remove('hidden');
@@ -452,7 +492,7 @@
         focusStopBtn.classList.remove('hidden');
         focusCompleteBtn.classList.add('hidden');
         focusOverlay.classList.remove('hidden');
-        startTimer();
+        startTimer(); // This was missing
     };
       
     const renderSuggestedTask = (task, isSurprise = false) => {
@@ -517,10 +557,10 @@
         const day = now.getDay();
         
         let defaultContext = null;
-        if (day >= 1 && day <= 5) {
+        if (day >= 1 && day <= 5) { // Weekday
             if (hour >= 9 && hour < 17) defaultContext = 'Workday';
             else if (hour >=17 && hour < 22) defaultContext = 'Evening';
-        } else {
+        } else { // Weekend
             defaultContext = 'Weekend';
         }
 
@@ -604,7 +644,7 @@
         if (streakData.lastCompletedDate && streakData.lastCompletedDate !== todayStr && streakData.lastCompletedDate !== yesterdayStr) {
             streakData.currentStreak = 0;
             streakData.lastCompletedDate = null;
-            saveDataToFirestore();
+            saveDataToFirestore(); 
         }
         renderStreak();
     };
@@ -747,7 +787,10 @@
                     const data = JSON.parse(re.target.result);
                     if (Array.isArray(data.tasks) && Array.isArray(data.projects)) {
                         projects = data.projects;
-                        tasks = data.tasks;
+                        tasks = data.tasks.map(task => { 
+                            if (!task.id) task.id = `task_${Date.now() + Math.random().toString().slice(2, 6)}`;
+                            return task;
+                        });
                         completedTasks = data.completedTasks || [];
                         streakData = data.streakData || { currentStreak: 0, lastCompletedDate: null };
                         saveDataToFirestore();
@@ -776,6 +819,34 @@
 
     };
 
+    const loadDataFromFirestore = (userId) => {
+        const userDocRef = doc(db, 'users', userId);
+        
+        if (unsubscribeFromData) {
+            unsubscribeFromData();
+        }
+
+        unsubscribeFromData = onSnapshot(userDocRef, (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                projects = data.projects || [{ id: 'inbox', name: 'Inbox' }];
+                tasks = data.tasks || [];
+                completedTasks = data.completedTasks || [];
+                streakData = data.streakData || { currentStreak: 0, lastCompletedDate: null };
+            } else {
+                console.log("Document does not exist. Initializing data for new user.");
+                projects = [{ id: 'inbox', name: 'Inbox' }];
+                tasks = [];
+                completedTasks = [];
+                streakData = { currentStreak: 0, lastCompletedDate: null };
+                saveDataToFirestore();
+            }
+            renderAll();
+        }, (error) => {
+            console.error("Error listening to user data:", error);
+        });
+    };
+
     // --- INITIALIZE APP ---
     renderFilterButtons();
     initializeEventListeners();
@@ -800,13 +871,14 @@
             applySmartDefaults();
         } else {
             currentUser = null;
-            if (unsubscribeFromData) unsubscribeFromData();
+            if (unsubscribeFromData) {
+              unsubscribeFromData();
+            }
             loginScreen.classList.remove('hidden');
             mainApp.classList.add('hidden');
             mainApp.classList.remove('flex');
         }
     });
-    
   </script>
 </body>
 </html>
