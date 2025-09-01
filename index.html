@@ -215,7 +215,7 @@
     const focusStopBtn = document.getElementById('focusStopBtn');
     const focusCompleteBtn = document.getElementById('focusCompleteBtn');
 
-    // --- CORE FUNCTIONS (accessible globally within the module) ---
+    // --- CORE FUNCTIONS ---
     const saveDataToFirestore = async () => {
         if (!currentUser) return;
         const userDocRef = doc(db, 'users', currentUser.uid);
@@ -435,7 +435,10 @@
     };
     const startFocusSession = (taskId) => {
         const task = tasks.find(t => t.id === taskId);
-        if (!task) return;
+        if (!task) {
+            console.error("Task not found for ID:", taskId);
+            return;
+        }
         currentFocusTaskId = taskId;
         remainingSeconds = task.time * 60;
         focusTaskName.textContent = task.name;
@@ -778,13 +781,10 @@
     initializeEventListeners();
     onAuthStateChanged(auth, user => {
         if (user) {
-            // User is signed in
             currentUser = user;
             loginScreen.classList.add('hidden');
             mainApp.classList.remove('hidden');
             mainApp.classList.add('flex');
-            
-            // Display user info
             document.getElementById('userDisplay').innerHTML = `
                 <img src="${user.photoURL}" alt="User Photo" class="w-8 h-8 rounded-full mr-3">
                 <div class="flex-grow">
@@ -798,9 +798,7 @@
             document.getElementById('logoutBtn').onclick = handleLogout;
             loadDataFromFirestore(user.uid);
             applySmartDefaults();
-
         } else {
-            // User is signed out
             currentUser = null;
             if (unsubscribeFromData) unsubscribeFromData();
             loginScreen.classList.remove('hidden');
@@ -809,7 +807,6 @@
         }
     });
     
-  });
   </script>
 </body>
 </html>
