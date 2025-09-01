@@ -12,7 +12,7 @@
     @supports (font-variation-settings: normal) {
       :root { font-family: 'Inter var', sans-serif; }
     }
-    /* Simple fade-in animation for the suggested task card */
+    /* Simple fade-in animation */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(-10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -20,7 +20,28 @@
     .animate-fade-in {
       animation: fadeIn 0.3s ease-out forwards;
     }
-    /* Ensure the body doesn't scroll when the modal or focus overlay is open */
+    /* Task completion animation */
+    @keyframes fadeOutShrink {
+      from {
+        opacity: 1;
+        transform: scale(1);
+        height: 44px; /* Approximate height of a task item */
+        margin-bottom: 0.25rem; /* from space-y-1 */
+        padding: 0.5rem; /* from p-2 */
+      }
+      to {
+        opacity: 0;
+        transform: scale(0.9);
+        height: 0;
+        margin-bottom: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+    }
+    .task-completing {
+      animation: fadeOutShrink 0.3s ease-out forwards;
+    }
+    /* Ensure the body doesn't scroll when an overlay is open */
     body.overflow-hidden {
       overflow: hidden;
     }
@@ -34,7 +55,7 @@
         <img src="selectdologo.png" alt="Select + Do Logo" class="w-48 h-auto mb-6 mx-auto">
         <h1 class="text-2xl font-bold text-slate-800 mb-2">Welcome to Select + Do</h1>
         <p class="text-slate-500 mb-8">Sign in to continue to your personalized dashboard.</p>
-        <button id="loginBtn" class="w-full flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-lg transition-colors text-base font-semibold">
+        <button id="loginBtn" class="w-full flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-lg transition-colors text-base font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
             <svg class="w-6 h-6 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48px" height="48px"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.574l6.19,5.238C42.022,35.244,44,30.036,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
             Sign in with Google
         </button>
@@ -46,7 +67,7 @@
      <!-- Mobile Header -->
     <div class="md:hidden flex justify-between items-center p-4 bg-white border-b border-slate-200 sticky top-0 z-30">
         <img src="selectdologo.png" alt="Select + Do Logo" class="w-32 h-auto">
-        <button id="menuBtn" class="text-slate-600 hover:text-blue-500">
+        <button id="menuBtn" class="text-slate-600 hover:text-blue-500 p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
         </button>
     </div>
@@ -56,7 +77,7 @@
         md:relative md:flex fixed inset-0 z-40 hidden
         transform transition-transform duration-300 ease-in-out md:transform-none">
        <!-- Mobile close button -->
-        <button id="closeMenuBtn" class="md:hidden absolute top-4 right-4 text-slate-500 hover:text-slate-800">
+        <button id="closeMenuBtn" class="md:hidden absolute top-4 right-4 text-slate-500 hover:text-slate-800 p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
 
@@ -64,16 +85,24 @@
         <img src="selectdologo.png" alt="Select + Do Logo" class="w-36 h-auto hidden md:block">
       </div>
 
-      <button id="addTaskBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition-colors text-base font-semibold">
+      <button id="addTaskBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition-colors text-base font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
         + Add New Task
       </button>
 
-      <div id="streakDisplay" class="flex items-center justify-center bg-slate-100 rounded-lg px-4 py-2 w-full my-4">
-        <!-- Streak content will be generated by JS -->
+      <div class="flex space-x-2 my-4">
+        <div id="streakDisplay" class="flex-1 flex items-center justify-center bg-slate-100 rounded-lg px-3 py-1.5">
+          <!-- Streak content will be generated by JS -->
+        </div>
+        <button id="viewStatsBtn" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 rounded-lg transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">View Stats</button>
       </div>
       
+       <div class="mb-4 relative">
+        <svg class="w-5 h-5 text-slate-400 absolute top-1/2 left-3 -translate-y-1/2 pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" /></svg>
+        <input id="globalSearchInput" type="text" placeholder="Search all tasks..." class="w-full border border-slate-200 p-2 pl-10 rounded-lg text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
+       </div>
+
        <div class="mb-4">
-        <input id="quickAddTaskInput" type="text" placeholder="Quick Add: task :15 #tag @ctx ^proj" class="w-full border border-slate-200 p-2 rounded-lg text-sm placeholder:text-slate-400" />
+        <input id="quickAddTaskInput" type="text" placeholder="Quick Add: task :15 #tag @ctx ^proj" class="w-full border border-slate-200 p-2 rounded-lg text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
        </div>
       
       <div id="projectsContainer" class="space-y-4 overflow-y-auto flex-grow -mx-2 px-2">
@@ -81,7 +110,7 @@
       </div>
 
        <div class="mt-4 pt-2 border-t border-slate-100">
-         <input id="newProjectInput" type="text" placeholder="+ New Project" class="w-full border border-slate-200 p-2 rounded-lg text-sm placeholder:text-slate-400" />
+         <input id="newProjectInput" type="text" placeholder="+ New Project" class="w-full border border-slate-200 p-2 rounded-lg text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
        </div>
 
       <h2 class="font-semibold text-slate-900 border-b border-slate-100 pb-2 mb-2 mt-4">Completed Today</h2>
@@ -113,9 +142,9 @@
         </div>
 
         <div class="flex flex-wrap gap-2 border-t border-slate-100 pt-4 mt-6">
-          <button id="suggestTaskBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg transition-colors font-semibold">Suggest Tasks</button>
-          <button id="surpriseMeBtn" class="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2 rounded-lg transition-colors font-semibold">Surprise Me!</button>
-          <button id="clearFiltersBtn" class="bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-lg transition-colors text-sm font-medium">Clear Filters</button>
+          <button id="suggestTaskBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Suggest Tasks</button>
+          <button id="surpriseMeBtn" class="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2 rounded-lg transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-800">Surprise Me!</button>
+          <button id="clearFiltersBtn" class="bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-lg transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Clear Filters</button>
         </div>
       </div>
       <div id="filteredTaskList" class="space-y-4">
@@ -128,10 +157,10 @@
   <div id="modalOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-start md:items-center hidden z-50 p-4 pt-12 md:pt-4">
     <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
       <h2 id="modalTitle" class="text-lg font-bold mb-4 text-slate-900">Add New Task</h2>
-      <input id="taskName" type="text" placeholder="Task Name (e.g., 'Draft project proposal')" class="w-full mb-4 border border-slate-300 p-2 rounded-lg"/>
+      <input id="taskName" type="text" placeholder="Task Name (e.g., 'Draft project proposal')" class="w-full mb-4 border border-slate-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none"/>
       
       <label class="block mb-2 font-medium text-slate-700">Project</label>
-      <select id="projectSelect" class="w-full mb-4 border border-slate-300 p-2 rounded-lg bg-white"></select>
+      <select id="projectSelect" class="w-full mb-4 border border-slate-300 p-2 rounded-lg bg-white focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none"></select>
 
       <label class="block mb-2 font-medium text-slate-700">Time Required (minutes)</label>
       <div id="modalTimeButtons" class="flex flex-wrap gap-2 mb-4"></div>
@@ -143,12 +172,30 @@
       <div id="modalEnergyButtons" class="flex flex-wrap gap-2 mb-4"></div>
       
       <label class="block mb-2 font-medium text-slate-700">Tags (optional)</label>
-      <input id="taskTags" type="text" placeholder="Type a tag and hit Enter" class="w-full mb-2 border border-slate-300 p-2 rounded-lg"/>
+      <input id="taskTags" type="text" placeholder="Type a tag and hit Enter" class="w-full mb-2 border border-slate-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none"/>
       <div id="tagPreview" class="flex flex-wrap gap-2 mb-4 min-h-[28px]"></div>
+
+      <div class="bg-slate-50 p-3 rounded-lg flex items-center justify-between mb-4">
+        <label for="taskRecurring" class="font-medium text-slate-700">Recurring Task</label>
+        <input id="taskRecurring" type="checkbox" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+      </div>
       
       <div class="flex justify-end space-x-2">
-        <button id="cancelTaskBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg transition-colors font-semibold">Cancel</button>
-        <button id="saveTaskBtn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors font-semibold">Save Task</button>
+        <button id="cancelTaskBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Cancel</button>
+        <button id="saveTaskBtn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600">Save Task</button>
+      </div>
+    </div>
+  </div>
+
+   <!-- Stats Modal -->
+  <div id="statsModalOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-50 p-4">
+    <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
+      <h2 class="text-lg font-bold mb-4 text-slate-900">Your Stats</h2>
+      <div id="statsContent" class="space-y-3">
+        <!-- Stats will be injected here -->
+      </div>
+      <div class="flex justify-end mt-6">
+        <button id="closeStatsBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Close</button>
       </div>
     </div>
   </div>
@@ -158,17 +205,17 @@
     <h1 id="focusTaskName" class="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800 mb-8"></h1>
     <div id="focusTimerDisplay" class="text-6xl sm:text-7xl lg:text-9xl font-mono font-bold text-blue-500 mb-12"></div>
     <div class="flex space-x-4">
-        <button id="focusPauseBtn" class="w-32 sm:w-36 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-700 text-lg font-semibold py-2 px-4 sm:py-3 sm:px-6 rounded-lg transition-colors">
+        <button id="focusPauseBtn" class="w-32 sm:w-36 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-700 text-lg font-semibold py-2 px-4 sm:py-3 sm:px-6 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
             <svg id="pauseIcon" class="w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" /></svg>
             <svg id="playIcon" class="w-6 h-6 mr-2 hidden" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.647c1.295.748 1.295 2.538 0 3.286L8.029 20.99c-1.25.72-2.779-.217-2.779-1.643V5.653z" /></svg>
             <span id="focusPauseText">Pause</span>
         </button>
-        <button id="focusStopBtn" class="w-32 sm:w-36 flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-600 text-lg font-semibold py-2 px-4 sm:py-3 sm:px-6 rounded-lg transition-colors">
+        <button id="focusStopBtn" class="w-32 sm:w-36 flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-600 text-lg font-semibold py-2 px-4 sm:py-3 sm:px-6 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
             <svg class="w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 7.5A2.25 2.25 0 017.5 5.25h9a2.25 2.25 0 012.25 2.25v9a2.25 2.25 0 01-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25v-9z" /></svg>
             <span>Stop</span>
         </button>
     </div>
-    <button id="focusCompleteBtn" class="hidden mt-8 bg-green-500 hover:bg-green-600 text-white text-lg font-semibold py-3 px-8 rounded-lg transition-colors flex items-center justify-center">
+    <button id="focusCompleteBtn" class="hidden mt-8 bg-green-500 hover:bg-green-600 text-white text-lg font-semibold py-3 px-8 rounded-lg transition-colors flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600">
         <svg class="w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
         <span>Mark as Complete</span>
     </button>
@@ -197,7 +244,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // --- GLOBAL STATE ---
+    // --- GLOBAL STATE & CONSTANTS ---
     let projects = [];
     let tasks = [];
     let completedTasks = [];
@@ -218,6 +265,8 @@
     const originalTitle = document.title;
     let currentUser = null;
     let unsubscribeFromData = null; 
+    const emptyCompletedSVG = `<svg class="w-16 h-16 mx-auto text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+    const emptyFilterSVG = `<svg class="w-16 h-16 mx-auto text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>`;
 
     // --- DOM ELEMENTS ---
     const loginScreen = document.getElementById('loginScreen');
@@ -227,6 +276,7 @@
     const completedTaskList = document.getElementById('completedTaskList');
     const filteredList = document.getElementById('filteredTaskList');
     const modalOverlay = document.getElementById('modalOverlay');
+    const statsModalOverlay = document.getElementById('statsModalOverlay');
     const focusOverlay = document.getElementById('focusOverlay');
     const focusTaskName = document.getElementById('focusTaskName');
     const focusTimerDisplay = document.getElementById('focusTimerDisplay');
@@ -235,6 +285,7 @@
     const focusCompleteBtn = document.getElementById('focusCompleteBtn');
     const menuBtn = document.getElementById('menuBtn');
     const closeMenuBtn = document.getElementById('closeMenuBtn');
+    const globalSearchInput = document.getElementById('globalSearchInput');
 
     // --- CORE FUNCTIONS ---
     const saveDataToFirestore = async () => {
@@ -265,11 +316,19 @@
         signOut(auth);
     };
 
-    const renderTasksAndProjects = () => {
+    const renderTasksAndProjects = (searchTerm = '') => {
         projectsContainer.innerHTML = '';
+        
+        const normalizedSearch = searchTerm.trim().toLowerCase();
+        const tasksToRender = normalizedSearch
+            ? tasks.filter(task => task.name.toLowerCase().includes(normalizedSearch))
+            : tasks;
+
         projects.forEach(project => {
-            const projectTasks = tasks.filter(task => task.projectId === project.id);
-            if (project.id !== 'inbox' && projectTasks.length === 0) return;
+            const projectTasks = tasksToRender.filter(task => task.projectId === project.id);
+            
+            if (projectTasks.length === 0 && (project.id !== 'inbox' || normalizedSearch)) return;
+
             const projectDiv = document.createElement('div');
             projectDiv.className = 'project-group';
             const projectHeader = document.createElement('h3');
@@ -279,18 +338,22 @@
             if (projectTasks.length > 0) {
                 projectTasks.forEach(task => {
                     const taskDiv = document.createElement('div');
-                    taskDiv.className = 'group flex items-center p-2 rounded-lg hover:bg-slate-50';
+                    taskDiv.className = 'group flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors duration-150';
+                    taskDiv.setAttribute('data-task-container-id', task.id);
                     taskDiv.innerHTML = `
                         <svg class="w-6 h-6 text-slate-300 mr-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         <div class="flex-grow">
-                          <div class="font-medium text-slate-800">${task.name}</div>
+                          <div class="font-medium text-slate-800 flex items-center">
+                            ${task.name}
+                            ${task.isRecurring ? `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2 text-blue-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>` : ''}
+                          </div>
                           <div class="text-sm text-slate-500">${task.time} min • ${task.energy}</div>
                         </div>
                         <div class="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button data-task-id="${task.id}" class="edit-btn text-slate-400 hover:text-blue-500 p-1">
+                          <button data-task-id="${task.id}" class="edit-btn text-slate-400 hover:text-blue-500 p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <svg class="w-5 h-5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
                           </button>
-                          <button data-task-id="${task.id}" class="delete-btn text-slate-400 hover:text-red-500 p-1">
+                          <button data-task-id="${task.id}" class="delete-btn text-slate-400 hover:text-red-500 p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
                             <svg class="w-5 h-5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.134-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.067-2.09 1.02-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
                           </button>
                         </div>
@@ -312,7 +375,11 @@
         const tasksCompletedToday = completedTasks.filter(task => task.completedAt && task.completedAt.slice(0, 10) === today);
         completedTaskList.innerHTML = '';
         if (tasksCompletedToday.length === 0) {
-            completedTaskList.innerHTML = `<div class="text-center text-slate-500 p-4 bg-slate-50 rounded-lg mt-2 text-sm">No tasks completed yet today. You can do it!</div>`;
+            completedTaskList.innerHTML = `<div class="text-center text-slate-400 p-4 rounded-lg mt-2 text-sm">
+                ${emptyCompletedSVG}
+                <p class="mt-2 font-medium text-slate-500">All done for today!</p>
+                <p>You're on a roll.</p>
+            </div>`;
             return;
         }
         tasksCompletedToday.forEach(task => {
@@ -347,6 +414,7 @@
     const resetModal = () => {
         document.getElementById('taskName').value = '';
         document.getElementById('taskTags').value = '';
+        document.getElementById('taskRecurring').checked = false;
         modalTagList = [];
         modalSelectedTime = null;
         modalSelectedContexts = [];
@@ -369,11 +437,12 @@
     };
     const renderTagPreview = () => {
         const tagDiv = document.getElementById('tagPreview');
-        tagDiv.innerHTML = modalTagList.map((tag, i) => `<span class="bg-slate-200 text-slate-700 text-sm font-medium px-2 py-1 rounded-md flex items-center">${tag}<button data-tag-index="${i}" class="remove-tag-btn ml-2 text-slate-400 hover:text-red-500 font-bold">&times;</button></span>`).join('');
+        tagDiv.innerHTML = modalTagList.map((tag, i) => `<span class="bg-slate-200 text-slate-700 text-sm font-medium px-2 py-1 rounded-md flex items-center">${tag}<button data-tag-index="${i}" class="remove-tag-btn ml-2 text-slate-400 hover:text-red-500 font-bold focus:outline-none focus:ring-1 focus:ring-red-500 rounded-full">&times;</button></span>`).join('');
     };
     const saveTask = () => {
         const name = document.getElementById('taskName').value.trim();
         const projectId = document.getElementById('projectSelect').value;
+        const isRecurring = document.getElementById('taskRecurring').checked;
         if (!name || !modalSelectedTime || modalSelectedContexts.length === 0 || !modalSelectedEnergy) {
           alert('Please provide a task name, time, context, and energy level.');
           return;
@@ -387,9 +456,9 @@
         }
         if (editingTaskId) {
           const taskIndex = tasks.findIndex(t => t.id === editingTaskId);
-          if (taskIndex > -1) tasks[taskIndex] = { ...tasks[taskIndex], name, time: modalSelectedTime, contexts: [...modalSelectedContexts], energy: modalSelectedEnergy, tags: [...modalTagList], projectId };
+          if (taskIndex > -1) tasks[taskIndex] = { ...tasks[taskIndex], name, time: modalSelectedTime, contexts: [...modalSelectedContexts], energy: modalSelectedEnergy, tags: [...modalTagList], projectId, isRecurring };
         } else {
-          tasks.push({ id: `task_${Date.now()}`, name, time: modalSelectedTime, contexts: [...modalSelectedContexts], energy: modalSelectedEnergy, tags: [...modalTagList], projectId });
+          tasks.push({ id: `task_${Date.now()}`, name, time: modalSelectedTime, contexts: [...modalSelectedContexts], energy: modalSelectedEnergy, tags: [...modalTagList], projectId, isRecurring });
         }
         saveDataToFirestore();
         closeModal();
@@ -425,6 +494,7 @@
         populateProjectDropdown();
         document.getElementById('projectSelect').value = task.projectId || 'inbox';
         document.getElementById('taskName').value = task.name;
+        document.getElementById('taskRecurring').checked = task.isRecurring || false;
         modalTagList = [...task.tags];
         modalSelectedTime = task.time;
         modalSelectedContexts = [...task.contexts];
@@ -442,20 +512,70 @@
     const markTaskDone = (taskId) => {
         const taskIndex = tasks.findIndex(t => t.id === taskId);
         if (taskIndex > -1) {
-            const completedTask = { ...tasks[taskIndex], completedAt: new Date().toISOString() };
-            completedTasks.push(completedTask);
-            tasks.splice(taskIndex, 1);
-            updateStreak();
-            saveDataToFirestore();
+            const task = tasks[taskIndex];
             
             const positiveMessages = ["Great job! ✨", "Awesome work! 🔥", "That's one step closer. 🚀", "Productivity unlocked! 🌟", "Amazing habit. 💪"];
             const message = positiveMessages[Math.floor(Math.random() * positiveMessages.length)];
-            filteredList.innerHTML = `<div class="text-center text-green-600 p-4 bg-green-50 rounded-lg border border-green-200 shadow-sm">${message}</div>`;
-            setTimeout(() => { if(filteredList.firstChild && filteredList.firstChild.textContent.includes(message)) filteredList.innerHTML = ''; }, 4000);
+            
+            if (task.isRecurring) {
+                // For recurring tasks, just log completion and update streak
+                const completedTask = { ...task, completedAt: new Date().toISOString() };
+                completedTasks.push(completedTask);
+                updateStreak();
+                saveDataToFirestore(); 
+                // Don't remove from main task list, so no animation needed
+                // But we can flash a success message
+                 filteredList.innerHTML = `<div class="text-center text-green-600 p-4 bg-green-50 rounded-lg border border-green-200 shadow-sm animate-fade-in">${message} (Recurring)</div>`;
+            } else {
+                // For single tasks, animate and remove
+                const taskElement = document.querySelector(`[data-task-container-id="${taskId}"]`);
+                if (taskElement) {
+                    taskElement.classList.add('task-completing');
+                }
+                setTimeout(() => {
+                    const completedTask = { ...tasks[taskIndex], completedAt: new Date().toISOString() };
+                    completedTasks.push(completedTask);
+                    tasks.splice(taskIndex, 1);
+                    updateStreak();
+                    saveDataToFirestore(); 
+                }, 300);
+                filteredList.innerHTML = `<div class="text-center text-green-600 p-4 bg-green-50 rounded-lg border border-green-200 shadow-sm animate-fade-in">${message}</div>`;
+            }
+            
+            setTimeout(() => { if(filteredList.firstChild && (filteredList.firstChild.textContent.includes(message))) filteredList.innerHTML = ''; }, 4000);
         }
         if (!focusOverlay.classList.contains('hidden')) {
             stopFocusSession(false);
         }
+    };
+
+    // --- STATS MODAL ---
+    const showStatsModal = () => {
+        const statsContent = document.getElementById('statsContent');
+        const today = new Date().toISOString().slice(0, 10);
+        const tasksToday = completedTasks.filter(t => t.completedAt && t.completedAt.slice(0, 10) === today).length;
+        
+        statsContent.innerHTML = `
+            <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
+                <span class="font-medium text-slate-600">Total Tasks Completed</span>
+                <span class="font-bold text-slate-800 text-lg">${completedTasks.length}</span>
+            </div>
+            <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
+                <span class="font-medium text-slate-600">Tasks Completed Today</span>
+                <span class="font-bold text-slate-800 text-lg">${tasksToday}</span>
+            </div>
+             <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
+                <span class="font-medium text-slate-600">Current Streak</span>
+                <span class="font-bold text-orange-500 text-lg">${streakData.currentStreak} days</span>
+            </div>
+        `;
+
+        document.body.classList.add('overflow-hidden');
+        statsModalOverlay.classList.remove('hidden');
+    };
+    const closeStatsModal = () => {
+        document.body.classList.remove('overflow-hidden');
+        statsModalOverlay.classList.add('hidden');
     };
 
     // --- TIMER AND FOCUS FUNCTIONS ---
@@ -529,13 +649,16 @@
           
           div.innerHTML = `
               <div class="flex-grow">
-                <h3 class="font-bold text-slate-900">${task.name}</h3>
+                <h3 class="font-bold text-slate-900 flex items-center">
+                  ${task.name}
+                  ${task.isRecurring ? `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2 text-blue-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>` : ''}
+                </h3>
                 <p class="text-sm text-slate-500">Time: ${task.time} min | Energy: ${task.energy}</p>
                  <div class="flex flex-wrap gap-2 mt-2 ${task.tags.length === 0 ? 'hidden' : ''}">
                     ${task.tags.map(tag => `<span class="text-xs bg-slate-100 text-slate-600 font-medium px-2 py-1 rounded-md">${tag}</span>`).join('')}
                 </div>
               </div>
-              <button data-task-id="${task.id}" class="start-btn ml-4 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg transition-colors font-semibold shrink-0">Start</button>
+              <button data-task-id="${task.id}" class="start-btn ml-4 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg transition-colors font-semibold shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600">Start</button>
           `;
           filteredList.appendChild(div);
     };
@@ -565,13 +688,17 @@
                     const taskEnergyIndex = energyLevels.indexOf(task.energy);
                     return taskEnergyIndex <= selectedEnergyIndex;
                 };
-                return timeMatches() && contextMatches() && energyMatches();
+                return timeMatches() && contextMatches && energyMatches();
             });
 
             if (potentialTasks.length > 0) {
                 potentialTasks.forEach(task => renderSuggestedTask(task, false));
             } else {
-                filteredList.innerHTML = `<div class="text-center text-slate-500 p-4 bg-white rounded-xl border border-slate-200">No tasks match your criteria. Try clearing the filters!</div>`;
+                filteredList.innerHTML = `<div class="text-center text-slate-400 p-4 bg-white rounded-xl border border-slate-200">
+                    ${emptyFilterSVG}
+                    <p class="mt-2 font-medium text-slate-500">No tasks found</p>
+                    <p>Try adjusting your filters.</p>
+                </div>`;
             }
         }
     };
@@ -681,7 +808,7 @@
 
         const createButtons = (opts, containerId, className, dataAttr) => {
             const container = document.getElementById(containerId);
-            container.innerHTML = opts.map(opt => `<button data-${dataAttr}="${opt}" class="${className} bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 px-3 py-1.5 rounded-lg transition-colors text-sm font-medium">${dataAttr === 'time' ? `${opt} min` : opt}</button>`).join('');
+            container.innerHTML = opts.map(opt => `<button data-${dataAttr}="${opt}" class="${className} bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 px-3 py-1.5 rounded-lg transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500">${dataAttr === 'time' ? `${opt} min` : opt}</button>`).join('');
         };
         createButtons(timeOptions, 'timeFilters', 'time-filter', 'time');
         createButtons(contextOptions, 'contextFilters', 'context-filter', 'context');
@@ -724,7 +851,12 @@
 
         document.getElementById('quickAddTaskInput').addEventListener('keypress', handleQuickAdd);
         document.getElementById('newProjectInput').addEventListener('keypress', handleAddProject);
+        globalSearchInput.addEventListener('input', (e) => renderTasksAndProjects(e.target.value));
         
+        // --- Stats Modal Listeners ---
+        document.getElementById('viewStatsBtn').onclick = showStatsModal;
+        document.getElementById('closeStatsBtn').onclick = closeStatsModal;
+
         const handleFilterClick = (containerId, selector, stateVarSetter) => {
             document.getElementById(containerId).addEventListener('click', e => {
                 if (e.target.matches(selector)) {
@@ -863,7 +995,7 @@
                     <div class="font-semibold text-sm">${user.displayName}</div>
                     <div class="text-xs text-slate-500">${user.email}</div>
                 </div>
-                <button id="logoutBtn" class="ml-2 text-slate-400 hover:text-red-500">
+                <button id="logoutBtn" class="ml-2 text-slate-400 hover:text-red-500 p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
                     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
                 </button>
             `;
