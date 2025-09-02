@@ -247,7 +247,12 @@
 
         <div class="mt-4 pt-2 border-t border-slate-100 relative">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-xs text-slate-500">Projects: <span id="projectCount" class="font-medium text-slate-600">0</span></span>
+            <button id="manageProjectsBtn" class="text-xs text-blue-600 hover:text-blue-700 font-medium transition-colors">
+              Manage Projects
+            </button>
+            <button id="collapseAllProjectsBtn" class="text-xs text-slate-600 hover:text-slate-700 font-medium transition-colors">
+              Collapse All
+            </button>
           </div>
           <input id="newProjectInput" type="text" placeholder="+ New Project" class="w-full border border-slate-200 p-2 rounded-lg text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
           <div id="projectAutocomplete" class="absolute top-full left-0 right-0 bg-white border border-slate-200 rounded-lg shadow-lg mt-1 max-h-32 overflow-y-auto hidden z-10">
@@ -301,7 +306,14 @@
         <div class="space-y-4">
             <div>
                 <h3 class="font-medium text-slate-600 mb-2">1. How much time do you have?</h3>
-                <div id="timeFilters" class="flex flex-wrap gap-2"></div>
+                <div class="flex flex-wrap gap-2">
+                    <div id="timeFilters" class="flex flex-wrap gap-2"></div>
+                    <div class="flex items-center gap-2 ml-2">
+                        <span class="text-sm text-slate-500">or</span>
+                        <input id="customTimeFilterInput" type="number" placeholder="Custom" min="1" max="999" class="w-24 px-2 py-1 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
+                        <span class="text-sm text-slate-500">min</span>
+                    </div>
+                </div>
             </div>
             <div>
                 <h3 class="font-medium text-slate-600 mb-2">2. Choose a context</h3>
@@ -363,7 +375,30 @@
       <input id="taskName" type="text" placeholder="Task Name (e.g., 'Draft project proposal')" class="w-full mb-4 border border-slate-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none"/>
       
       <label class="block mb-2 font-medium text-slate-700">Project</label>
-      <select id="projectSelect" class="w-full mb-4 border border-slate-300 p-2 rounded-lg bg-white focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none"></select>
+      <div class="relative mb-4">
+        <select id="projectSelect" class="w-full border border-slate-300 p-2 rounded-lg bg-white focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none pr-8">
+          <option value="new-project">+ New Project</option>
+        </select>
+        <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+          <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </div>
+      </div>
+      
+      <!-- New Project Input (hidden by default) -->
+      <div id="newProjectInputContainer" class="hidden mb-4">
+        <label class="block mb-2 font-medium text-slate-700">New Project Name</label>
+        <div class="flex space-x-2">
+          <input id="newProjectNameInput" type="text" placeholder="Enter project name..." class="flex-1 border border-slate-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none"/>
+          <button id="createProjectBtn" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+            Create
+          </button>
+          <button id="cancelNewProjectBtn" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-500">
+            Cancel
+          </button>
+        </div>
+      </div>
 
       <label class="block mb-2 font-medium text-slate-700">Task Type</label>
       <div class="bg-slate-50 p-3 rounded-lg mb-4">
@@ -376,18 +411,39 @@
 
       <div id="atomicTimeSection">
         <label class="block mb-2 font-medium text-slate-700">Time Required (minutes)</label>
-        <div id="modalTimeButtons" class="flex flex-wrap gap-2 mb-4"></div>
+        <div class="flex flex-wrap gap-2 mb-4">
+          <div id="modalTimeButtons" class="flex flex-wrap gap-2"></div>
+          <div class="flex items-center gap-2 ml-2">
+            <span class="text-sm text-slate-500">or</span>
+            <input id="customTimeInput" type="number" placeholder="Custom" min="1" max="999" class="w-24 px-2 py-1 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
+            <span class="text-sm text-slate-500">min</span>
+          </div>
+        </div>
       </div>
 
       <div id="progressTimeSection" class="hidden">
         <div class="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label class="block mb-2 font-medium text-slate-700">Total Time (Goal)</label>
-            <div id="modalTotalTimeButtons" class="flex flex-wrap gap-2"></div>
+            <div class="flex flex-wrap gap-2">
+              <div id="modalTotalTimeButtons" class="flex flex-wrap gap-2"></div>
+              <div class="flex items-center gap-2 ml-2">
+                <span class="text-sm text-slate-500">or</span>
+                <input id="customTotalTimeInput" type="number" placeholder="Custom" min="1" max="999" class="w-24 px-2 py-1 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
+                <span class="text-sm text-slate-500">min</span>
+              </div>
+            </div>
           </div>
           <div>
             <label class="block mb-2 font-medium text-slate-700">Min. Session Time</label>
-            <div id="modalMinSessionButtons" class="flex flex-wrap gap-2"></div>
+            <div class="flex flex-wrap gap-2">
+              <div id="modalMinSessionButtons" class="flex flex-wrap gap-2"></div>
+              <div class="flex items-center gap-2 ml-2">
+                <span class="text-sm text-slate-500">or</span>
+                <input id="customMinSessionInput" type="number" placeholder="Custom" min="1" max="999" class="w-24 px-2 py-1 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
+                <span class="text-sm text-slate-500">min</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -525,7 +581,37 @@
     </div>
   </div>
 
-    <div id="projectDeleteModalOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-[60] p-4">
+  <!-- Project Management Modal -->
+  <div id="projectManagementModalOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-[70] p-4">
+    <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-2xl max-h-[80vh] overflow-hidden">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-slate-900">Manage Projects</h2>
+        <button id="closeProjectManagementModalBtn" class="text-slate-400 hover:text-slate-600 p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+      
+      <div class="mb-4">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-sm text-slate-600">All Projects</span>
+          <button id="deleteEmptyProjectsBtn" class="text-xs text-red-600 hover:text-red-700 font-medium transition-colors">
+            Delete Empty Projects
+          </button>
+        </div>
+        <div id="projectManagementList" class="space-y-2 max-h-96 overflow-y-auto">
+          <!-- Projects will be populated here -->
+        </div>
+      </div>
+      
+      <div class="flex justify-end space-x-3 pt-4 border-t border-slate-200">
+        <button id="closeProjectManagementModalBtn2" class="px-4 py-2 text-slate-600 hover:text-slate-700 font-medium transition-colors">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+    <div id="projectDeleteModalOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-[80] p-4">
     <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
       <div class="flex items-center mb-4">
         <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
@@ -596,9 +682,36 @@
 
     
     // --- Firebase SDKs ---
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    console.log('🔄 Loading Firebase scripts...');
+    
+    try {
+        const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
+        console.log('✅ Firebase App loaded');
+        
+        const { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
+        console.log('✅ Firebase Auth loaded');
+        
+        const { getFirestore, doc, onSnapshot, setDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+        console.log('✅ Firebase Firestore loaded');
+        
+        // Make functions available globally
+        window.initializeApp = initializeApp;
+        window.getAuth = getAuth;
+        window.GoogleAuthProvider = GoogleAuthProvider;
+        window.signInWithPopup = signInWithPopup;
+        window.signOut = signOut;
+        window.onAuthStateChanged = onAuthStateChanged;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.getFirestore = getFirestore;
+        window.doc = doc;
+        window.onSnapshot = onSnapshot;
+        window.setDoc = setDoc;
+        
+    } catch (error) {
+        console.error('❌ Firebase loading failed:', error);
+        console.error('❌ Error details:', error.message);
+    }
 
     // --- PASTE YOUR FIREBASE CONFIGURATION HERE ---
     const firebaseConfig = {
@@ -611,9 +724,11 @@
     };
 
     // --- Initialize Firebase ---
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    console.log('🔄 Initializing Firebase...');
+    const app = window.initializeApp(firebaseConfig);
+    const auth = window.getAuth(app);
+    const db = window.getFirestore(app);
+    console.log('✅ Firebase initialized successfully');
 
     // --- GLOBAL STATE & CONSTANTS ---
     let projects = [];
@@ -631,6 +746,7 @@
     let selectedContextFilters = [];
     let selectedEnergyFilter = null;
     let selectedTagFilters = [];
+    let originalCollapsedProjects = new Set(); // Track original collapsed state before search
     const energyLevels = ['Low 🧠', 'Medium 💪', 'High 🔥'];
     let timerInterval = null;
     let remainingSeconds = 0;
@@ -673,9 +789,9 @@
             console.log('💾 Guest mode: Data not saved (no user authenticated)');
             return;
         }
-        const userDocRef = doc(db, 'users', currentUser.uid);
+        const userDocRef = window.doc(db, 'users', currentUser.uid);
         try {
-            await setDoc(userDocRef, { projects, tasks, completedTasks, streakData, collapsedProjects: Array.from(collapsedProjects), completedSectionCollapsed });
+            await window.setDoc(userDocRef, { projects, tasks, completedTasks, streakData, collapsedProjects: Array.from(collapsedProjects), completedSectionCollapsed });
         } catch (error) {
             console.error("Error saving data: ", error);
         }
@@ -685,13 +801,13 @@
         renderTasksAndProjects();
         renderCompletedTasks();
         initializeStreak();
-        updateProjectCount();
         renderTagCloud();
     };
     
     const handleGoogleLogin = () => {
-        const provider = new GoogleAuthProvider();
-        signInWithPopup(auth, provider).catch(error => {
+        console.log('🔐 Google login clicked');
+        const provider = new window.GoogleAuthProvider();
+        window.signInWithPopup(auth, provider).catch(error => {
             console.error("Google login failed: ", error);
             showAuthError("Google login failed. Please try again.");
         });
@@ -712,7 +828,7 @@
         }
         
         try {
-            await createUserWithEmailAndPassword(auth, email, password);
+            await window.createUserWithEmailAndPassword(auth, email, password);
             // Success handled by onAuthStateChanged
         } catch (error) {
             console.error("Sign up failed: ", error);
@@ -732,7 +848,7 @@
         }
         
         try {
-            await signInWithEmailAndPassword(auth, email, password);
+            await window.signInWithEmailAndPassword(auth, email, password);
             // Success handled by onAuthStateChanged
         } catch (error) {
             console.error("Sign in failed: ", error);
@@ -773,7 +889,7 @@
     };
 
     const handleLogout = () => {
-        signOut(auth);
+        window.signOut(auth);
     };
 
     const showGuestMode = () => {
@@ -1099,7 +1215,28 @@
     const renderTasksAndProjects = (searchTerm = '') => {
         projectsContainer.innerHTML = '';
         
+        // Debug: Log current projects (temporary)
+        console.log('Current projects:', projects);
+        console.log('Looking for Inbox:', projects.find(p => p.id === 'inbox'));
+        
         const normalizedSearch = searchTerm.trim().toLowerCase();
+        const isSearching = normalizedSearch.length > 0;
+        
+        // If starting a new search, save the current collapsed state
+        if (isSearching && originalCollapsedProjects.size === 0) {
+            originalCollapsedProjects = new Set(collapsedProjects);
+        }
+        
+        // If clearing search, restore original collapsed state
+        if (!isSearching && originalCollapsedProjects.size > 0) {
+            collapsedProjects = new Set(originalCollapsedProjects);
+            originalCollapsedProjects.clear();
+            saveDataToFirestore();
+        }
+        
+        // Use a local collapsed state for rendering to avoid glitching
+        const localCollapsedProjects = new Set(collapsedProjects);
+        
         const tasksToRender = normalizedSearch
             ? tasks.filter(task => task.name.toLowerCase().includes(normalizedSearch))
             : tasks;
@@ -1107,18 +1244,51 @@
         projects.forEach(project => {
             const projectTasks = tasksToRender.filter(task => task.projectId === project.id);
             
-            if (projectTasks.length === 0 && (project.id !== 'inbox' || (tasks.length > 0 && normalizedSearch))) return;
+            console.log(`Project: ${project.name} (${project.id})`);
+            console.log(`  - All tasks: ${tasks.length}`);
+            console.log(`  - Tasks to render: ${tasksToRender.length}`);
+            console.log(`  - Project tasks: ${projectTasks.length}`);
+            console.log(`  - Project tasks:`, projectTasks);
+            
+            // Show projects if they have tasks, or if it's the Inbox, or if there are no tasks at all
+            if (projectTasks.length === 0 && project.id !== 'inbox' && tasks.length > 0) {
+                console.log(`  - Hiding project ${project.name} (no tasks)`);
+                return;
+            }
+
+            // Auto-expand collapsed projects when search finds tasks in them
+            const shouldAutoExpand = normalizedSearch && projectTasks.length > 0 && localCollapsedProjects.has(project.id);
+            if (shouldAutoExpand) {
+                localCollapsedProjects.delete(project.id);
+            }
 
             const projectDiv = document.createElement('div');
             projectDiv.className = 'project-group';
             
             const projectHeader = document.createElement('div');
-            projectHeader.className = 'group flex items-center justify-between cursor-pointer hover:bg-slate-50 p-2 rounded-lg transition-colors';
+            // Special styling for Inbox project - same color as View Stats button
+            const isInbox = project.id === 'inbox';
+            const headerBgClass = isInbox ? 'bg-slate-100 hover:bg-slate-200' : 'hover:bg-slate-50';
+            projectHeader.className = `group flex items-center justify-between cursor-pointer ${headerBgClass} p-2 rounded-lg transition-colors`;
             projectHeader.dataset.projectId = project.id;
             
             const headerContent = document.createElement('h3');
             headerContent.className = 'font-semibold text-slate-900 flex items-center';
-            headerContent.textContent = project.name;
+            
+            // Create project name with optional task count badge
+            const projectNameSpan = document.createElement('span');
+            projectNameSpan.textContent = project.name;
+            headerContent.appendChild(projectNameSpan);
+            
+            // Add task count badge if project is collapsed and has tasks
+            const isCollapsed = localCollapsedProjects.has(project.id);
+            const allProjectTasks = tasks.filter(task => task.projectId === project.id);
+            if (isCollapsed && allProjectTasks.length > 0) {
+                const taskCountBadge = document.createElement('span');
+                taskCountBadge.className = 'ml-2 bg-slate-200 text-slate-600 text-xs font-medium rounded-full w-5 h-5 flex items-center justify-center';
+                taskCountBadge.textContent = allProjectTasks.length;
+                headerContent.appendChild(taskCountBadge);
+            }
             
             // Add hover-triggered edit and delete project buttons (only for non-inbox projects)
             if (project.id !== 'inbox') {
@@ -1139,18 +1309,20 @@
             
             const collapseBtn = document.createElement('button');
             collapseBtn.className = 'text-slate-400 hover:text-slate-600 p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500';
-            collapseBtn.innerHTML = `<svg class="w-5 h-5 collapse-icon ${collapsedProjects.has(project.id) ? 'collapsed' : 'expanded'}" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>`;
+            collapseBtn.innerHTML = `<svg class="w-5 h-5 collapse-icon ${localCollapsedProjects.has(project.id) ? 'collapsed' : 'expanded'}" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>`;
             
             projectHeader.appendChild(headerContent);
             projectHeader.appendChild(collapseBtn);
             projectDiv.appendChild(projectHeader);
             
             const projectContent = document.createElement('div');
-            projectContent.className = `project-content ${collapsedProjects.has(project.id) ? 'collapsed' : 'expanded'}`;
+            projectContent.className = `project-content ${localCollapsedProjects.has(project.id) ? 'collapsed' : 'expanded'}`;
             projectContent.setAttribute('data-project-id', project.id);
             
             if (projectTasks.length > 0) {
+                console.log(`  - Rendering ${projectTasks.length} tasks for ${project.name}`);
                 projectTasks.forEach(task => {
+                    console.log(`    - Rendering task: ${task.name}`);
                     const taskDiv = document.createElement('div');
                     taskDiv.className = 'group flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors duration-150';
                     taskDiv.setAttribute('data-task-container-id', task.id);
@@ -1263,12 +1435,22 @@
     const populateProjectDropdown = () => {
         const projectSelect = document.getElementById('projectSelect');
         projectSelect.innerHTML = '';
+        console.log('Populating project dropdown with projects:', projects);
+        
+        // Add existing projects
         projects.forEach(project => {
             const option = document.createElement('option');
             option.value = project.id;
             option.textContent = project.name;
             projectSelect.appendChild(option);
+            console.log('Added project option:', project.name, project.id);
         });
+        
+        // Add "New Project" option at the end
+        const newProjectOption = document.createElement('option');
+        newProjectOption.value = 'new-project';
+        newProjectOption.textContent = '+ New Project';
+        projectSelect.appendChild(newProjectOption);
     };
 
     const resetModal = () => {
@@ -1287,6 +1469,14 @@
         renderTagPreview();
         toggleTimeSections();
         document.querySelectorAll('.modal-time-btn, .modal-total-time-btn, .modal-min-session-btn, .modal-context-btn, .modal-energy-btn').forEach(b => {b.classList.remove('bg-blue-500','text-white','border-blue-500');b.classList.add('bg-white','text-slate-700')});
+        
+        // Hide new project input and reset dropdown
+        hideNewProjectInput();
+        
+        // Clear custom time inputs
+        document.getElementById('customTimeInput').value = '';
+        document.getElementById('customTotalTimeInput').value = '';
+        document.getElementById('customMinSessionInput').value = '';
     };
     const openModal = (mode = 'add') => {
         document.body.classList.add('overflow-hidden');
@@ -1431,6 +1621,52 @@
         modalTagList.splice(index, 1);
         renderTagPreview();
     };
+
+    const showNewProjectInput = () => {
+        document.getElementById('newProjectInputContainer').classList.remove('hidden');
+        document.getElementById('newProjectNameInput').focus();
+    };
+
+    const hideNewProjectInput = () => {
+        document.getElementById('newProjectInputContainer').classList.add('hidden');
+        document.getElementById('newProjectNameInput').value = '';
+        // Reset dropdown to first project (Inbox)
+        document.getElementById('projectSelect').value = 'inbox';
+    };
+
+    const createNewProject = () => {
+        const projectName = document.getElementById('newProjectNameInput').value.trim();
+        
+        if (!projectName) {
+            alert('Please enter a project name.');
+            return;
+        }
+        
+        // Check if project already exists
+        const existingProject = projects.find(p => p.name.toLowerCase() === projectName.toLowerCase());
+        if (existingProject) {
+            alert('A project with this name already exists.');
+            return;
+        }
+        
+        // Create new project
+        const newProject = {
+            id: 'proj_' + Date.now(),
+            name: projectName
+        };
+        
+        projects.push(newProject);
+        saveDataToFirestore();
+        
+        // Update dropdown and select the new project
+        populateProjectDropdown();
+        document.getElementById('projectSelect').value = newProject.id;
+        
+        // Hide the input
+        hideNewProjectInput();
+        
+        console.log('Created new project:', newProject);
+    };
     
     const startQuickEdit = (taskId) => {
         const task = tasks.find(t => t.id === taskId);
@@ -1547,6 +1783,11 @@
         collapsedProjects.delete(projectId);
         saveDataToFirestore();
         renderAll();
+        
+        // Refresh project management modal if it's open
+        if (!document.getElementById('projectManagementModalOverlay').classList.contains('hidden')) {
+            renderProjectManagementList();
+        }
         
         // Close modal
         closeProjectDeleteModal();
@@ -1733,6 +1974,188 @@
         document.getElementById('signInModalOverlay').classList.add('hidden');
     };
 
+    // --- PROJECT MANAGEMENT MODAL FUNCTIONS ---
+    const showProjectManagementModal = () => {
+        document.body.classList.add('overflow-hidden');
+        document.getElementById('projectManagementModalOverlay').classList.remove('hidden');
+        renderProjectManagementList();
+    };
+
+    const closeProjectManagementModal = () => {
+        document.body.classList.remove('overflow-hidden');
+        document.getElementById('projectManagementModalOverlay').classList.add('hidden');
+    };
+
+    const renderProjectManagementList = () => {
+        const projectList = document.getElementById('projectManagementList');
+        projectList.innerHTML = '';
+
+        projects.forEach(project => {
+            const projectTasks = tasks.filter(task => task.projectId === project.id);
+            const isActive = projectTasks.length > 0;
+            const taskCount = projectTasks.length;
+
+            const projectItem = document.createElement('div');
+            projectItem.className = 'flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200';
+            projectItem.setAttribute('data-project-id', project.id);
+            
+            // Prevent modal project items from triggering sidebar events
+            projectItem.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+            
+            projectItem.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 rounded-full ${isActive ? 'bg-green-500' : 'bg-slate-300'}"></div>
+                        <span class="font-medium text-slate-900">${project.name}</span>
+                    </div>
+                    <span class="text-sm text-slate-500">${taskCount} task${taskCount !== 1 ? 's' : ''}</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    ${project.id !== 'inbox' ? `
+                        <button class="edit-project-btn text-slate-400 hover:text-slate-600 p-1 rounded-md transition-colors" data-project-id="${project.id}" title="Rename">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                        </button>
+                        <button class="delete-project-btn text-red-400 hover:text-red-600 p-1 rounded-md transition-colors" data-project-id="${project.id}" title="Delete">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    ` : ''}
+                </div>
+            `;
+            
+            projectList.appendChild(projectItem);
+        });
+
+        // Add event listeners for edit and delete buttons
+        document.querySelectorAll('.edit-project-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const projectId = e.target.closest('.edit-project-btn').dataset.projectId;
+                console.log('Edit button clicked for project:', projectId);
+                editProjectInModal(projectId);
+            });
+        });
+
+        document.querySelectorAll('.delete-project-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const projectId = e.target.closest('.delete-project-btn').dataset.projectId;
+                console.log('Delete button clicked for project:', projectId);
+                deleteProject(projectId);
+            });
+        });
+    };
+
+    const deleteEmptyProjects = () => {
+        const emptyProjects = projects.filter(project => {
+            if (project.id === 'inbox') return false; // Never delete inbox
+            const projectTasks = tasks.filter(task => task.projectId === project.id);
+            return projectTasks.length === 0;
+        });
+
+        if (emptyProjects.length === 0) {
+            alert('No empty projects to delete.');
+            return;
+        }
+
+        if (confirm(`Delete ${emptyProjects.length} empty project${emptyProjects.length !== 1 ? 's' : ''}?`)) {
+            emptyProjects.forEach(project => {
+                projects = projects.filter(p => p.id !== project.id);
+            });
+            saveDataToFirestore();
+            renderAll();
+            renderProjectManagementList();
+        }
+    };
+
+    const collapseAllProjects = () => {
+        // Add all project IDs to collapsedProjects set
+        projects.forEach(project => {
+            collapsedProjects.add(project.id);
+        });
+        
+        // Save to Firestore
+        saveDataToFirestore();
+        
+        // Re-render to show collapsed state
+        renderTasksAndProjects();
+        
+        console.log('All projects collapsed');
+    };
+
+    const editProjectInModal = (projectId) => {
+        const project = projects.find(p => p.id === projectId);
+        if (!project || project.id === 'inbox') return;
+        
+        // Find the project item in the modal (not the sidebar)
+        const projectManagementList = document.getElementById('projectManagementList');
+        const projectItem = projectManagementList.querySelector(`[data-project-id="${projectId}"]`);
+        if (!projectItem) {
+            console.log('Project item not found for ID:', projectId);
+            return;
+        }
+        
+        console.log('Project item found:', projectItem);
+        console.log('Project item HTML:', projectItem.innerHTML);
+        
+        const projectNameSpan = projectItem.querySelector('span.font-medium.text-slate-900');
+        if (!projectNameSpan) {
+            console.log('Project name span not found');
+            console.log('All spans in project item:', projectItem.querySelectorAll('span'));
+            return;
+        }
+        const currentName = projectNameSpan.textContent;
+        
+        // Create input field
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = currentName;
+        input.className = 'font-medium text-slate-900 bg-white border border-blue-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500';
+        
+        // Replace text with input
+        projectNameSpan.textContent = '';
+        projectNameSpan.appendChild(input);
+        input.focus();
+        input.select();
+        
+        // Handle save on Enter or blur
+        const saveEdit = () => {
+            const newName = input.value.trim();
+            if (newName && newName !== currentName) {
+                project.name = newName;
+                saveDataToFirestore();
+                renderAll();
+                // Refresh the modal list
+                renderProjectManagementList();
+            } else {
+                // Restore original name if empty or unchanged
+                projectNameSpan.textContent = currentName;
+            }
+        };
+        
+        const cancelEdit = () => {
+            projectNameSpan.textContent = currentName;
+        };
+        
+        input.addEventListener('blur', saveEdit);
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                saveEdit();
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                cancelEdit();
+            }
+        });
+    };
+
     const handleSignUpModal = async () => {
         const email = document.getElementById('signUpEmailInput').value;
         const password = document.getElementById('signUpPasswordInput').value;
@@ -1746,7 +2169,7 @@
         try {
             console.log('🔐 Attempting to create new account...');
             console.log('📧 Email:', email);
-            await createUserWithEmailAndPassword(auth, email, password);
+            await window.createUserWithEmailAndPassword(auth, email, password);
             console.log('✅ Account created successfully');
             closeSignUpModal();
         } catch (error) {
@@ -1771,7 +2194,7 @@
             console.log('🔐 Attempting email/password sign in...');
             console.log('📧 Email:', email);
             console.log('🔑 Auth object:', auth);
-            await signInWithEmailAndPassword(auth, email, password);
+            await window.signInWithEmailAndPassword(auth, email, password);
             console.log('✅ Sign in successful');
             closeSignInModal();
         } catch (error) {
@@ -1784,7 +2207,8 @@
 
     const handleSignUpGoogleModal = async () => {
         try {
-            await signInWithPopup(auth, provider);
+            const provider = new window.GoogleAuthProvider();
+            await window.signInWithPopup(auth, provider);
             closeSignUpModal();
         } catch (error) {
             const errorElement = document.getElementById('signUpAuthError');
@@ -1794,7 +2218,8 @@
 
     const handleSignInGoogleModal = async () => {
         try {
-            await signInWithPopup(auth, provider);
+            const provider = new window.GoogleAuthProvider();
+            await window.signInWithPopup(auth, provider);
             closeSignInModal();
         } catch (error) {
             const errorElement = document.getElementById('signInAuthError');
@@ -1984,7 +2409,70 @@
             });
 
             if (potentialTasks.length > 0) {
-                potentialTasks.forEach(task => renderSuggestedTask(task, false));
+                // Sort tasks by relevance score (highest first)
+                const scoredTasks = potentialTasks.map(task => {
+                    let score = 0;
+                    
+                    // Time matching score (most important)
+                    if (selectedTimeFilter) {
+                        const taskTime = task.isDivisible ? task.minSessionTime : task.time;
+                        const timeDiff = Math.abs(taskTime - selectedTimeFilter);
+                        
+                        if (timeDiff === 0) {
+                            score += 100; // Perfect match
+                        } else if (timeDiff <= 5) {
+                            score += 80; // Very close
+                        } else if (timeDiff <= 10) {
+                            score += 60; // Close
+                        } else if (timeDiff <= 15) {
+                            score += 40; // Reasonable
+                        } else {
+                            score += 20; // Acceptable but not ideal
+                        }
+                    } else {
+                        score += 50; // No time filter, neutral score
+                    }
+                    
+                    // Energy matching score
+                    if (selectedEnergyFilter) {
+                        const selectedEnergyIndex = energyLevels.indexOf(selectedEnergyFilter);
+                        const taskEnergyIndex = energyLevels.indexOf(task.energy);
+                        
+                        if (taskEnergyIndex === selectedEnergyIndex) {
+                            score += 50; // Perfect energy match
+                        } else if (Math.abs(taskEnergyIndex - selectedEnergyIndex) === 1) {
+                            score += 30; // Close energy match
+                        } else {
+                            score += 10; // Acceptable energy
+                        }
+                    } else {
+                        score += 25; // No energy filter, neutral score
+                    }
+                    
+                    // Context matching bonus
+                    if (selectedContextFilters.length > 0) {
+                        const matchingContexts = task.contexts.filter(c => selectedContextFilters.includes(c)).length;
+                        score += matchingContexts * 15; // 15 points per matching context
+                    }
+                    
+                    // Tag matching bonus
+                    if (selectedTagFilters.length > 0) {
+                        const matchingTags = task.tags ? task.tags.filter(tag => selectedTagFilters.includes(tag)).length : 0;
+                        score += matchingTags * 10; // 10 points per matching tag
+                    }
+                    
+                    // Prefer tasks that haven't been started recently
+                    if (task.timeSpent === 0) {
+                        score += 5; // Small bonus for fresh tasks
+                    }
+                    
+                    return { task, score };
+                });
+                
+                // Sort by score (highest first) and render
+                scoredTasks
+                    .sort((a, b) => b.score - a.score)
+                    .forEach(({ task }) => renderSuggestedTask(task, false));
             } else {
                 filteredList.innerHTML = `<div class="text-center text-slate-400 p-4 bg-white rounded-xl border border-slate-200">
                     ${emptyFilterSVG}
@@ -2124,13 +2612,7 @@
         hideProjectAutocomplete();
     };
 
-    const updateProjectCount = () => {
-        const projectCountElement = document.getElementById('projectCount');
-        if (projectCountElement) {
-            const totalProjects = projects.length;
-            projectCountElement.textContent = totalProjects;
-        }
-    };
+    // updateProjectCount function removed - replaced with Manage Projects button
     
     const initializeStreak = () => {
         const today = new Date();
@@ -2231,6 +2713,13 @@
          selectedTimeFilter = null; selectedContextFilters = []; selectedEnergyFilter = null; selectedTagFilters = [];
          document.querySelectorAll('.time-filter, .context-filter, .energy-filter').forEach(b => {b.classList.remove('bg-blue-500','text-white','border-blue-500');b.classList.add('bg-white','text-slate-700')});
          document.querySelectorAll('.tag-filter').forEach(b => {b.classList.remove('bg-blue-500','text-white','border-blue-500');b.classList.add('bg-slate-100','text-slate-600')});
+         
+         // Clear custom time input and reset visual indicator
+         const customTimeInput = document.getElementById('customTimeFilterInput');
+         customTimeInput.value = '';
+         customTimeInput.classList.remove('bg-blue-50', 'border-blue-500', 'ring-2', 'ring-blue-200');
+         customTimeInput.classList.add('border-slate-300');
+         
          filteredList.innerHTML = '';
          // Show content area again when filters are cleared
          document.getElementById('contentArea').classList.remove('hidden');
@@ -2251,6 +2740,61 @@
            e.target.value = '';
            renderTagPreview();
          }
+        });
+        
+        // New project creation event listeners
+        document.getElementById('projectSelect').addEventListener('change', (e) => {
+            if (e.target.value === 'new-project') {
+                showNewProjectInput();
+            }
+        });
+        
+        document.getElementById('createProjectBtn').onclick = createNewProject;
+        document.getElementById('cancelNewProjectBtn').onclick = hideNewProjectInput;
+        
+        // Allow Enter key to create project
+        document.getElementById('newProjectNameInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                createNewProject();
+            }
+        });
+        
+        // Custom time input event listeners
+        document.getElementById('customTimeInput').addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            if (value && value > 0) {
+                // Clear other time button selections
+                document.querySelectorAll('.modal-time-btn').forEach(btn => {
+                    btn.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
+                    btn.classList.add('bg-white', 'text-slate-700');
+                });
+                modalSelectedTime = value;
+            }
+        });
+        
+        document.getElementById('customTotalTimeInput').addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            if (value && value > 0) {
+                // Clear other total time button selections
+                document.querySelectorAll('.modal-total-time-btn').forEach(btn => {
+                    btn.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
+                    btn.classList.add('bg-white', 'text-slate-700');
+                });
+                modalSelectedTotalTime = value;
+            }
+        });
+        
+        document.getElementById('customMinSessionInput').addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            if (value && value > 0) {
+                // Clear other min session button selections
+                document.querySelectorAll('.modal-min-session-btn').forEach(btn => {
+                    btn.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
+                    btn.classList.add('bg-white', 'text-slate-700');
+                });
+                modalSelectedMinSessionTime = value;
+            }
         });
 
         // Add event listener for divisibility checkbox (if it exists)
@@ -2280,6 +2824,13 @@
         document.getElementById('signInModalBtn').onclick = handleSignInModal;
         document.getElementById('signUpGoogleLoginBtn').onclick = handleSignUpGoogleModal;
         document.getElementById('signInGoogleLoginBtn').onclick = handleSignInGoogleModal;
+        
+        // Project management modal event listeners
+        document.getElementById('manageProjectsBtn').onclick = showProjectManagementModal;
+        document.getElementById('closeProjectManagementModalBtn').onclick = closeProjectManagementModal;
+        document.getElementById('closeProjectManagementModalBtn2').onclick = closeProjectManagementModal;
+        document.getElementById('deleteEmptyProjectsBtn').onclick = deleteEmptyProjects;
+        document.getElementById('collapseAllProjectsBtn').onclick = collapseAllProjects;
         document.getElementById('showLoginModalBtn').onclick = () => {
             closeSignUpModal();
             showSignInModal();
@@ -2299,44 +2850,71 @@
         
 
 
-        const handleFilterClick = (containerId, selector, stateVarSetter) => {
+        const handleFilterClick = (containerId, selector, stateVarSetter, allowToggle = false) => {
             document.getElementById(containerId).addEventListener('click', e => {
                 if (e.target.matches(selector)) {
-                    document.querySelectorAll(selector).forEach(b => {
-                        if (b !== e.target) {
-                           b.classList.remove('bg-blue-500','text-white','border-blue-500');
-                           b.classList.add('bg-white','text-slate-700');
-                        }
-                    });
-                     e.target.classList.toggle('bg-blue-500');
-                     e.target.classList.toggle('text-white');
-                     e.target.classList.toggle('border-blue-500');
-                     e.target.classList.toggle('bg-white');
-                     e.target.classList.toggle('text-slate-700');
+                    if (allowToggle) {
+                        // For context filters - allow toggle (multi-select)
+                        e.target.classList.toggle('bg-blue-500');
+                        e.target.classList.toggle('text-white');
+                        e.target.classList.toggle('border-blue-500');
+                        e.target.classList.toggle('bg-white');
+                        e.target.classList.toggle('text-slate-700');
+                    } else {
+                        // For time and energy filters - radio button behavior (single select)
+                        document.querySelectorAll(selector).forEach(b => {
+                            b.classList.remove('bg-blue-500','text-white','border-blue-500');
+                            b.classList.add('bg-white','text-slate-700');
+                        });
+                        e.target.classList.add('bg-blue-500', 'text-white', 'border-blue-500');
+                        e.target.classList.remove('bg-white', 'text-slate-700');
+                    }
                     stateVarSetter(e.target);
                 }
             });
         };
-        handleFilterClick('timeFilters', '.time-filter', (el) => selectedTimeFilter = selectedTimeFilter === parseInt(el.dataset.time) ? null : parseInt(el.dataset.time));
-        handleFilterClick('energyFilters', '.energy-filter', (el) => selectedEnergyFilter = selectedEnergyFilter === el.dataset.energy ? null : el.dataset.energy);
+        handleFilterClick('timeFilters', '.time-filter', (el) => {
+            selectedTimeFilter = parseInt(el.dataset.time);
+            // Clear custom input when button is clicked and reset visual indicator
+            const customTimeInput = document.getElementById('customTimeFilterInput');
+            customTimeInput.value = '';
+            customTimeInput.classList.remove('bg-blue-50', 'border-blue-500', 'ring-2', 'ring-blue-200');
+            customTimeInput.classList.add('border-slate-300');
+        });
+        handleFilterClick('energyFilters', '.energy-filter', (el) => selectedEnergyFilter = el.dataset.energy);
         
-        document.getElementById('contextFilters').addEventListener('click', e => {
-            if (e.target.matches('.context-filter')) {
-                const context = e.target.dataset.context;
-                const index = selectedContextFilters.indexOf(context);
-                e.target.classList.toggle('bg-blue-500');
-                e.target.classList.toggle('text-white');
-                e.target.classList.toggle('border-blue-500');
-                e.target.classList.toggle('bg-white');
-                e.target.classList.toggle('text-slate-700');
-
-                if (index > -1) {
-                    selectedContextFilters.splice(index, 1);
-                } else {
-                    selectedContextFilters.push(context);
-                }
+        // Custom time filter input
+        document.getElementById('customTimeFilterInput').addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            if (value && value > 0) {
+                // Clear other time filter selections
+                document.querySelectorAll('.time-filter').forEach(btn => {
+                    btn.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
+                    btn.classList.add('bg-white', 'text-slate-700');
+                });
+                selectedTimeFilter = value;
+                
+                // Add visual indicator for custom time selection
+                e.target.classList.add('bg-blue-50', 'border-blue-500', 'ring-2', 'ring-blue-200');
+                e.target.classList.remove('border-slate-300');
+            } else if (!value) {
+                selectedTimeFilter = null;
+                
+                // Remove visual indicator
+                e.target.classList.remove('bg-blue-50', 'border-blue-500', 'ring-2', 'ring-blue-200');
+                e.target.classList.add('border-slate-300');
             }
         });
+        
+        handleFilterClick('contextFilters', '.context-filter', (el) => {
+            const context = el.dataset.context;
+            const index = selectedContextFilters.indexOf(context);
+            if (index > -1) {
+                selectedContextFilters.splice(index, 1);
+            } else {
+                selectedContextFilters.push(context);
+            }
+        }, true); // Allow toggle for context filters
 
         const handleModalButtonClick = (containerId, selector, stateVarSetter, isMultiSelect = false) => {
             document.getElementById(containerId).addEventListener('click', e => {
@@ -2364,13 +2942,22 @@
                 }
             });
         };
-        handleModalButtonClick('modalTimeButtons', '.modal-time-btn', (val) => modalSelectedTime = val);
-        handleModalButtonClick('modalTotalTimeButtons', '.modal-total-time-btn', (val) => modalSelectedTotalTime = val);
+        handleModalButtonClick('modalTimeButtons', '.modal-time-btn', (val) => {
+            modalSelectedTime = val;
+            document.getElementById('customTimeInput').value = '';
+        });
+        handleModalButtonClick('modalTotalTimeButtons', '.modal-total-time-btn', (val) => {
+            modalSelectedTotalTime = val;
+            document.getElementById('customTotalTimeInput').value = '';
+        });
         // Use event delegation for min session time buttons
         document.addEventListener('click', (e) => {
             if (e.target.matches('.modal-min-session-btn')) {
                 const value = parseInt(e.target.dataset.time);
                 modalSelectedMinSessionTime = value;
+                
+                // Clear custom input
+                document.getElementById('customMinSessionInput').value = '';
                 
                 // Update button styling
                 document.querySelectorAll('.modal-min-session-btn').forEach(b => {
@@ -2412,11 +2999,15 @@
         document.getElementById('signInModalOverlay').addEventListener('click', (e) => {
             if (e.target.id === 'signInModalOverlay') closeSignInModal();
         });
+        document.getElementById('projectManagementModalOverlay').addEventListener('click', (e) => {
+            if (e.target.id === 'projectManagementModalOverlay') closeProjectManagementModal();
+        });
 
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 if (!document.getElementById('signUpModalOverlay').classList.contains('hidden')) closeSignUpModal();
                 else if (!document.getElementById('signInModalOverlay').classList.contains('hidden')) closeSignInModal();
+                else if (!document.getElementById('projectManagementModalOverlay').classList.contains('hidden')) closeProjectManagementModal();
                 else if (!stopFocusModalOverlay.classList.contains('hidden')) closeStopFocusModal();
                 else if (!projectDeleteModalOverlay.classList.contains('hidden')) closeProjectDeleteModal();
                 else if (!statsModalOverlay.classList.contains('hidden')) closeStatsModal();
@@ -2442,57 +3033,7 @@
             const quickCompleteButton = e.target.closest('.quick-complete-btn');
             if (quickCompleteButton) markTaskDone(quickCompleteButton.dataset.taskId);
             
-            // Handle filter buttons
-            const timeFilter = e.target.closest('.time-filter');
-            if (timeFilter) {
-                const time = parseInt(timeFilter.dataset.time);
-                if (selectedTimeFilter === time) {
-                    selectedTimeFilter = null;
-                    timeFilter.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
-                    timeFilter.classList.add('bg-white', 'text-slate-700');
-                } else {
-                    document.querySelectorAll('.time-filter').forEach(b => {
-                        b.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
-                        b.classList.add('bg-white', 'text-slate-700');
-                    });
-                    selectedTimeFilter = time;
-                    timeFilter.classList.remove('bg-white', 'text-slate-700');
-                    timeFilter.classList.add('bg-blue-500', 'text-white', 'border-blue-500');
-                }
-            }
-            
-            const contextFilter = e.target.closest('.context-filter');
-            if (contextFilter) {
-                const context = contextFilter.dataset.context;
-                const index = selectedContextFilters.indexOf(context);
-                if (index > -1) {
-                    selectedContextFilters.splice(index, 1);
-                    contextFilter.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
-                    contextFilter.classList.add('bg-white', 'text-slate-700');
-                } else {
-                    selectedContextFilters.push(context);
-                    contextFilter.classList.remove('bg-white', 'text-slate-700');
-                    contextFilter.classList.add('bg-blue-500', 'text-white', 'border-blue-500');
-                }
-            }
-            
-            const energyFilter = e.target.closest('.energy-filter');
-            if (energyFilter) {
-                const energy = energyFilter.dataset.energy;
-                if (selectedEnergyFilter === energy) {
-                    selectedEnergyFilter = null;
-                    energyFilter.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
-                    energyFilter.classList.add('bg-white', 'text-slate-700');
-                } else {
-                    document.querySelectorAll('.energy-filter').forEach(b => {
-                        b.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
-                        b.classList.add('bg-white', 'text-slate-700');
-                    });
-                    selectedEnergyFilter = energy;
-                    energyFilter.classList.remove('bg-white', 'text-slate-700');
-                    energyFilter.classList.add('bg-blue-500', 'text-white', 'border-blue-500');
-                }
-            }
+            // Filter button handling is now done by handleFilterClick function above
             
             const tagFilter = e.target.closest('.tag-filter');
             if (tagFilter) {
@@ -2541,6 +3082,12 @@
                 const projectContent = document.querySelector(`.project-content[data-project-id="${projectId}"]`);
                 const collapseIcon = projectHeader.querySelector('.collapse-icon');
                 
+                // Check if elements exist before manipulating them
+                if (!projectContent || !collapseIcon) {
+                    console.log('Missing elements for project collapse:', { projectContent, collapseIcon });
+                    return;
+                }
+                
                 if (collapsedProjects.has(projectId)) {
                     // Expand project
                     collapsedProjects.delete(projectId);
@@ -2570,19 +3117,108 @@
 
     };
 
+    const createSampleTasks = () => {
+        const sampleTasks = [
+            {
+                id: 'task_1',
+                name: 'Meditate',
+                time: 10,
+                energy: 'Low 🧠',
+                contexts: ['Evening', 'Weekend'],
+                projectId: 'proj_1756692165018', // Personal
+                tags: ['mindfulness', 'wellness'],
+                isRecurring: false,
+                isDivisible: false,
+                timeSpent: 0
+            },
+            {
+                id: 'task_2',
+                name: 'Log EUC patients',
+                time: 10,
+                energy: 'Low 🧠',
+                contexts: ['Workday'],
+                projectId: 'proj_1756692201352', // ENT Urgent Care
+                tags: ['work', 'admin'],
+                isRecurring: true,
+                isDivisible: false,
+                timeSpent: 0
+            },
+            {
+                id: 'task_3',
+                name: 'Read journal article',
+                time: 20,
+                energy: 'Low 🧠',
+                contexts: ['Evening', 'Weekend'],
+                projectId: 'proj_1756750134944', // Capital ENT
+                tags: ['learning', 'research'],
+                isRecurring: false,
+                isDivisible: true,
+                totalTime: 20,
+                minSessionTime: 10,
+                timeSpent: 0
+            },
+            {
+                id: 'task_4',
+                name: 'Fix TP holder',
+                time: 10,
+                energy: 'Medium 💪',
+                contexts: ['Home', 'Weekend'],
+                projectId: 'proj_1756772337348', // Home
+                tags: ['home', 'maintenance'],
+                isRecurring: false,
+                isDivisible: false,
+                timeSpent: 0
+            },
+            {
+                id: 'task_5',
+                name: 'Review email backlog',
+                time: 15,
+                energy: 'Low 🧠',
+                contexts: ['Workday'],
+                projectId: 'inbox',
+                tags: ['work', 'admin'],
+                isRecurring: false,
+                isDivisible: false,
+                timeSpent: 0
+            }
+        ];
+        
+        tasks = sampleTasks;
+        console.log('Created sample tasks:', tasks);
+        saveDataToFirestore();
+        renderAll();
+    };
+
     const loadDataFromFirestore = (userId) => {
-        const userDocRef = doc(db, 'users', userId);
+        const userDocRef = window.doc(db, 'users', userId);
         
         if (unsubscribeFromData) {
             unsubscribeFromData();
         }
 
-        unsubscribeFromData = onSnapshot(userDocRef, (docSnap) => {
+        unsubscribeFromData = window.onSnapshot(userDocRef, (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 projects = data.projects || [{ id: 'inbox', name: 'Inbox' }];
+                
+                // Ensure Inbox project exists
+                if (!projects.find(p => p.id === 'inbox')) {
+                    projects.unshift({ id: 'inbox', name: 'Inbox' });
+                    console.log('Added missing Inbox project');
+                    // Save the updated projects list to Firestore
+                    saveDataToFirestore();
+                }
+                
                 tasks = data.tasks || [];
                 completedTasks = data.completedTasks || [];
+                console.log('Loaded tasks from Firestore:', tasks.length, tasks);
+                console.log('Loaded completed tasks from Firestore:', completedTasks.length, completedTasks);
+                
+                // If no tasks exist, create some sample tasks
+                if (tasks.length === 0) {
+                    console.log('No tasks found, creating sample tasks...');
+                    createSampleTasks();
+                }
                 streakData = data.streakData || { currentStreak: 0, lastCompletedDate: null };
                 collapsedProjects = new Set(data.collapsedProjects || []);
                 // Force completed section to be collapsed by default for existing users
@@ -2618,14 +3254,16 @@
             const photoURL = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=3b82f6&color=ffffff&size=32`;
             
             document.getElementById('userDisplay').innerHTML = `
-                <img src="${photoURL}" alt="User Photo" class="w-8 h-8 rounded-full mr-3">
-                <div class="flex-grow">
-                    <div class="font-semibold text-sm">${displayName}</div>
-                    <div class="text-xs text-slate-500">${user.email}</div>
+                <div class="flex items-center">
+                    <img src="${photoURL}" alt="User Photo" class="w-8 h-8 rounded-full mr-3">
+                    <div class="flex-grow">
+                        <div class="font-semibold text-sm">${displayName}</div>
+                        <div class="text-xs text-slate-500">${user.email}</div>
+                    </div>
+                    <button id="logoutBtn" class="text-slate-400 hover:text-red-500 p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors" title="Sign out">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
+                    </button>
                 </div>
-                <button id="logoutBtn" class="ml-2 text-slate-400 hover:text-red-500 p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
-                </button>
             `;
             document.getElementById('logoutBtn').onclick = handleLogout;
             loadDataFromFirestore(user.uid);
@@ -2658,7 +3296,7 @@
     }
     
     try {
-      onAuthStateChanged(auth, handleAuthStateChange);
+              window.onAuthStateChanged(auth, handleAuthStateChange);
       console.log('✅ onAuthStateChanged completed');
     } catch (error) {
       console.error('❌ onAuthStateChanged failed:', error);
@@ -2680,4 +3318,4 @@
     }
   </script>
 </body>
-</html>
+</html>se
