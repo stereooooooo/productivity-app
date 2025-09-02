@@ -180,8 +180,8 @@
         </button>
     </div>
 
-    <div id="sidebar" class="w-full md:w-1/3 md:max-w-xs p-4 sm:p-6 bg-white border-r border-slate-200 flex flex-col shrink-0 
-        md:relative md:flex fixed inset-0 z-50 md:block hidden
+    <div id="sidebar" class="w-full md:w-1/3 md:max-w-sm p-4 sm:p-6 bg-white border-r border-slate-200 flex flex-col shrink-0 
+        md:relative md:flex fixed inset-0 z-50 md:!block hidden
         transform transition-transform duration-300 ease-in-out md:transform-none">
         <button id="closeMenuBtn" class="md:hidden absolute top-4 right-4 text-slate-500 hover:text-slate-800 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 touch-manipulation active:bg-slate-100 transition-colors">
             <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -575,8 +575,20 @@
                           <div class="font-medium text-slate-800 flex items-center">
                             <span class="task-name">${task.name}</span>
                             ${task.isRecurring ? `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2 text-blue-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>` : ''}
+                            ${task.isDivisible ? `<span class="ml-1 text-xs bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded-full font-medium">P</span>` : `<span class="ml-1 text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full font-medium">A</span>`}
                           </div>
-                          <div class="text-sm text-slate-500">${task.time} min • ${task.energy}</div>
+                          <div class="text-sm text-slate-500">${task.isDivisible ? `${task.totalTime} min (${task.minSessionTime} min)` : `${task.time} min`} • ${task.energy}</div>
+                          ${task.isDivisible && task.timeSpent > 0 ? `
+                            <div class="mt-1">
+                              <div class="flex justify-between text-xs text-slate-400 mb-1">
+                                <span>Progress</span>
+                                <span>${task.timeSpent}/${task.totalTime} min</span>
+                              </div>
+                              <div class="w-full bg-slate-200 rounded-full h-1.5">
+                                <div class="bg-blue-500 h-1.5 rounded-full transition-all duration-300" style="width: ${Math.min((task.timeSpent / task.totalTime) * 100, 100)}%"></div>
+                              </div>
+                            </div>
+                          ` : ''}
                         </div>
                         <div class="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button data-task-id="${task.id}" class="edit-btn text-slate-400 hover:text-blue-500 p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -700,16 +712,8 @@
         const atomicSection = document.getElementById('atomicTimeSection');
         const progressSection = document.getElementById('progressTimeSection');
         
-        console.log('=== MODAL OPENED ===');
-        console.log('taskDivisible element:', taskDivisible);
-        console.log('atomicTimeSection element:', atomicSection);
-        console.log('progressTimeSection element:', progressSection);
-        
         if (taskDivisible && atomicSection && progressSection) {
-            console.log('All new elements found!');
             toggleTimeSections();
-        } else {
-            console.log('Some elements missing - checking HTML...');
         }
     };
     const closeModal = () => {
@@ -821,12 +825,17 @@
         document.getElementById('projectSelect').value = task.projectId || 'inbox';
         document.getElementById('taskName').value = task.name;
         document.getElementById('taskRecurring').checked = task.isRecurring || false;
+        document.getElementById('taskDivisible').checked = task.isDivisible || false;
         modalTagList = [...task.tags];
         modalSelectedTime = task.time;
+        modalSelectedTotalTime = task.totalTime;
+        modalSelectedMinSessionTime = task.minSessionTime;
         modalSelectedContexts = [...task.contexts];
         modalSelectedEnergy = task.energy;
         renderTagPreview();
         document.querySelectorAll('.modal-time-btn').forEach(btn => { if (parseInt(btn.dataset.time) === task.time) { btn.classList.add('bg-blue-500', 'text-white', 'border-blue-500'); btn.classList.remove('bg-white','text-slate-700'); } });
+        document.querySelectorAll('.modal-total-time-btn').forEach(btn => { if (parseInt(btn.dataset.time) === task.totalTime) { btn.classList.add('bg-blue-500', 'text-white', 'border-blue-500'); btn.classList.remove('bg-white','text-slate-700'); } });
+        document.querySelectorAll('.modal-min-session-btn').forEach(btn => { if (parseInt(btn.dataset.time) === task.minSessionTime) { btn.classList.add('bg-blue-500', 'text-white', 'border-blue-500'); btn.classList.remove('bg-white','text-slate-700'); } });
         document.querySelectorAll('.modal-context-btn').forEach(btn => { if (task.contexts.includes(btn.dataset.context)) { btn.classList.add('bg-blue-500', 'text-white', 'border-blue-500'); btn.classList.remove('bg-white','text-slate-700'); }});
         document.querySelectorAll('.modal-energy-btn').forEach(btn => { if (btn.dataset.energy === task.energy) { btn.classList.add('bg-blue-500', 'text-white', 'border-blue-500'); btn.classList.remove('bg-white','text-slate-700'); }});
         openModal('edit');
@@ -1014,8 +1023,45 @@
             const positiveMessages = ["Great job! ✨", "Awesome work! 🔥", "That's one step closer. 🚀", "Productivity unlocked! 🌟", "Amazing habit. 💪"];
             const message = positiveMessages[Math.floor(Math.random() * positiveMessages.length)];
             
-            if (task.isRecurring) {
-                // For recurring tasks, just log completion and update streak
+            if (task.isDivisible) {
+                // Progress Task: Track time spent and check if complete
+                // Use the actual session time (from filter or task time), not just minSessionTime
+                let sessionTime;
+                if (selectedTimeFilter) {
+                    sessionTime = selectedTimeFilter;
+                } else {
+                    sessionTime = task.minSessionTime;
+                }
+                const newTimeSpent = (task.timeSpent || 0) + sessionTime;
+                
+                // Update the task with new time spent
+                tasks[taskIndex].timeSpent = newTimeSpent;
+                
+                if (newTimeSpent >= task.totalTime) {
+                    // Task is fully complete
+                    const taskElement = document.querySelector(`[data-task-container-id="${taskId}"]`);
+                    if (taskElement) {
+                        taskElement.classList.add('task-completing');
+                    }
+                    setTimeout(() => {
+                        const completedTask = { ...tasks[taskIndex], completedAt: new Date().toISOString() };
+                        completedTasks.push(completedTask);
+                        tasks.splice(taskIndex, 1);
+                        updateStreak();
+                        saveDataToFirestore(); 
+                    }, 300);
+                    filteredList.innerHTML = `<div class="text-center text-green-600 p-4 bg-green-50 rounded-lg border border-green-200 shadow-sm animate-fade-in">${message} - Task Complete!</div>`;
+                } else {
+                    // Task is partially complete, show progress
+                    const progressPercent = Math.round((newTimeSpent / task.totalTime) * 100);
+                    saveDataToFirestore();
+                    filteredList.innerHTML = `<div class="text-center text-blue-600 p-4 bg-blue-50 rounded-lg border border-blue-200 shadow-sm animate-fade-in">
+                        <div class="font-semibold">Progress Update! 📈</div>
+                        <div class="text-sm mt-1">${newTimeSpent}/${task.totalTime} min (${progressPercent}% complete)</div>
+                    </div>`;
+                }
+            } else if (task.isRecurring) {
+                // For recurring atomic tasks, just log completion and update streak
                 const completedTask = { ...task, completedAt: new Date().toISOString() };
                 completedTasks.push(completedTask);
                 updateStreak();
@@ -1024,7 +1070,7 @@
                 // But we can flash a success message
                  filteredList.innerHTML = `<div class="text-center text-green-600 p-4 bg-green-50 rounded-lg border border-green-200 shadow-sm animate-fade-in">${message} (Recurring)</div>`;
             } else {
-                // For single tasks, animate and remove
+                // For single atomic tasks, animate and remove
                 const taskElement = document.querySelector(`[data-task-container-id="${taskId}"]`);
                 if (taskElement) {
                     taskElement.classList.add('task-completing');
@@ -1143,7 +1189,19 @@
         }
         document.body.classList.add('overflow-hidden');
         currentFocusTaskId = taskId;
-        remainingSeconds = task.time * 60;
+        
+        // Use the selected time filter if available, otherwise use task time
+        let sessionTime;
+        if (selectedTimeFilter) {
+            // Use the filtered time (what user selected)
+            sessionTime = selectedTimeFilter;
+        } else {
+            // Fallback to task time
+            sessionTime = task.isDivisible ? task.minSessionTime : task.time;
+        }
+        
+        remainingSeconds = sessionTime * 60;
+        
         focusTaskName.textContent = task.name;
         updateTimerDisplay(); 
         
@@ -1170,8 +1228,31 @@
               <h3 class="font-bold text-slate-900 flex items-center">
                 ${task.name}
                 ${task.isRecurring ? `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2 text-blue-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>` : ''}
+                ${task.isDivisible ? `<span class="ml-2 text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full font-medium">Progress</span>` : `<span class="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Atomic</span>`}
               </h3>
-              <p class="text-sm text-slate-500">Time: ${task.time} min | Energy: ${task.energy}</p>
+              <p class="text-sm text-slate-500">Time: ${task.isDivisible ? `${task.totalTime} min (${task.minSessionTime} min)` : `${task.time} min`} | Energy: ${task.energy}</p>
+              ${task.isDivisible ? `
+                <div class="mt-2">
+                  ${task.timeSpent > 0 ? `
+                    <div class="flex justify-between text-xs text-slate-400 mb-1">
+                      <span>Progress</span>
+                      <span>${task.timeSpent}/${task.totalTime} min (${Math.round((task.timeSpent / task.totalTime) * 100)}%)</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-2">
+                      <div class="bg-orange-500 h-2 rounded-full transition-all duration-300" style="width: ${Math.min((task.timeSpent / task.totalTime) * 100, 100)}%"></div>
+                    </div>
+                  ` : `
+                    <div class="text-xs text-slate-400">
+                      <span class="inline-flex items-center">
+                        <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        ~${Math.ceil(task.totalTime / task.minSessionTime)} sessions to complete
+                      </span>
+                    </div>
+                  `}
+                </div>
+              ` : ''}
                  <div class="flex flex-wrap gap-2 mt-2 ${task.tags.length === 0 ? 'hidden' : ''}">
                    ${task.tags.map(tag => `<span class="text-xs bg-slate-100 text-slate-600 font-medium px-2 py-1 rounded-md">${tag}</span>`).join('')}
                  </div>
@@ -1197,7 +1278,11 @@
                     if (!selectedTimeFilter) return true;
                     let tolerance = 5;
                     if (selectedTimeFilter >= 30) tolerance = 10;
-                    return task.time <= selectedTimeFilter + tolerance;
+                    
+                    // For Atomic Tasks: use task.time
+                    // For Progress Tasks: use task.minSessionTime (minimum session requirement)
+                    const taskTime = task.isDivisible ? task.minSessionTime : task.time;
+                    return taskTime <= selectedTimeFilter + tolerance;
                 };
                 const contextMatches = selectedContextFilters.length === 0 || task.contexts.some(c => selectedContextFilters.includes(c));
                 const energyMatches = () => {
@@ -1554,6 +1639,22 @@
             });
         };
         handleModalButtonClick('modalTimeButtons', '.modal-time-btn', (val) => modalSelectedTime = val);
+        handleModalButtonClick('modalTotalTimeButtons', '.modal-total-time-btn', (val) => modalSelectedTotalTime = val);
+        // Use event delegation for min session time buttons
+        document.addEventListener('click', (e) => {
+            if (e.target.matches('.modal-min-session-btn')) {
+                const value = parseInt(e.target.dataset.time);
+                modalSelectedMinSessionTime = value;
+                
+                // Update button styling
+                document.querySelectorAll('.modal-min-session-btn').forEach(b => {
+                    b.classList.remove('bg-blue-500','text-white','border-blue-500');
+                    b.classList.add('bg-white','text-slate-700');
+                });
+                e.target.classList.add('bg-blue-500', 'text-white', 'border-blue-500');
+                e.target.classList.remove('bg-white','text-slate-700');
+            }
+        });
         handleModalButtonClick('modalEnergyButtons', '.modal-energy-btn', (val) => modalSelectedEnergy = val);
         handleModalButtonClick('modalContextButtons', '.modal-context-btn', () => modalSelectedContexts, true);
 
