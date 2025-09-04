@@ -159,6 +159,11 @@
     .hidden {
       display: none !important;
     }
+    
+    /* Ensure full height for proper sidebar background */
+    html, body {
+      height: 100%;
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans overflow-x-hidden">
@@ -200,10 +205,17 @@
             <svg class="w-6 h-6 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48px" height="48px"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.574l6.19,5.238C42.022,35.244,44,30.036,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
             Sign in with Google
         </button>
+        
+        <!-- Continue as Guest -->
+        <div class="mt-4 text-center">
+            <button id="guestLoginBtn" class="text-slate-400 hover:text-blue-500 p-1.5 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                Continue as Guest
+            </button>
+        </div>
     </div>
   </div>
 
-  <div id="mainApp" class="hidden flex-col md:flex-row md:h-screen">
+  <div id="mainApp" class="hidden flex-col md:flex-row h-screen md:h-screen">
     
     <div id="mobileHeader" class="md:hidden flex justify-between items-center p-4 bg-white border-b border-slate-200 fixed top-0 left-0 right-0 z-50">
         <img src="selectdologo.png" alt="Select + Do Logo" class="w-32 h-auto">
@@ -213,7 +225,7 @@
     </div>
 
     <div id="sidebar" class="w-full md:w-1/3 md:max-w-sm p-4 sm:p-6 bg-white border-r border-slate-200 flex flex-col shrink-0 shadow-sm 
-        md:relative md:flex fixed inset-0 z-50 md:!block hidden h-full md:h-full
+        md:relative md:flex fixed inset-0 z-50 hidden md:!block md:!flex min-h-full h-full md:h-full
         transform transition-transform duration-300 ease-in-out md:transform-none">
         <button id="closeMenuBtn" class="md:hidden absolute top-4 right-4 text-slate-500 hover:text-slate-800 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 touch-manipulation active:bg-slate-100 transition-colors">
             <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -223,61 +235,46 @@
         <img src="selectdologo.png" alt="Select + Do Logo" class="w-32 h-auto">
       </div>
 
-      <button id="addTaskBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg transition-colors text-base font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 touch-manipulation active:bg-blue-700 mt-8 md:mt-0">
+      <button id="addTaskBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg transition-colors text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 touch-manipulation active:bg-blue-700 mt-8 md:mt-0">
         + Add New Task
       </button>
 
-      <div class="flex space-x-2 my-4">
-        <div id="streakDisplay" class="flex-1 flex items-center justify-center bg-slate-100 rounded-lg px-3 py-1.5">
-          </div>
-        <button id="viewStatsBtn" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 rounded-lg transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">View Stats</button>
-      </div>
+      <button id="viewStatsBtn" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 rounded-lg transition-colors text-xs focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 my-4">Weekly Review</button>
       
-        <div class="mb-4 relative">
-         <svg class="w-5 h-5 text-slate-400 absolute top-1/2 left-3 -translate-y-1/2 pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" /></svg>
-         <input id="globalSearchInput" type="text" placeholder="Search all tasks..." class="w-full border border-slate-200 p-2 pl-10 rounded-lg text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
-        </div>
+       <div class="mb-4 relative">
+        <svg class="w-5 h-5 text-slate-400 absolute top-1/2 left-3 -translate-y-1/2 pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" /></svg>
+        <input id="globalSearchInput" type="text" placeholder="Search all tasks..." class="w-full border border-slate-200 p-2 pl-10 rounded-lg text-xs placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
+       </div>
 
-        <div class="mb-4">
-         <input id="quickAddTaskInput" type="text" placeholder="Quick Add: task :15 #tag @ctx ^proj" class="w-full border border-slate-200 p-2 rounded-lg text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
-        </div>
+       <div class="mb-4">
+        <input id="quickAddTaskInput" type="text" placeholder="Quick Add: task :15 #tag @ctx ^proj" class="w-full border border-slate-200 p-2 rounded-lg text-xs placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
+       </div>
       
       <div id="projectsContainer" class="space-y-4 overflow-y-auto flex-grow -mx-2 px-2">
-        </div>
+      </div>
 
         <div class="mt-4 pt-2 border-t border-slate-100 relative">
-          <div class="flex items-center justify-between mb-2">
-            <button id="manageProjectsBtn" class="text-xs text-blue-600 hover:text-blue-700 font-medium transition-colors">
-              Manage Projects
-            </button>
-            <button id="collapseAllProjectsBtn" class="text-xs text-slate-600 hover:text-slate-700 font-medium transition-colors">
-              Collapse All
-            </button>
+          <div class="flex items-center justify-end mb-2">
+            <div class="flex gap-1">
+              <button id="collapseAllProjectsBtn" class="text-xs text-slate-600 hover:text-slate-700 font-medium transition-colors">
+                Collapse
+              </button>
+              <span class="text-xs text-slate-400">/</span>
+              <button id="expandAllProjectsBtn" class="text-xs text-slate-600 hover:text-slate-700 font-medium transition-colors">
+                Expand
+              </button>
+            </div>
           </div>
-          <input id="newProjectInput" type="text" placeholder="+ New Project" class="w-full border border-slate-200 p-2 rounded-lg text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
+         <input id="newProjectInput" type="text" placeholder="+ New Project" class="w-full border border-slate-200 p-2 rounded-lg text-xs placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
           <div id="projectAutocomplete" class="absolute top-full left-0 right-0 bg-white border border-slate-200 rounded-lg shadow-lg mt-1 max-h-32 overflow-y-auto hidden z-10">
             </div>
-        </div>
+       </div>
 
       <!-- Bottom Section -->
       <div class="bg-white border border-slate-200 mt-4 -mx-4 sm:-mx-6" style="border-radius: 0 0 0.75rem 0;">
-        <!-- Completed Today Section -->
-        <div class="p-4 sm:p-6 border-b border-slate-100">
-          <div class="flex items-center justify-between cursor-pointer hover:bg-slate-50 p-2 rounded-lg transition-colors -m-2" id="completedTodayHeader">
-            <h2 class="font-semibold text-slate-900">Completed Today</h2>
-            <button class="text-slate-400 hover:text-slate-600 p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <svg class="w-5 h-5 completed-collapse-icon expanded" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-          </div>
-          <div id="completedTaskList" class="space-y-1 overflow-y-auto max-h-[50vh] md:max-h-full mt-2 completed-content expanded">
-          </div>
-        </div>
-        
-        <!-- User Display Section -->
-        <div id="userDisplay" class="p-4 sm:p-6">
-        </div>
+
+
+
       </div>
       
       <!-- Bottom Spacing -->
@@ -301,82 +298,146 @@
         </div>
       </div>
       
-      <div class="mb-6 bg-white p-5 rounded-xl border border-slate-200">
-        <h2 class="font-semibold text-slate-900 mb-3 text-lg">Find a task</h2>
-        <div class="space-y-4">
-            <div>
-                <h3 class="font-medium text-slate-600 mb-2">1. How much time do you have?</h3>
-                <div class="flex flex-wrap gap-2">
-                    <div id="timeFilters" class="flex flex-wrap gap-2"></div>
-                    <div class="flex items-center gap-2 ml-2">
-                        <span class="text-sm text-slate-500">or</span>
-                        <input id="customTimeFilterInput" type="number" placeholder="Custom" min="1" max="999" class="w-24 px-2 py-1 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
-                        <span class="text-sm text-slate-500">min</span>
-                    </div>
-                </div>
-            </div>
-            <div>
-                <h3 class="font-medium text-slate-600 mb-2">2. Choose a context</h3>
-                <div id="contextFilters" class="flex flex-wrap gap-2"></div>
-            </div>
-            <div>
-                <h3 class="font-medium text-slate-600 mb-2">3. What's your energy level?</h3>
-                <div id="energyFilters" class="flex flex-wrap gap-2"></div>
-            </div>
-        </div>
 
-        <!-- Tag Filters -->
-        <div id="tagFilters" class="mb-4 mt-6">
-          <div class="text-sm font-medium text-slate-700 mb-2">Frequent Tags</div>
-          <div id="tagCloud" class="flex flex-wrap gap-2">
-            <!-- Popular tags will be populated here -->
+      <!-- Simplified Task Selection -->
+      <div class="mb-6 bg-white p-5 rounded-xl border border-slate-200">
+        <h2 class="font-semibold text-slate-900 mb-4 text-base">Find a task</h2>
+        
+        <!-- Step 1: Context Selection -->
+        <div class="mb-6">
+          <h3 class="font-medium text-slate-600 mb-3 text-sm">1. What mode are you in?</h3>
+          <div class="inline-flex bg-slate-100 rounded-lg p-1 border border-slate-200">
+            <button id="workModeBtn" class="context-mode-btn flex items-center justify-center gap-3 px-4 py-2 rounded-md transition-all text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1" data-context="Work">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd" />
+                <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z" />
+              </svg>
+              Work
+            </button>
+            <button id="personalModeBtn" class="context-mode-btn flex items-center justify-center gap-3 px-4 py-2 rounded-md transition-all text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1" data-context="Personal">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z" clip-rule="evenodd" />
+              </svg>
+              Personal
+            </button>
           </div>
         </div>
 
-        <div class="flex flex-col sm:flex-row gap-3 sm:gap-2 border-t border-slate-100 pt-4 mt-6">
-          <button id="suggestTaskBtn" class="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 sm:py-2 rounded-lg transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 touch-manipulation active:bg-blue-700 shadow-sm">Suggest Tasks</button>
-          <button id="surpriseMeBtn" class="w-full sm:w-auto bg-slate-700 hover:bg-slate-800 text-white px-6 py-3 sm:py-2 rounded-lg transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-800 touch-manipulation active:bg-slate-900 shadow-sm">Surprise Me!</button>
-          <button id="clearFiltersBtn" class="w-full sm:w-auto bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-3 sm:py-2 rounded-lg transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 touch-manipulation active:bg-slate-300 border border-slate-200">Clear Filters</button>
+        <!-- Step 2: Time Selection -->
+        <div class="mb-6">
+          <h3 class="font-medium text-slate-600 mb-3 text-sm">2. How much time do you have?</h3>
+          <div class="flex flex-wrap gap-2">
+                <div id="timeFilters" class="flex flex-wrap gap-2"></div>
+            <div class="flex items-center gap-2 ml-2">
+              <span class="text-sm text-slate-500">or</span>
+              <input id="customTimeFilterInput" type="number" placeholder="Custom" min="1" max="999" class="w-24 px-2 py-1 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
+              <span class="text-sm text-slate-500">min</span>
+            </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Task Suggestions -->
+        <div id="taskSuggestionsSection" class="hidden mb-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-medium text-slate-600 text-sm">3. Pick a task</h3>
+            <button id="reshuffleBtn" class="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center">
+              <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Reshuffle
+            </button>
+          </div>
+          <div id="taskSuggestions" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Task suggestions will be populated here -->
+          </div>
+        </div>
+
+        <!-- Advanced Filters (Collapsible) -->
+        <div class="mb-4">
+          <button id="toggleAdvancedFilters" class="text-xs text-slate-600 hover:text-slate-700 font-medium mb-3 flex items-center">
+            <span id="advancedFiltersIcon" class="mr-1">▼</span>
+            Advanced Filters
+          </button>
+          <div id="advancedFilters" class="hidden space-y-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
+            <div>
+              <h4 class="font-medium text-slate-600 mb-2 text-sm">Energy Level</h4>
+                <div id="energyFilters" class="flex flex-wrap gap-2"></div>
+            </div>
+            <div>
+              <div class="flex items-center mb-2 group">
+                <h4 class="font-medium text-slate-600 cursor-pointer text-sm" id="projectsHeader">Projects</h4>
+                <button id="manageProjectsBtn" class="ml-2 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:text-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 rounded px-1 py-0.5">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                </button>
+              </div>
+              <div id="projectFilters" class="flex flex-wrap gap-2">
+                <!-- Project filters will be populated here -->
+              </div>
+            </div>
+            <div>
+              <div class="flex items-center mb-2 group">
+                <h4 class="font-medium text-slate-600 cursor-pointer text-sm" id="tagsHeader">Tags</h4>
+                <button id="editTagsBtn" class="ml-2 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:text-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 rounded px-1 py-0.5">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
+                </button>
+              </div>
+              <div id="tagCloud" class="flex flex-wrap gap-2">
+                <!-- Popular tags will be populated here -->
+              </div>
+            </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-3 sm:gap-2 border-t border-slate-100 pt-4">
+          <button id="clearFiltersBtn" class="w-full sm:w-auto bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-3 sm:py-2 rounded-lg transition-colors text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 touch-manipulation active:bg-slate-300 border border-slate-200">Clear All</button>
         </div>
       </div>
       
       <!-- Content Area -->
       <div id="contentArea" class="mb-6">
-        <div id="welcomeContent" class="text-center py-8">
-          <h3 class="text-lg font-semibold text-slate-800 mb-2">Welcome to Select + Do!</h3>
-          <p class="text-slate-600">Start by selecting your available time, context, and energy level above to find the perfect task for you.</p>
-        </div>
         
-        <div id="activityContent" class="hidden">
-          <div class="flex flex-col md:flex-row gap-4">
-            <div id="recentActivity" class="w-full md:w-64 bg-slate-100 p-4 rounded-lg">
-              <!-- Recent activity will be populated here -->
-            </div>
-            <div id="quoteTip" class="w-full md:flex-1 bg-slate-100 p-4 rounded-lg">
-              <!-- Random quote/tip will be populated here -->
-            </div>
-          </div>
-        </div>
+
       </div>
       
       <div id="filteredTaskList" class="space-y-4">
-          </div>
+      </div>
+      
+      <!-- Completed Today Section -->
+      <div class="mt-8 bg-white p-5 rounded-xl border border-slate-200">
+        <div class="flex items-center justify-between cursor-pointer hover:bg-slate-50 p-2 rounded-lg transition-colors -m-2" id="completedTodayHeader">
+          <h2 class="font-semibold text-slate-900 text-sm">Completed Today</h2>
+          <button class="text-slate-400 hover:text-slate-600 p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <svg class="w-5 h-5 completed-collapse-icon expanded" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+        </div>
+        <div id="completedTaskList" class="space-y-1 overflow-y-auto max-h-[50vh] md:max-h-full mt-2 completed-content expanded">
+        </div>
+      </div>
+      
+      <!-- User Profile Section -->
+      <div class="mt-6 bg-white p-5 rounded-xl border border-slate-200">
+        <div id="userDisplay">
+        </div>
+      </div>
     </div>
   </div>
 
   <div id="modalOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-start md:items-center hidden z-[60] p-4 pt-20 md:pt-4">
     <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md relative">
       <div class="flex items-center justify-between mb-4">
-        <h2 id="modalTitle" class="text-lg font-bold text-slate-900">Add New Task</h2>
+        <h2 id="modalTitle" class="text-base font-bold text-slate-900">Add New Task</h2>
         <button id="closeModalBtn" class="text-red-600 hover:text-red-800 hover:bg-red-100 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors border-2 border-red-300 bg-white">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
       </div>
-      <input id="taskName" type="text" placeholder="Task Name (e.g., 'Draft project proposal')" class="w-full mb-4 border border-slate-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none"/>
+      <input id="taskName" type="text" placeholder="Task Name (e.g., 'Draft project proposal')" class="w-full mb-4 border border-slate-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none text-sm"/>
       
-      <label class="block mb-2 font-medium text-slate-700">Project</label>
+      <label class="block mb-2 font-medium text-slate-700 text-sm">Project</label>
       <div class="relative mb-4">
-        <select id="projectSelect" class="w-full border border-slate-300 p-2 rounded-lg bg-white focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none pr-8">
+        <select id="projectSelect" class="w-full border border-slate-300 p-2 rounded-lg bg-white focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none pr-8 text-sm">
           <option value="new-project">+ New Project</option>
         </select>
         <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
@@ -400,7 +461,7 @@
         </div>
       </div>
 
-      <label class="block mb-2 font-medium text-slate-700">Task Type</label>
+      <label class="block mb-2 font-medium text-slate-700 text-sm">Task Type</label>
       <div class="bg-slate-50 p-3 rounded-lg mb-4">
         <label class="flex items-center">
           <input id="taskDivisible" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mr-2">
@@ -410,7 +471,7 @@
       </div>
 
       <div id="atomicTimeSection">
-        <label class="block mb-2 font-medium text-slate-700">Time Required (minutes)</label>
+      <label class="block mb-2 font-medium text-slate-700 text-sm">Time Required</label>
         <div class="flex flex-wrap gap-2 mb-4">
           <div id="modalTimeButtons" class="flex flex-wrap gap-2"></div>
           <div class="flex items-center gap-2 ml-2">
@@ -424,60 +485,116 @@
       <div id="progressTimeSection" class="hidden">
         <div class="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <label class="block mb-2 font-medium text-slate-700">Total Time (Goal)</label>
+            <label class="block mb-2 font-medium text-slate-700 text-sm">Total Time (Goal)</label>
             <div class="flex flex-wrap gap-2">
               <div id="modalTotalTimeButtons" class="flex flex-wrap gap-2"></div>
               <div class="flex items-center gap-2 ml-2">
-                <span class="text-sm text-slate-500">or</span>
+                <span class="text-xs text-slate-500">or</span>
                 <input id="customTotalTimeInput" type="number" placeholder="Custom" min="1" max="999" class="w-24 px-2 py-1 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
-                <span class="text-sm text-slate-500">min</span>
+                <span class="text-xs text-slate-500">min</span>
               </div>
             </div>
           </div>
           <div>
-            <label class="block mb-2 font-medium text-slate-700">Min. Session Time</label>
+            <label class="block mb-2 font-medium text-slate-700 text-sm">Min. Session Time</label>
             <div class="flex flex-wrap gap-2">
               <div id="modalMinSessionButtons" class="flex flex-wrap gap-2"></div>
               <div class="flex items-center gap-2 ml-2">
-                <span class="text-sm text-slate-500">or</span>
+                <span class="text-xs text-slate-500">or</span>
                 <input id="customMinSessionInput" type="number" placeholder="Custom" min="1" max="999" class="w-24 px-2 py-1 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
-                <span class="text-sm text-slate-500">min</span>
+                <span class="text-xs text-slate-500">min</span>
               </div>
             </div>
           </div>
         </div>
       </div>
       
-      <label class="block mb-2 font-medium text-slate-700">Context</label>
+      <label class="block mb-2 font-medium text-slate-700 text-sm">Context</label>
+      <p class="text-xs text-slate-500 mb-2">Select one or both contexts for this task</p>
       <div id="modalContextButtons" class="flex flex-wrap gap-2 mb-4"></div>
 
-      <label class="block mb-2 font-medium text-slate-700">Energy Level</label>
-      <div id="modalEnergyButtons" class="flex flex-wrap gap-2 mb-4"></div>
-      
-      <label class="block mb-2 font-medium text-slate-700">Tags (optional)</label>
-      <input id="taskTags" type="text" placeholder="Type a tag and hit Enter" class="w-full mb-2 border border-slate-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none"/>
-      <div id="tagPreview" class="flex flex-wrap gap-2 mb-4 min-h-[28px]"></div>
-
       <div class="bg-slate-50 p-3 rounded-lg flex items-center justify-between mb-4">
-        <label for="taskRecurring" class="font-medium text-slate-700">Recurring Task</label>
-        <input id="taskRecurring" type="checkbox" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+        <label for="taskRecurring" class="font-medium text-slate-700 text-sm">Recurring Task</label>
+        <input id="taskRecurring" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+      </div>
+
+      <!-- Advanced Options Toggle -->
+      <button id="toggleAdvancedTaskOptions" class="text-xs text-slate-600 hover:text-slate-700 font-medium mb-3 flex items-center">
+        <span id="advancedTaskOptionsIcon" class="mr-1">▼</span>
+        Advanced Options
+      </button>
+      
+      <!-- Advanced Options (Collapsible) -->
+      <div id="advancedTaskOptions" class="hidden space-y-4 p-4 bg-slate-50 rounded-lg border border-slate-200 mb-4">
+        <div>
+          <label class="block mb-2 font-medium text-slate-700 text-sm">Energy Level</label>
+          <div id="modalEnergyButtons" class="flex flex-wrap gap-2"></div>
+        </div>
+        
+        <div>
+          <label class="block mb-2 font-medium text-slate-700 text-sm">Tags</label>
+          <input id="taskTags" type="text" placeholder="Type a tag and hit Enter" class="w-full mb-2 border border-slate-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none text-sm"/>
+          <div id="tagPreview" class="flex flex-wrap gap-2 min-h-[28px]"></div>
+        </div>
       </div>
       
       <div class="flex justify-end space-x-2">
-        <button id="cancelTaskBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Cancel</button>
-        <button id="saveTaskBtn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600">Save Task</button>
+        <button id="cancelTaskBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg transition-colors font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Cancel</button>
+        <button id="saveTaskBtn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600">Save Task</button>
       </div>
     </div>
   </div>
 
-    <div id="statsModalOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-[60] p-4">
-    <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
-      <h2 class="text-lg font-bold mb-4 text-slate-900">Your Stats</h2>
-      <div id="statsContent" class="space-y-3">
-        </div>
-      <div class="flex justify-end mt-6">
-        <button id="closeStatsBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Close</button>
+  <!-- Tag Manager Modal -->
+  <div id="tagManagerModalOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-[65] p-4">
+    <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-slate-900">🏷️ Tag Manager</h2>
+        <button id="closeTagManagerBtn" class="text-slate-400 hover:text-slate-600 p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
       </div>
+      
+      <!-- Add New Tag Section -->
+      <div class="mb-4 p-3 bg-slate-50 rounded-lg">
+        <h3 class="font-medium text-slate-700 mb-2 text-sm">Add New Tag</h3>
+        <div class="flex gap-2">
+          <input id="newTagInput" type="text" placeholder="Enter tag name" class="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none text-sm" />
+          <button id="addTagBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg transition-colors font-medium text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            Add
+          </button>
+        </div>
+      </div>
+      
+      <!-- Tags Cloud -->
+      <div class="mb-4">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-medium text-slate-700 text-sm">All Tags</h3>
+          <span class="text-xs text-slate-500">Click to edit • Hover for delete</span>
+        </div>
+        <div id="tagManagerCloud" class="flex flex-wrap gap-2">
+          <!-- Tags will be populated here as a cloud -->
+        </div>
+      </div>
+      
+      <!-- Actions -->
+      <div class="flex justify-end pt-3 border-t border-slate-200">
+        <button id="closeTagManagerBtn2" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg transition-colors font-medium text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Close</button>
+      </div>
+    </div>
+  </div>
+
+
+    <div id="statsModalOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-[60] p-4">
+    <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-slate-900">📊 Weekly Review</h2>
+        <button id="closeStatsBtn" class="text-slate-400 hover:text-slate-600 p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+      <div id="statsContent" class="space-y-6">
+        </div>
     </div>
   </div>
 
@@ -618,7 +735,7 @@
           <svg class="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
           </svg>
-        </div>
+      </div>
         <h2 class="text-lg font-bold text-slate-900">Delete Project</h2>
       </div>
       
@@ -685,12 +802,15 @@
     console.log('🔄 Loading Firebase scripts...');
     
     try {
+        console.log('🔄 Importing Firebase App...');
         const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
         console.log('✅ Firebase App loaded');
         
+        console.log('🔄 Importing Firebase Auth...');
         const { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
         console.log('✅ Firebase Auth loaded');
         
+        console.log('🔄 Importing Firebase Firestore...');
         const { getFirestore, doc, onSnapshot, setDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
         console.log('✅ Firebase Firestore loaded');
         
@@ -725,10 +845,18 @@
 
     // --- Initialize Firebase ---
     console.log('🔄 Initializing Firebase...');
+    console.log('🔄 Firebase functions available:', {
+        initializeApp: typeof window.initializeApp,
+        getAuth: typeof window.getAuth,
+        getFirestore: typeof window.getFirestore
+    });
+    
     const app = window.initializeApp(firebaseConfig);
     const auth = window.getAuth(app);
     const db = window.getFirestore(app);
     console.log('✅ Firebase initialized successfully');
+    console.log('✅ Auth object:', auth);
+    console.log('✅ DB object:', db);
 
     // --- GLOBAL STATE & CONSTANTS ---
     let projects = [];
@@ -744,8 +872,13 @@
     let editingTaskId = null;
     let selectedTimeFilter = null;
     let selectedContextFilters = [];
-    let selectedEnergyFilter = null;
+    let selectedEnergyFilters = [];
+    let selectedProjectFilters = [];
     let selectedTagFilters = [];
+    
+    // Simplified context mode
+    let selectedMode = null; // 'Work' or 'Personal'
+    let advancedFiltersOpen = false;
     let originalCollapsedProjects = new Set(); // Track original collapsed state before search
     const energyLevels = ['Low 🧠', 'Medium 💪', 'High 🔥'];
     let timerInterval = null;
@@ -755,10 +888,11 @@
     const originalTitle = document.title;
     let currentUser = null;
     let unsubscribeFromData = null; 
-    const emptyCompletedSVG = `<svg class="w-16 h-16 mx-auto text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+    const emptyCompletedSVG = `<svg class="w-16 h-16 mx-auto text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
     const emptyFilterSVG = `<svg class="w-16 h-16 mx-auto text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>`;
     let collapsedProjects = new Set(); // Track which projects are collapsed
     let completedSectionCollapsed = true; // Track if completed section is collapsed
+    let allProjectsCollapsed = false; // Track if all projects are collapsed
 
     // --- DOM ELEMENTS ---
     const loginScreen = document.getElementById('loginScreen');
@@ -798,13 +932,17 @@
     };
 
     const renderAll = () => {
+        console.log('🎨 renderAll called - projects:', projects.length, 'tasks:', tasks.length);
         renderTasksAndProjects();
         renderCompletedTasks();
         initializeStreak();
+        renderProjectFilters();
         renderTagCloud();
+        console.log('🎨 renderAll completed');
     };
-    
+      
     const handleGoogleLogin = () => {
+        console.log('🔐 handleGoogleLogin function called!');
         console.log('🔐 Google login clicked');
         const provider = new window.GoogleAuthProvider();
         window.signInWithPopup(auth, provider).catch(error => {
@@ -839,6 +977,7 @@
     };
 
     const handleEmailSignIn = async () => {
+        console.log('🔐 handleEmailSignIn function called!');
         const email = document.getElementById('emailInput').value.trim();
         const password = document.getElementById('passwordInput').value;
         
@@ -893,6 +1032,7 @@
     };
 
     const showGuestMode = () => {
+        console.log('🎭 showGuestMode function called!');
         console.log('🎭 Showing guest mode with example data');
         loginScreen.classList.add('hidden');
         mainApp.classList.remove('hidden');
@@ -946,88 +1086,23 @@
         mainApp.classList.remove('flex');
     };
 
-    const quotesAndTips = [
-        // Quotes
-        { type: 'quote', content: '"The way to get started is to quit talking and begin doing." - Walt Disney', emoji: '🚀' },
-        { type: 'quote', content: '"Focus on being productive instead of busy." - Tim Ferriss', emoji: '🎯' },
-        { type: 'quote', content: '"You don\'t have to be great to get started, but you have to get started to be great." - Les Brown', emoji: '⭐' },
-        { type: 'quote', content: '"The secret of getting ahead is getting started." - Mark Twain', emoji: '💡' },
-        { type: 'quote', content: '"Productivity is never an accident. It is always the result of a commitment to excellence." - Paul J. Meyer', emoji: '🏆' },
-        
-        // Tips
-        { type: 'tip', content: 'Break large tasks into smaller 25-minute chunks for better focus', emoji: '⏰' },
-        { type: 'tip', content: 'Use Progress Tasks for projects that can be done over multiple sessions', emoji: '📈' },
-        { type: 'tip', content: 'Match your energy level to task difficulty for optimal performance', emoji: '⚡' },
-        { type: 'tip', content: 'Set specific time blocks for different types of work', emoji: '📅' },
-        { type: 'tip', content: 'Complete quick tasks first to build momentum', emoji: '✨' },
-        { type: 'tip', content: 'Take short breaks between focus sessions to maintain energy', emoji: '☕' }
-    ];
 
-    const showRandomQuoteOrTip = () => {
-        const randomItem = quotesAndTips[Math.floor(Math.random() * quotesAndTips.length)];
-        const quoteTipElement = document.getElementById('quoteTip');
-        
-        quoteTipElement.innerHTML = `
-            <div class="flex items-center justify-center h-full">
-                <div class="text-center">
-                    <div class="text-2xl mb-2">${randomItem.emoji}</div>
-                    <p class="text-slate-500 font-medium" style="font-family: 'Playfair Display', serif; font-size: 1rem; line-height: 1.5;">${randomItem.content}</p>
-                </div>
-            </div>
-        `;
-    };
+
+
 
     const updateContentArea = () => {
         const welcomeContent = document.getElementById('welcomeContent');
-        const activityContent = document.getElementById('activityContent');
-        const recentActivity = document.getElementById('recentActivity');
         
         // Check if user has any activity (completed tasks, used filters, etc.)
         const hasActivity = completedTasks.length > 0 || 
                            (selectedTimeFilter || selectedContextFilters.length > 0 || selectedEnergyFilter);
         
         if (hasActivity) {
-            // Show activity content
+            // Hide welcome content when user has activity
             welcomeContent.classList.add('hidden');
-            activityContent.classList.remove('hidden');
-            
-            // Update recent activity
-            const today = new Date().toISOString().slice(0, 10);
-            const tasksToday = completedTasks.filter(t => t.completedAt && t.completedAt.slice(0, 10) === today);
-            
-            if (tasksToday.length > 0) {
-                recentActivity.innerHTML = `
-                    <div class="text-center">
-                        <div class="mb-3">
-                            <div class="text-slate-600 font-medium text-sm">
-                                <span class="text-blue-600 font-bold">${tasksToday.length}</span> tasks completed today
-                            </div>
-                        </div>
-                        ${streakData.currentStreak > 0 ? `
-                            <div class="flex items-center justify-center space-x-2 mb-2">
-                                <span class="text-orange-500">🔥</span>
-                                <span class="text-slate-600 font-medium text-sm">${streakData.currentStreak}-day streak</span>
-                            </div>
-                        ` : ''}
-                        <div class="text-xs text-slate-500">
-                            ${tasksToday.length === 1 ? 'Great start!' : `Keep up the momentum!`}
-                        </div>
-                    </div>
-                `;
-            } else {
-                recentActivity.innerHTML = `
-                    <div class="text-center text-slate-600">
-                        <p class="text-sm">Ready to tackle some tasks? Select your filters above to get started!</p>
-                    </div>
-                `;
-            }
-            
-            // Show random quote/tip
-            showRandomQuoteOrTip();
         } else {
-            // Show welcome content
+            // Show welcome content when no activity
             welcomeContent.classList.remove('hidden');
-            activityContent.classList.add('hidden');
         }
     };
 
@@ -1175,6 +1250,48 @@
         console.log('✅ Example data loaded:', { projects: projects.length, tasks: tasks.length, completedTasks: completedTasks.length });
     };
 
+    const renderProjectFilters = () => {
+        const projectFilters = document.getElementById('projectFilters');
+        if (!projectFilters) {
+            console.log('❌ Project filters container not found');
+            return;
+        }
+        
+        console.log('🔧 renderProjectFilters called - tasks:', tasks.length, 'projects:', projects.length);
+        
+        // Get all projects from tasks, excluding Inbox
+        const allProjectIds = [];
+        tasks.forEach(task => {
+            console.log('🔍 Task:', task.name, 'projectId:', task.projectId);
+            if (task.projectId && task.projectId !== 'inbox' && !allProjectIds.includes(task.projectId)) {
+                allProjectIds.push(task.projectId);
+            }
+        });
+        
+        console.log('🔧 Found project IDs:', allProjectIds);
+        
+        if (allProjectIds.length === 0) {
+            projectFilters.innerHTML = '<div class="text-sm text-slate-400 italic">No projects yet</div>';
+            return;
+        }
+        
+        // Get project names from project IDs
+        const projectNames = allProjectIds.map(projectId => {
+            const project = projects.find(p => p.id === projectId);
+            console.log('🔍 Project ID:', projectId, 'found project:', project);
+            return project ? project.name : projectId;
+        });
+        
+        console.log('🔧 Project names:', projectNames);
+        
+        // Create project buttons
+        projectFilters.innerHTML = projectNames.map((projectName, index) => `
+            <button data-project="${allProjectIds[index]}" class="project-filter bg-slate-100 border border-slate-200 text-slate-600 hover:bg-slate-200 px-2.5 py-1 rounded-full transition-colors text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500">
+                ${projectName}
+            </button>
+        `).join('');
+    };
+
     const renderTagCloud = () => {
         const tagCloud = document.getElementById('tagCloud');
         if (!tagCloud) return;
@@ -1212,7 +1329,7 @@
         `).join('');
     };
 
-    const renderTasksAndProjects = (searchTerm = '') => {
+    const renderTasksAndProjects = (searchTerm = '', bypassSearchLogic = false) => {
         projectsContainer.innerHTML = '';
         
         // Debug: Log current projects (temporary)
@@ -1222,16 +1339,19 @@
         const normalizedSearch = searchTerm.trim().toLowerCase();
         const isSearching = normalizedSearch.length > 0;
         
-        // If starting a new search, save the current collapsed state
-        if (isSearching && originalCollapsedProjects.size === 0) {
-            originalCollapsedProjects = new Set(collapsedProjects);
-        }
-        
-        // If clearing search, restore original collapsed state
-        if (!isSearching && originalCollapsedProjects.size > 0) {
-            collapsedProjects = new Set(originalCollapsedProjects);
-            originalCollapsedProjects.clear();
-            saveDataToFirestore();
+        // Only apply search logic if not bypassed (for collapse/expand operations)
+        if (!bypassSearchLogic) {
+            // If starting a new search, save the current collapsed state
+            if (isSearching && originalCollapsedProjects.size === 0) {
+                originalCollapsedProjects = new Set(collapsedProjects);
+            }
+            
+            // If clearing search, restore original collapsed state
+            if (!isSearching && originalCollapsedProjects.size > 0) {
+                collapsedProjects = new Set(originalCollapsedProjects);
+                originalCollapsedProjects.clear();
+                saveDataToFirestore();
+            }
         }
         
         // Use a local collapsed state for rendering to avoid glitching
@@ -1273,7 +1393,7 @@
             projectHeader.dataset.projectId = project.id;
             
             const headerContent = document.createElement('h3');
-            headerContent.className = 'font-semibold text-slate-900 flex items-center';
+            headerContent.className = 'font-medium text-slate-900 flex items-center text-sm';
             
             // Create project name with optional task count badge
             const projectNameSpan = document.createElement('span');
@@ -1281,9 +1401,9 @@
             headerContent.appendChild(projectNameSpan);
             
             // Add task count badge if project is collapsed and has tasks
-            const isCollapsed = localCollapsedProjects.has(project.id);
+            const isProjectCollapsed = localCollapsedProjects.has(project.id);
             const allProjectTasks = tasks.filter(task => task.projectId === project.id);
-            if (isCollapsed && allProjectTasks.length > 0) {
+            if (isProjectCollapsed && allProjectTasks.length > 0) {
                 const taskCountBadge = document.createElement('span');
                 taskCountBadge.className = 'ml-2 bg-slate-200 text-slate-600 text-xs font-medium rounded-full w-5 h-5 flex items-center justify-center';
                 taskCountBadge.textContent = allProjectTasks.length;
@@ -1316,7 +1436,9 @@
             projectDiv.appendChild(projectHeader);
             
             const projectContent = document.createElement('div');
-            projectContent.className = `project-content ${localCollapsedProjects.has(project.id) ? 'collapsed' : 'expanded'}`;
+            const isCollapsed = localCollapsedProjects.has(project.id);
+            console.log(`Project ${project.name} (${project.id}) - isCollapsed: ${isCollapsed}, localCollapsedProjects:`, Array.from(localCollapsedProjects));
+            projectContent.className = `project-content ${isCollapsed ? 'collapsed' : 'expanded'}`;
             projectContent.setAttribute('data-project-id', project.id);
             
             if (projectTasks.length > 0) {
@@ -1331,12 +1453,12 @@
                             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         </button>
                         <div class="flex-grow cursor-pointer" data-task-id="${task.id}" data-action="quick-edit">
-                          <div class="font-medium text-slate-800 flex items-center">
+                          <div class="font-medium text-slate-800 flex items-center text-sm">
                             <span class="task-name">${task.name}</span>
                             ${task.isRecurring ? `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2 text-blue-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>` : ''}
                             ${task.isDivisible ? `<span class="ml-1 text-xs bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded-full font-medium">P</span>` : `<span class="ml-1 text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full font-medium">A</span>`}
                           </div>
-                          <div class="text-sm text-slate-500">${task.isDivisible ? `${task.totalTime} min (${task.minSessionTime} min)` : `${task.time} min`} • ${task.energy}</div>
+                          <div class="text-xs text-slate-500">${task.isDivisible ? `${task.totalTime} min (${task.minSessionTime} min)` : `${task.time} min`} • ${task.energy}</div>
                           ${task.isDivisible && task.timeSpent > 0 ? `
                             <div class="mt-1">
                               <div class="flex justify-between text-xs text-slate-400 mb-1">
@@ -1362,7 +1484,7 @@
                 });
             } else if (project.id === 'inbox') {
                 const emptyStateDiv = document.createElement('div');
-                emptyStateDiv.className = 'text-center text-slate-400 p-3 text-sm rounded-lg bg-slate-50';
+                emptyStateDiv.className = 'text-center text-slate-400 p-3 text-xs rounded-lg bg-slate-50';
                 emptyStateDiv.textContent = 'All clear!';
                 projectContent.appendChild(emptyStateDiv);
             }
@@ -1371,7 +1493,7 @@
             projectsContainer.appendChild(projectDiv);
         });
     };
-    
+      
     const renderCompletedTasks = () => {
         const today = new Date().toISOString().slice(0, 10);
         const tasksCompletedToday = completedTasks.filter(task => task.completedAt && task.completedAt.slice(0, 10) === today);
@@ -1404,33 +1526,20 @@
         if (tasksCompletedToday.length === 0) {
             completedTaskList.innerHTML = `<div class="text-center text-slate-400 p-4 rounded-lg mt-2 text-sm">
                 ${emptyCompletedSVG}
-                <p class="mt-2 font-medium text-slate-500">All done for today!</p>
-                <p>You're on a roll.</p>
+                <p class="mt-2 font-medium text-slate-500">No tasks completed yet</p>
+                <p>Start a task to see your progress here.</p>
             </div>`;
             return;
         }
         tasksCompletedToday.forEach(task => {
             const div = document.createElement('div');
             div.className = 'flex items-center gap-3 p-2 text-slate-400';
-            div.innerHTML = `<svg class="w-5 h-5 text-green-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 20 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg><span class="line-through">${task.name}</span>`;
+            div.innerHTML = `<svg class="w-5 h-5 text-green-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 20 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg><span class="line-through text-sm">${task.name}</span>`;
             completedTaskList.appendChild(div);
         });
     };
 
-    const renderStreak = () => {
-        const streakDisplay = document.getElementById('streakDisplay');
-        if (!streakDisplay) {
-            console.error('Streak display element not found');
-            return;
-        }
-        const flameColor = streakData.currentStreak > 0 ? 'text-orange-500' : 'text-slate-400';
-        console.log('Rendering streak:', streakData.currentStreak, 'flameColor:', flameColor);
-        streakDisplay.innerHTML = `<svg class="${flameColor} w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.369-2.23 8.287 8.287 0 003.369-2.23z" /><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" /></svg>
-            <div class="ml-2 text-left">
-                <span class="font-bold text-lg leading-none text-slate-700">${streakData.currentStreak}</span>
-                <div class="text-xs leading-none text-slate-500">Day Streak</div>
-            </div>`;
-    };
+
 
     const populateProjectDropdown = () => {
         const projectSelect = document.getElementById('projectSelect');
@@ -1511,8 +1620,8 @@
         
         // Validation for Atomic tasks
         if (!isDivisible && (!name || !modalSelectedTime || modalSelectedContexts.length === 0 || !modalSelectedEnergy)) {
-            alert('Please provide a task name, time, context, and energy level.');
-            return;
+          alert('Please provide a task name, time, context, and energy level.');
+          return;
         }
         
         // Validation for Progress tasks
@@ -1562,7 +1671,7 @@
         }
         
         if (editingTaskId) {
-            const taskIndex = tasks.findIndex(t => t.id === editingTaskId);
+          const taskIndex = tasks.findIndex(t => t.id === editingTaskId);
             if (taskIndex > -1) tasks[taskIndex] = taskData;
         } else {
             tasks.push(taskData);
@@ -1570,7 +1679,7 @@
         saveDataToFirestore();
         closeModal();
     };
-    
+      
     const updateStreak = () => {
         const today = new Date();
         const todayStr = today.toISOString().slice(0, 10);
@@ -1924,24 +2033,132 @@
         }
     };
 
-    // --- STATS MODAL ---
+    // --- WEEKLY REVIEW MODAL ---
     const showStatsModal = () => {
         const statsContent = document.getElementById('statsContent');
-        const today = new Date().toISOString().slice(0, 10);
-        const tasksToday = completedTasks.filter(t => t.completedAt && t.completedAt.slice(0, 10) === today).length;
+        
+        // Calculate weekly data
+        const today = new Date();
+        const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const weekAgoStr = weekAgo.toISOString().slice(0, 10);
+        const todayStr = today.toISOString().slice(0, 10);
+        
+        // Tasks completed this week
+        const tasksThisWeek = completedTasks.filter(t => 
+            t.completedAt && t.completedAt.slice(0, 10) >= weekAgoStr && t.completedAt.slice(0, 10) <= todayStr
+        );
+        
+        // Focus time calculation (assuming 25 min average per task)
+        const focusTimeHours = Math.round((tasksThisWeek.length * 25) / 60 * 10) / 10;
+        
+        // Most productive context
+        const contextCounts = {};
+        tasksThisWeek.forEach(task => {
+            if (task.contexts) {
+                task.contexts.forEach(context => {
+                    contextCounts[context] = (contextCounts[context] || 0) + 1;
+                });
+            }
+        });
+        const mostProductiveContext = Object.keys(contextCounts).reduce((a, b) => 
+            contextCounts[a] > contextCounts[b] ? a : b, 'Workday'
+        );
+        
+        // Longest streak calculation
+        const longestStreak = Math.max(streakData.currentStreak, streakData.longestStreak || 0);
+        
+        // Tasks not touched in a while (no time spent in last 7 days)
+        const untouchedTasks = tasks.filter(task => {
+            const lastWeekTasks = tasksThisWeek.filter(ct => ct.taskId === task.id);
+            return lastWeekTasks.length === 0 && task.timeSpent === 0;
+        }).slice(0, 3);
+        
+        // Energy level distribution
+        const energyCounts = { 'Low 🧠': 0, 'Medium 💪': 0, 'High 🔥': 0 };
+        tasksThisWeek.forEach(task => {
+            if (energyCounts.hasOwnProperty(task.energy)) {
+                energyCounts[task.energy]++;
+            }
+        });
+        const preferredEnergy = Object.keys(energyCounts).reduce((a, b) => 
+            energyCounts[a] > energyCounts[b] ? a : b, 'Medium 💪'
+        );
         
         statsContent.innerHTML = `
-            <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
-                <span class="font-medium text-slate-600">Total Tasks Completed</span>
-                <span class="font-bold text-slate-800 text-lg">${completedTasks.length}</span>
+            <!-- Weekly Summary -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200">
+                <h3 class="font-semibold text-slate-800 mb-3 flex items-center">
+                    <span class="text-2xl mr-2">📈</span>
+                    This Week's Summary
+                </h3>
+                <p class="text-slate-700 leading-relaxed">
+                    You completed <strong>${tasksThisWeek.length} tasks</strong> this week, spending 
+                    <strong>${focusTimeHours} hours</strong> in focus mode. You were most productive in the 
+                    <strong>'${mostProductiveContext}'</strong> context. Your longest streak is now 
+                    <strong>${longestStreak} days</strong>.
+                </p>
             </div>
-            <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
-                <span class="font-medium text-slate-600">Tasks Completed Today</span>
-                <span class="font-bold text-slate-800 text-lg">${tasksToday}</span>
+            
+            <!-- Productivity Insights -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-slate-50 p-4 rounded-xl">
+                    <h4 class="font-semibold text-slate-800 mb-2 flex items-center">
+                        <span class="text-lg mr-2">⚡</span>
+                        Energy Patterns
+                    </h4>
+                    <p class="text-sm text-slate-600 mb-2">Your preferred energy level:</p>
+                    <div class="text-lg font-semibold text-slate-800">${preferredEnergy}</div>
+                    <div class="text-xs text-slate-500 mt-1">
+                        ${energyCounts['Low 🧠']} Low • ${energyCounts['Medium 💪']} Medium • ${energyCounts['High 🔥']} High
             </div>
-               <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
-                <span class="font-medium text-slate-600">Current Streak</span>
-                <span class="font-bold text-orange-500 text-lg">${streakData.currentStreak} days</span>
+                </div>
+                
+                <div class="bg-slate-50 p-4 rounded-xl">
+                    <h4 class="font-semibold text-slate-800 mb-2 flex items-center">
+                        <span class="text-lg mr-2">🎯</span>
+                        Context Performance
+                    </h4>
+                    <p class="text-sm text-slate-600 mb-2">Most productive context:</p>
+                    <div class="text-lg font-semibold text-slate-800">${mostProductiveContext}</div>
+                    <div class="text-xs text-slate-500 mt-1">
+                        ${contextCounts[mostProductiveContext] || 0} tasks completed
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Neglected Tasks -->
+            ${untouchedTasks.length > 0 ? `
+            <div class="bg-amber-50 p-4 rounded-xl border border-amber-200">
+                <h4 class="font-semibold text-amber-800 mb-3 flex items-center">
+                    <span class="text-lg mr-2">⏰</span>
+                    Tasks You Haven't Touched in a While
+                </h4>
+                <div class="space-y-2">
+                    ${untouchedTasks.map(task => `
+                        <div class="flex items-center justify-between bg-white p-2 rounded-lg border border-amber-100">
+                            <span class="text-sm text-slate-700">${task.name}</span>
+                            <span class="text-xs text-amber-600 bg-amber-100 px-2 py-1 rounded">${task.time} min</span>
+                        </div>
+                    `).join('')}
+                </div>
+                <p class="text-xs text-amber-700 mt-2">Consider scheduling these tasks or breaking them into smaller chunks.</p>
+            </div>
+            ` : ''}
+            
+            <!-- Motivational Message -->
+            <div class="bg-green-50 p-4 rounded-xl border border-green-200 text-center">
+                <h4 class="font-semibold text-green-800 mb-2 flex items-center justify-center">
+                    <span class="text-lg mr-2">🌟</span>
+                    Keep Up the Great Work!
+                </h4>
+                <p class="text-sm text-green-700">
+                    ${tasksThisWeek.length >= 10 ? 
+                        "You're on fire this week! Your consistency is impressive." :
+                        tasksThisWeek.length >= 5 ?
+                        "Great progress this week! You're building solid habits." :
+                        "Every task completed is a step forward. Keep going!"
+                    }
+                </p>
             </div>
         `;
 
@@ -1984,6 +2201,258 @@
     const closeProjectManagementModal = () => {
         document.body.classList.remove('overflow-hidden');
         document.getElementById('projectManagementModalOverlay').classList.add('hidden');
+    };
+
+    // --- TAG MANAGER MODAL FUNCTIONS ---
+    const showTagManagerModal = () => {
+        document.body.classList.add('overflow-hidden');
+        document.getElementById('tagManagerModalOverlay').classList.remove('hidden');
+        renderTagManagerList();
+    };
+
+    const closeTagManagerModal = () => {
+        document.body.classList.remove('overflow-hidden');
+        document.getElementById('tagManagerModalOverlay').classList.add('hidden');
+    };
+
+    const renderTagManagerList = () => {
+        const tagManagerCloud = document.getElementById('tagManagerCloud');
+        if (!tagManagerCloud) return;
+        
+        // Get all unique tags from tasks
+        const allTags = new Set();
+        tasks.forEach(task => {
+            if (task.tags && Array.isArray(task.tags)) {
+                task.tags.forEach(tag => allTags.add(tag));
+            }
+        });
+        
+        if (allTags.size === 0) {
+            tagManagerCloud.innerHTML = '<div class="text-center text-slate-500 py-4 text-sm">No tags found. Add some tags to your tasks to see them here.</div>';
+            return;
+        }
+        
+        // Sort tags alphabetically
+        const sortedTags = Array.from(allTags).sort();
+        
+        tagManagerCloud.innerHTML = sortedTags.map(tag => {
+            // Count how many tasks use this tag
+            const taskCount = tasks.filter(task => task.tags && task.tags.includes(tag)).length;
+            
+            return `
+                <div class="relative group inline-block">
+                    <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full cursor-pointer hover:bg-blue-200 hover:shadow-md transition-all duration-200 inline-flex items-center gap-1 border border-blue-200 hover:border-blue-300" data-tag-name="${tag}" data-action="edit-tag" title="Click to edit tag name">
+                        #${tag}
+                        <span class="text-xs text-blue-600">(${taskCount})</span>
+                    </span>
+                    <button data-tag-name="${tag}" data-action="delete-tag" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 flex items-center justify-center" title="Delete tag">
+                        ×
+                    </button>
+                </div>
+            `;
+        }).join('');
+    };
+
+    const addNewTag = () => {
+        const newTagInput = document.getElementById('newTagInput');
+        const tagName = newTagInput.value.trim();
+        
+        if (!tagName) {
+            alert('Please enter a tag name.');
+            return;
+        }
+        
+        // Check if tag already exists
+        const allTags = new Set();
+        tasks.forEach(task => {
+            if (task.tags && Array.isArray(task.tags)) {
+                task.tags.forEach(tag => allTags.add(tag));
+            }
+        });
+        
+        if (allTags.has(tagName)) {
+            alert('This tag already exists.');
+            return;
+        }
+        
+        // Create a placeholder task with the new tag so it shows up immediately
+        const placeholderTask = {
+            id: `placeholder-${Date.now()}`,
+            name: `Tag placeholder for "${tagName}"`,
+            projectId: 'inbox',
+            totalTime: 1,
+            minSessionTime: 1,
+            energy: 'Low 🧠',
+            context: ['Work'],
+            tags: [tagName],
+            timeSpent: 0,
+            isRecurring: false,
+            isDivisible: false,
+            priority: '',
+            createdAt: new Date().toISOString(),
+            isPlaceholder: true // Flag to identify placeholder tasks
+        };
+        
+        tasks.push(placeholderTask);
+        saveDataToFirestore();
+        newTagInput.value = '';
+        renderTagManagerList();
+        renderTagCloud(); // Update the tag cloud in Advanced Filters
+        
+        // Show success message
+        const successMsg = document.createElement('div');
+        successMsg.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+        successMsg.textContent = `Tag "${tagName}" created and ready to use!`;
+        document.body.appendChild(successMsg);
+        setTimeout(() => successMsg.remove(), 3000);
+    };
+
+    const editTag = (oldTagName) => {
+        // This will be called from the event delegation, but we need the element
+        // The actual inline editing will be handled in the renderTagManagerList function
+    };
+
+    const deleteTag = (tagName) => {
+        deleteTagWithConfirmation(tagName);
+    };
+
+    // --- INLINE EDITING FUNCTIONS ---
+    let currentlyEditingTag = null;
+
+    const startInlineEdit = (tagName, element) => {
+        if (currentlyEditingTag) {
+            return; // Already editing something
+        }
+        
+        currentlyEditingTag = tagName;
+        const originalText = element.textContent;
+        
+        // Create input element
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = tagName;
+        input.className = 'bg-white border-2 border-blue-400 text-blue-800 text-sm font-medium px-2 py-1 rounded-full outline-none focus:ring-2 focus:ring-blue-500 min-w-0 flex-1';
+        input.style.minWidth = '60px';
+        
+        // Replace the tag text with input
+        element.innerHTML = '';
+        element.appendChild(input);
+        
+        // Focus and select text
+        setTimeout(() => {
+            input.focus();
+            input.select();
+        }, 10);
+        
+        // Handle save on Enter or blur
+        const saveEdit = () => {
+            const newTagName = input.value.trim();
+            
+            if (!newTagName || newTagName === '') {
+                cancelEdit(element, originalText);
+                return;
+            }
+            
+            if (newTagName === tagName) {
+                cancelEdit(element, originalText);
+                return; // No change
+            }
+            
+            // Check if new name already exists
+            const allTags = new Set();
+            tasks.forEach(task => {
+                if (task.tags && Array.isArray(task.tags)) {
+                    task.tags.forEach(tag => allTags.add(tag));
+                }
+            });
+            
+            if (allTags.has(newTagName)) {
+                // Show error message
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                errorMsg.textContent = 'A tag with this name already exists.';
+                document.body.appendChild(errorMsg);
+                setTimeout(() => errorMsg.remove(), 3000);
+                cancelEdit(element, originalText);
+                return;
+            }
+            
+            // Update all tasks that use this tag
+            let updatedCount = 0;
+            tasks.forEach(task => {
+                if (task.tags && Array.isArray(task.tags)) {
+                    const tagIndex = task.tags.indexOf(tagName);
+                    if (tagIndex !== -1) {
+                        task.tags[tagIndex] = newTagName;
+                        updatedCount++;
+                    }
+                }
+            });
+            
+            if (updatedCount > 0) {
+                saveDataToFirestore();
+                renderTagManagerList();
+                renderTagCloud(); // Update the tag cloud in Advanced Filters
+                
+                // Show success message
+                const successMsg = document.createElement('div');
+                successMsg.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                successMsg.textContent = `Tag renamed to "${newTagName}" in ${updatedCount} task${updatedCount !== 1 ? 's' : ''}`;
+                document.body.appendChild(successMsg);
+                setTimeout(() => successMsg.remove(), 3000);
+            }
+            
+            currentlyEditingTag = null;
+        };
+        
+        const cancelEdit = (element, originalText) => {
+            element.innerHTML = originalText;
+            currentlyEditingTag = null;
+        };
+        
+        // Event listeners
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                saveEdit();
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                cancelEdit(element, originalText);
+            }
+        });
+        
+        input.addEventListener('blur', saveEdit);
+    };
+
+    const deleteTagWithConfirmation = (tagName) => {
+        const taskCount = tasks.filter(task => task.tags && task.tags.includes(tagName)).length;
+        
+        if (!confirm(`Are you sure you want to delete the tag "${tagName}"?\n\nThis will remove it from ${taskCount} task${taskCount !== 1 ? 's' : ''}. This action cannot be undone.`)) {
+            return;
+        }
+        
+        // Remove the tag from all tasks and delete placeholder tasks
+        tasks = tasks.filter(task => {
+            if (task.tags && Array.isArray(task.tags)) {
+                task.tags = task.tags.filter(tag => tag !== tagName);
+                // If this was a placeholder task for this tag, remove it entirely
+                if (task.isPlaceholder && task.tags.length === 0) {
+                    return false; // Remove this task
+                }
+            }
+            return true; // Keep this task
+        });
+        
+        saveDataToFirestore();
+        renderTagManagerList();
+        renderTagCloud(); // Update the tag cloud in Advanced Filters
+        
+        // Show success message
+        const successMsg = document.createElement('div');
+        successMsg.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+        successMsg.textContent = `Tag "${tagName}" deleted from ${taskCount} task${taskCount !== 1 ? 's' : ''}`;
+        document.body.appendChild(successMsg);
+        setTimeout(() => successMsg.remove(), 3000);
     };
 
     const renderProjectManagementList = () => {
@@ -2076,18 +2545,33 @@
     };
 
     const collapseAllProjects = () => {
-        // Add all project IDs to collapsedProjects set
+        // Collapse all projects
         projects.forEach(project => {
             collapsedProjects.add(project.id);
         });
+        allProjectsCollapsed = true;
         
         // Save to Firestore
         saveDataToFirestore();
         
-        // Re-render to show collapsed state
-        renderTasksAndProjects();
+        // Re-render to show collapsed state (bypass search logic to avoid conflicts)
+        renderTasksAndProjects('', true);
         
         console.log('All projects collapsed');
+    };
+
+    const expandAllProjects = () => {
+        // Expand all projects
+        collapsedProjects.clear();
+        allProjectsCollapsed = false;
+        
+        // Save to Firestore
+        saveDataToFirestore();
+        
+        // Re-render to show expanded state (bypass search logic to avoid conflicts)
+        renderTasksAndProjects('', true);
+        
+        console.log('All projects expanded');
     };
 
     const editProjectInModal = (projectId) => {
@@ -2258,13 +2742,13 @@
     const stopFocusSession = (confirmFirst = true) => {
         if (!confirmFirst) {
             // Direct stop without confirmation (used when completing task)
-            clearInterval(timerInterval);
-            document.body.classList.remove('overflow-hidden');
-            timerInterval = null;
-            isPaused = false;
-            currentFocusTaskId = null;
-            focusOverlay.classList.add('hidden');
-            document.title = originalTitle;
+        clearInterval(timerInterval);
+        document.body.classList.remove('overflow-hidden');
+        timerInterval = null;
+        isPaused = false;
+        currentFocusTaskId = null;
+        focusOverlay.classList.add('hidden');
+        document.title = originalTitle;
             return;
         }
         
@@ -2321,21 +2805,21 @@
         focusOverlay.classList.remove('hidden');
         startTimer();
     };
-    
+      
     const renderSuggestedTask = (task, isSurprise = false) => {
-        const div = document.createElement('div');
-        const baseClasses = 'bg-white border rounded-xl p-4 animate-fade-in flex items-center justify-between';
-        div.className = isSurprise
-            ? `${baseClasses} border-2 border-blue-500 shadow-lg`
-            : `${baseClasses} border-slate-200`;
-        
-        div.innerHTML = `
-            <div class="flex-grow">
-              <h3 class="font-bold text-slate-900 flex items-center">
-                ${task.name}
-                ${task.isRecurring ? `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2 text-blue-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>` : ''}
+          const div = document.createElement('div');
+          const baseClasses = 'bg-white border rounded-xl p-4 animate-fade-in flex items-center justify-between';
+          div.className = isSurprise
+              ? `${baseClasses} border-2 border-blue-500 shadow-lg`
+              : `${baseClasses} border-slate-200`;
+          
+          div.innerHTML = `
+              <div class="flex-grow">
+                <h3 class="font-bold text-slate-900 flex items-center">
+                  ${task.name}
+                  ${task.isRecurring ? `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2 text-blue-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>` : ''}
                 ${task.isDivisible ? `<span class="ml-2 text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full font-medium">Progress</span>` : `<span class="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Atomic</span>`}
-              </h3>
+                </h3>
               <p class="text-sm text-slate-500">Time: ${task.isDivisible ? `${task.totalTime} min (${task.minSessionTime} min)` : `${task.time} min`} | Energy: ${task.energy}</p>
               ${task.isDivisible ? `
                 <div class="mt-2">
@@ -2360,12 +2844,191 @@
                 </div>
               ` : ''}
                  <div class="flex flex-wrap gap-2 mt-2 ${task.tags.length === 0 ? 'hidden' : ''}">
-                   ${task.tags.map(tag => `<span class="text-xs bg-slate-100 text-slate-600 font-medium px-2 py-1 rounded-md">${tag}</span>`).join('')}
-                 </div>
-            </div>
-            <button data-task-id="${task.id}" class="start-btn ml-4 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg transition-colors font-semibold shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600">Start</button>
-        `;
-        filteredList.appendChild(div);
+                    ${task.tags.map(tag => `<span class="text-xs bg-slate-100 text-slate-600 font-medium px-2 py-1 rounded-md">${tag}</span>`).join('')}
+                </div>
+              </div>
+              <button data-task-id="${task.id}" class="start-btn ml-4 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg transition-colors font-semibold shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600">Start</button>
+          `;
+          filteredList.appendChild(div);
+    };
+
+    // --- SIMPLIFIED TASK SUGGESTION SYSTEM ---
+    let currentSuggestions = []; // Store current suggestions to avoid reshuffling on mode changes
+    
+    const generateTaskSuggestions = () => {
+        if (!selectedMode || !selectedTimeFilter) {
+            document.getElementById('taskSuggestionsSection').classList.add('hidden');
+            return;
+        }
+
+        const candidates = getTaskCandidates();
+        currentSuggestions = selectTopTasks(candidates, 3, true); // Use randomization for reshuffle
+        
+        renderTaskSuggestions(currentSuggestions);
+        document.getElementById('taskSuggestionsSection').classList.remove('hidden');
+    };
+
+    const updateTaskSuggestionsForMode = () => {
+        if (!selectedMode || !selectedTimeFilter) {
+            document.getElementById('taskSuggestionsSection').classList.add('hidden');
+            return;
+        }
+
+        // If we have existing suggestions, filter them by the new mode instead of regenerating
+        if (currentSuggestions.length > 0) {
+            const filteredSuggestions = currentSuggestions.filter(task => {
+                // Check if task matches the new mode
+                const modeMatches = task.contexts && (
+                    task.contexts.includes(selectedMode) || // New simplified contexts
+                    (selectedMode === 'Work' && (task.contexts.includes('Workday') || task.contexts.includes('Work'))) || // Work mode
+                    (selectedMode === 'Personal' && (task.contexts.includes('Evening') || task.contexts.includes('Weekend') || task.contexts.includes('Home') || task.contexts.includes('Personal'))) // Personal mode
+                );
+                return modeMatches;
+            });
+            
+            // If we have enough filtered suggestions, use them
+            if (filteredSuggestions.length >= 3) {
+                renderTaskSuggestions(filteredSuggestions.slice(0, 3));
+                document.getElementById('taskSuggestionsSection').classList.remove('hidden');
+                return;
+            }
+        }
+        
+        // Fallback: generate new suggestions if filtering doesn't work
+        const candidates = getTaskCandidates();
+        currentSuggestions = selectTopTasks(candidates, 3, false); // No randomization for mode changes
+        
+        renderTaskSuggestions(currentSuggestions);
+        document.getElementById('taskSuggestionsSection').classList.remove('hidden');
+    };
+
+    const getTaskCandidates = () => {
+        return tasks.filter(task => {
+            // Filter by mode (Work or Personal) - handle both old and new context values
+            const modeMatches = task.contexts && (
+                task.contexts.includes(selectedMode) || // New simplified contexts
+                (selectedMode === 'Work' && (task.contexts.includes('Workday') || task.contexts.includes('Work'))) || // Work mode
+                (selectedMode === 'Personal' && (task.contexts.includes('Evening') || task.contexts.includes('Weekend') || task.contexts.includes('Home') || task.contexts.includes('Personal'))) // Personal mode
+            );
+            if (!modeMatches) return false;
+
+            // Filter by time
+            const timeMatches = checkTimeMatch(task, selectedTimeFilter);
+            if (!timeMatches) return false;
+
+            // Apply advanced filters if they're set
+            if (selectedEnergyFilters.length > 0) {
+                const energyMatches = selectedEnergyFilters.includes(task.energy);
+                if (!energyMatches) return false;
+            }
+
+            if (selectedProjectFilters.length > 0) {
+                const projectMatches = task.projectId && selectedProjectFilters.includes(task.projectId);
+                if (!projectMatches) return false;
+            }
+
+            if (selectedTagFilters.length > 0) {
+                const tagMatches = task.tags && task.tags.some(tag => selectedTagFilters.includes(tag));
+                if (!tagMatches) return false;
+            }
+
+            return true;
+        });
+    };
+
+    const checkTimeMatch = (task, timeAvailable) => {
+        const tolerance = 10; // ±10 minutes tolerance
+        
+        // For Atomic Tasks: use task.time
+        // For Progress Tasks: use task.minSessionTime (minimum session requirement)
+        const taskTime = task.isDivisible ? task.minSessionTime : task.time;
+        return taskTime <= timeAvailable + tolerance;
+    };
+
+    const selectTopTasks = (candidates, count, useRandomization = true) => {
+        // Simple scoring system
+        const scored = candidates.map(task => {
+            let score = 0;
+            
+            // Time fit score (closer to selected time = higher score)
+            const taskTime = task.isDivisible ? task.minSessionTime : task.time;
+            const timeDiff = Math.abs(taskTime - selectedTimeFilter);
+            score += Math.max(0, 10 - timeDiff); // 0-10 points based on time fit
+            
+            // Energy match bonus
+            if (selectedEnergyFilters.length > 0 && selectedEnergyFilters.includes(task.energy)) {
+                score += 5;
+            }
+            
+            // Project match bonus
+            if (selectedProjectFilters.length > 0 && task.projectId && selectedProjectFilters.includes(task.projectId)) {
+                score += 5;
+            }
+            
+            // Tag match bonus
+            if (selectedTagFilters.length > 0 && task.tags) {
+                const matchingTags = task.tags.filter(tag => selectedTagFilters.includes(tag)).length;
+                score += matchingTags * 2;
+            }
+            
+            // Random factor to add variety (only when explicitly reshuffling)
+            if (useRandomization) {
+                score += Math.random() * 3;
+            }
+            
+            return { task, score };
+        });
+
+        // Sort by score and return top tasks
+        return scored.sort((a, b) => b.score - a.score).slice(0, count).map(item => item.task);
+    };
+
+    const renderTaskSuggestions = (suggestions) => {
+        const container = document.getElementById('taskSuggestions');
+        
+        if (suggestions.length === 0) {
+            container.innerHTML = `
+                <div class="col-span-full text-center p-6 bg-amber-50 rounded-lg border border-amber-200">
+                    <h4 class="font-semibold text-amber-800 mb-2">No tasks found</h4>
+                    <p class="text-sm text-amber-700">No tasks match your current filters. Try adjusting your time or mode.</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = suggestions.map(task => {
+            const taskTime = task.isDivisible ? task.minSessionTime : task.time;
+            const isProgressTask = task.isDivisible;
+            
+            return `
+                <div class="bg-white border border-slate-200 rounded-lg p-4 hover:shadow-md transition-shadow h-full flex flex-col">
+                    <h4 class="font-semibold text-slate-800 mb-2 text-sm flex-shrink-0">${task.name}</h4>
+                    <div class="flex flex-wrap gap-1 mb-3 flex-shrink-0">
+                        <span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700">${taskTime} min</span>
+                        <span class="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-700">${task.energy}</span>
+                        ${isProgressTask ? '<span class="text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-700">Progress</span>' : ''}
+                    </div>
+                    <div class="flex gap-2 mt-auto">
+                        <button data-task-id="${task.id}" class="start-task-btn w-full bg-green-500 hover:bg-green-600 text-white py-2 px-3 rounded-lg text-sm font-medium transition-colors">
+                            Start
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    };
+
+    const updateModeSelection = (selectedBtnId, unselectedBtnId) => {
+        const selectedBtn = document.getElementById(selectedBtnId);
+        const unselectedBtn = document.getElementById(unselectedBtnId);
+        
+        // Update selected button - solid blue background with white text
+        selectedBtn.classList.add('bg-blue-500', 'text-white', 'shadow-sm');
+        selectedBtn.classList.remove('text-slate-700');
+        
+        // Update unselected button - transparent background with dark text
+        unselectedBtn.classList.remove('bg-blue-500', 'text-white', 'shadow-sm');
+        unselectedBtn.classList.add('text-slate-700');
     };
 
     const applyFiltersAndSuggest = (mode = 'suggest') => {
@@ -2384,9 +3047,9 @@
         } else {
             const potentialTasks = tasks.filter(task => {
                 const timeMatches = () => {
-                    if (!selectedTimeFilter) return true;
-                    let tolerance = 5;
-                    if (selectedTimeFilter >= 30) tolerance = 10;
+                  if (!selectedTimeFilter) return true;
+                  let tolerance = 5;
+                  if (selectedTimeFilter >= 30) tolerance = 10;
                     
                     // For Atomic Tasks: use task.time
                     // For Progress Tasks: use task.minSessionTime (minimum session requirement)
@@ -2482,7 +3145,7 @@
             }
         }
     };
-    
+      
     const applySmartDefaults = () => {
         const now = new Date();
         const hour = now.getHours();
@@ -2555,7 +3218,7 @@
         e.target.value = '';
         openModal('add');
     };
-    
+      
     const handleAddProject = (e) => {
         if (e.key !== 'Enter' || !e.target.value.trim()) return;
         const projectName = e.target.value.trim();
@@ -2613,7 +3276,7 @@
     };
 
     // updateProjectCount function removed - replaced with Manage Projects button
-    
+      
     const initializeStreak = () => {
         const today = new Date();
         const todayStr = today.toISOString().slice(0, 10);
@@ -2626,7 +3289,7 @@
             streakData.lastCompletedDate = null;
             saveDataToFirestore(); 
         }
-        renderStreak();
+
     };
 
     const toggleTimeSections = () => {
@@ -2651,19 +3314,29 @@
 
     const renderFilterButtons = () => {
         const timeOptions = [5, 10, 15, 20, 25, 30, 45, 60];
-        const contextOptions = ['Workday', 'Evening', 'Weekend', 'Home'];
+        const contextOptions = ['Work', 'Personal']; // Simplified contexts
         const energyOptions = ['Low 🧠', 'Medium 💪', 'High 🔥'];
 
         const createButtons = (opts, containerId, className, dataAttr) => {
             const container = document.getElementById(containerId);
-            container.innerHTML = opts.map(opt => `<button data-${dataAttr}="${opt}" class="${className} bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 px-3 py-1.5 rounded-lg transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500">${dataAttr === 'time' ? `${opt} min` : opt}</button>`).join('');
+            if (container) {
+                console.log(`🔧 Creating buttons for ${containerId}:`, opts);
+                container.innerHTML = opts.map(opt => `<button data-${dataAttr}="${opt}" class="${className} bg-slate-100 text-slate-600 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-colors text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500">${dataAttr === 'time' ? `${opt} min` : opt}</button>`).join('');
+                console.log(`🔧 Buttons created for ${containerId}, container:`, container);
+            } else {
+                console.error(`❌ Container not found: ${containerId}`);
+            }
         };
-        createButtons(timeOptions, 'timeFilters', 'time-filter', 'time');
-        createButtons(contextOptions, 'contextFilters', 'context-filter', 'context');
-        createButtons(energyOptions, 'energyFilters', 'energy-filter', 'energy');
         
-        // Render tag cloud
+        // Main time filters
+        createButtons(timeOptions, 'timeFilters', 'time-filter', 'time');
+        
+        // Advanced filters (energy, projects, and tags)
+        createButtons(energyOptions, 'energyFilters', 'energy-filter', 'energy');
+        renderProjectFilters();
         renderTagCloud();
+        
+        // Modal filters (keep existing for add task modal)
         createButtons(timeOptions, 'modalTimeButtons', 'modal-time-btn', 'time');
         
         // Only create new button sets if the containers exist
@@ -2674,8 +3347,9 @@
         createButtons(contextOptions, 'modalContextButtons', 'modal-context-btn', 'context');
         createButtons(energyOptions, 'modalEnergyButtons', 'modal-energy-btn', 'energy');
     };
-    
+      
     const initializeEventListeners = () => {
+        console.log('🔧 initializeEventListeners called');
         // --- Mobile Menu Toggle ---
 
         
@@ -2688,9 +3362,32 @@
             sidebar.classList.remove('flex');
         });
         
-        document.getElementById('googleLoginBtn').onclick = handleGoogleLogin;
-        document.getElementById('signInBtn').onclick = handleEmailSignIn;
-        document.getElementById('signUpBtn').onclick = handleEmailSignUp;
+        // Debug: Check if elements exist
+        console.log('🔍 Checking login elements...');
+        console.log('googleLoginBtn:', document.getElementById('googleLoginBtn'));
+        console.log('signInBtn:', document.getElementById('signInBtn'));
+        console.log('signUpBtn:', document.getElementById('signUpBtn'));
+        console.log('guestLoginBtn:', document.getElementById('guestLoginBtn'));
+        
+        try {
+            // Test basic click functionality first
+            const guestBtn = document.getElementById('guestLoginBtn');
+            if (guestBtn) {
+                guestBtn.addEventListener('click', () => {
+                    console.log('🎭 Guest button clicked via addEventListener!');
+                });
+            }
+            
+            document.getElementById('googleLoginBtn').onclick = handleGoogleLogin;
+            document.getElementById('signInBtn').onclick = handleEmailSignIn;
+            document.getElementById('signUpBtn').onclick = handleEmailSignUp;
+            document.getElementById('guestLoginBtn').onclick = showGuestMode;
+            
+
+            console.log('✅ Login button handlers set up successfully');
+        } catch (error) {
+            console.error('❌ Error setting up login button handlers:', error);
+        }
         
         // Handle Enter key in email/password inputs
         document.getElementById('emailInput').addEventListener('keypress', (e) => {
@@ -2707,23 +3404,118 @@
         if (addTaskBtn) {
             addTaskBtn.onclick = () => openModal('add');
         }
-        document.getElementById('suggestTaskBtn').onclick = () => applyFiltersAndSuggest('suggest');
-        document.getElementById('surpriseMeBtn').onclick = () => applyFiltersAndSuggest('surprise');
+        // Context mode selection
+        const workModeBtn = document.getElementById('workModeBtn');
+        const personalModeBtn = document.getElementById('personalModeBtn');
+        console.log('🔧 Work mode button:', workModeBtn);
+        console.log('🔧 Personal mode button:', personalModeBtn);
+        
+        if (workModeBtn) {
+            workModeBtn.onclick = () => {
+                console.log('🔧 Work mode clicked');
+                selectedMode = 'Work';
+                updateModeSelection('workModeBtn', 'personalModeBtn');
+                // Only update suggestions if we have both mode and time filter
+                if (selectedTimeFilter) {
+                    updateTaskSuggestionsForMode();
+                }
+            };
+        } else {
+            console.error('❌ Work mode button not found');
+        }
+        
+        if (personalModeBtn) {
+            personalModeBtn.onclick = () => {
+                console.log('🔧 Personal mode clicked');
+                selectedMode = 'Personal';
+                updateModeSelection('personalModeBtn', 'workModeBtn');
+                // Only update suggestions if we have both mode and time filter
+                if (selectedTimeFilter) {
+                    updateTaskSuggestionsForMode();
+                }
+            };
+        } else {
+            console.error('❌ Personal mode button not found');
+        }
+        
+        // Reshuffle button
+        document.getElementById('reshuffleBtn').onclick = () => {
+            generateTaskSuggestions();
+        };
+        
+        // Toggle advanced filters
+        document.getElementById('toggleAdvancedFilters').onclick = () => {
+            const advancedFilters = document.getElementById('advancedFilters');
+            const icon = document.getElementById('advancedFiltersIcon');
+            if (advancedFilters.classList.contains('hidden')) {
+                advancedFilters.classList.remove('hidden');
+                icon.textContent = '▲';
+                advancedFiltersOpen = true;
+            } else {
+                advancedFilters.classList.add('hidden');
+                icon.textContent = '▼';
+                advancedFiltersOpen = false;
+            }
+        };
+
+        // Toggle advanced task options
+        document.getElementById('toggleAdvancedTaskOptions').onclick = () => {
+            const advancedTaskOptions = document.getElementById('advancedTaskOptions');
+            const icon = document.getElementById('advancedTaskOptionsIcon');
+            if (advancedTaskOptions.classList.contains('hidden')) {
+                advancedTaskOptions.classList.remove('hidden');
+                icon.textContent = '▲';
+            } else {
+                advancedTaskOptions.classList.add('hidden');
+                icon.textContent = '▼';
+            }
+        };
         document.getElementById('clearFiltersBtn').onclick = () => {
-         selectedTimeFilter = null; selectedContextFilters = []; selectedEnergyFilter = null; selectedTagFilters = [];
-         document.querySelectorAll('.time-filter, .context-filter, .energy-filter').forEach(b => {b.classList.remove('bg-blue-500','text-white','border-blue-500');b.classList.add('bg-white','text-slate-700')});
-         document.querySelectorAll('.tag-filter').forEach(b => {b.classList.remove('bg-blue-500','text-white','border-blue-500');b.classList.add('bg-slate-100','text-slate-600')});
-         
-         // Clear custom time input and reset visual indicator
-         const customTimeInput = document.getElementById('customTimeFilterInput');
-         customTimeInput.value = '';
-         customTimeInput.classList.remove('bg-blue-50', 'border-blue-500', 'ring-2', 'ring-blue-200');
-         customTimeInput.classList.add('border-slate-300');
-         
-         filteredList.innerHTML = '';
-         // Show content area again when filters are cleared
-         document.getElementById('contentArea').classList.remove('hidden');
-         updateContentArea();
+            // Reset all selections
+            selectedMode = null;
+            selectedTimeFilter = null;
+            selectedEnergyFilters = [];
+            selectedProjectFilters = [];
+            selectedTagFilters = [];
+            
+            // Reset mode buttons
+            document.getElementById('workModeBtn').classList.remove('bg-blue-500', 'text-white', 'shadow-sm');
+            document.getElementById('workModeBtn').classList.add('text-slate-700');
+            document.getElementById('personalModeBtn').classList.remove('bg-blue-500', 'text-white', 'shadow-sm');
+            document.getElementById('personalModeBtn').classList.add('text-slate-700');
+            
+            // Reset time filters
+            document.querySelectorAll('.time-filter').forEach(b => {
+                b.classList.remove('bg-blue-500','text-white','border-blue-500');
+                b.classList.add('bg-slate-100','text-slate-600');
+            });
+            
+            // Reset advanced filters
+            document.querySelectorAll('.energy-filter').forEach(b => {
+                b.classList.remove('bg-blue-500','text-white','border-blue-500');
+                b.classList.add('bg-slate-100','text-slate-600');
+            });
+            document.querySelectorAll('.project-filter').forEach(b => {
+                b.classList.remove('bg-blue-500','text-white','border-blue-500');
+                b.classList.add('bg-slate-100','text-slate-600');
+            });
+            document.querySelectorAll('.tag-filter').forEach(b => {
+                b.classList.remove('bg-blue-500','text-white','border-blue-500');
+                b.classList.add('bg-slate-100','text-slate-600');
+            });
+            
+            // Clear custom time input
+            const customTimeInput = document.getElementById('customTimeFilterInput');
+            customTimeInput.value = '';
+            customTimeInput.classList.remove('bg-blue-50', 'border-blue-500', 'ring-2', 'ring-blue-200');
+            customTimeInput.classList.add('border-slate-300');
+            
+            // Hide task suggestions
+            document.getElementById('taskSuggestionsSection').classList.add('hidden');
+            
+            // Show content area
+            document.getElementById('contentArea').classList.remove('hidden');
+            updateContentArea();
         };
         document.getElementById('cancelTaskBtn').onclick = closeModal;
         
@@ -2734,12 +3526,12 @@
         }
         document.getElementById('saveTaskBtn').onclick = saveTask;
         document.getElementById('taskTags').addEventListener('keypress', e => {
-         if (e.key === 'Enter' && e.target.value.trim()) {
-           e.preventDefault();
-           if (!modalTagList.includes(e.target.value.trim())) modalTagList.push(e.target.value.trim());
-           e.target.value = '';
-           renderTagPreview();
-         }
+          if (e.key === 'Enter' && e.target.value.trim()) {
+            e.preventDefault();
+            if (!modalTagList.includes(e.target.value.trim())) modalTagList.push(e.target.value.trim());
+            e.target.value = '';
+            renderTagPreview();
+          }
         });
         
         // New project creation event listeners
@@ -2761,6 +3553,15 @@
         });
         
         // Custom time input event listeners
+        document.getElementById('customTimeInput').addEventListener('focus', (e) => {
+            // Clear other time button selections when focusing on custom input
+            document.querySelectorAll('.modal-time-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
+                btn.classList.add('bg-white', 'text-slate-700');
+            });
+            modalSelectedTime = null; // Clear the selected time
+        });
+        
         document.getElementById('customTimeInput').addEventListener('input', (e) => {
             const value = parseInt(e.target.value);
             if (value && value > 0) {
@@ -2773,6 +3574,15 @@
             }
         });
         
+        document.getElementById('customTotalTimeInput').addEventListener('focus', (e) => {
+            // Clear other total time button selections when focusing on custom input
+            document.querySelectorAll('.modal-total-time-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
+                btn.classList.add('bg-white', 'text-slate-700');
+            });
+            modalSelectedTotalTime = null; // Clear the selected time
+        });
+        
         document.getElementById('customTotalTimeInput').addEventListener('input', (e) => {
             const value = parseInt(e.target.value);
             if (value && value > 0) {
@@ -2783,6 +3593,15 @@
                 });
                 modalSelectedTotalTime = value;
             }
+        });
+        
+        document.getElementById('customMinSessionInput').addEventListener('focus', (e) => {
+            // Clear other min session button selections when focusing on custom input
+            document.querySelectorAll('.modal-min-session-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
+                btn.classList.add('bg-white', 'text-slate-700');
+            });
+            modalSelectedMinSessionTime = null; // Clear the selected time
         });
         
         document.getElementById('customMinSessionInput').addEventListener('input', (e) => {
@@ -2816,7 +3635,7 @@
         // --- Stats Modal Listeners ---
         document.getElementById('viewStatsBtn').onclick = showStatsModal;
         document.getElementById('closeStatsBtn').onclick = closeStatsModal;
-        
+
         // Sign up/Sign in modal event listeners
         document.getElementById('closeSignUpModalBtn').onclick = closeSignUpModal;
         document.getElementById('closeSignInModalBtn').onclick = closeSignInModal;
@@ -2831,6 +3650,7 @@
         document.getElementById('closeProjectManagementModalBtn2').onclick = closeProjectManagementModal;
         document.getElementById('deleteEmptyProjectsBtn').onclick = deleteEmptyProjects;
         document.getElementById('collapseAllProjectsBtn').onclick = collapseAllProjects;
+        document.getElementById('expandAllProjectsBtn').onclick = expandAllProjects;
         document.getElementById('showLoginModalBtn').onclick = () => {
             closeSignUpModal();
             showSignInModal();
@@ -2851,73 +3671,138 @@
 
 
         const handleFilterClick = (containerId, selector, stateVarSetter, allowToggle = false) => {
-            document.getElementById(containerId).addEventListener('click', e => {
+            const container = document.getElementById(containerId);
+            if (!container) {
+                console.error(`❌ Filter container not found: ${containerId}`);
+                return;
+            }
+            console.log(`🔧 Setting up filter handler for ${containerId}`);
+            container.addEventListener('click', e => {
                 if (e.target.matches(selector)) {
                     if (allowToggle) {
                         // For context filters - allow toggle (multi-select)
-                        e.target.classList.toggle('bg-blue-500');
-                        e.target.classList.toggle('text-white');
-                        e.target.classList.toggle('border-blue-500');
-                        e.target.classList.toggle('bg-white');
-                        e.target.classList.toggle('text-slate-700');
+                     e.target.classList.toggle('bg-blue-500');
+                     e.target.classList.toggle('text-white');
+                     e.target.classList.toggle('border-blue-500');
+                     e.target.classList.toggle('bg-slate-100');
+                     e.target.classList.toggle('text-slate-600');
                     } else {
                         // For time and energy filters - radio button behavior (single select)
                         document.querySelectorAll(selector).forEach(b => {
                             b.classList.remove('bg-blue-500','text-white','border-blue-500');
-                            b.classList.add('bg-white','text-slate-700');
+                            b.classList.add('bg-slate-100','text-slate-600');
                         });
                         e.target.classList.add('bg-blue-500', 'text-white', 'border-blue-500');
-                        e.target.classList.remove('bg-white', 'text-slate-700');
+                        e.target.classList.remove('bg-slate-100', 'text-slate-600');
                     }
                     stateVarSetter(e.target);
                 }
             });
         };
+        console.log('🔧 Setting up time filters...');
         handleFilterClick('timeFilters', '.time-filter', (el) => {
-            selectedTimeFilter = parseInt(el.dataset.time);
+            const timeValue = parseInt(el.dataset.time);
+            selectedTimeFilter = timeValue;
+            currentSuggestions = []; // Clear current suggestions when time changes
+            generateTaskSuggestions();
             // Clear custom input when button is clicked and reset visual indicator
             const customTimeInput = document.getElementById('customTimeFilterInput');
-            customTimeInput.value = '';
-            customTimeInput.classList.remove('bg-blue-50', 'border-blue-500', 'ring-2', 'ring-blue-200');
-            customTimeInput.classList.add('border-slate-300');
-        });
-        handleFilterClick('energyFilters', '.energy-filter', (el) => selectedEnergyFilter = el.dataset.energy);
+            if (customTimeInput) {
+                customTimeInput.value = '';
+                customTimeInput.classList.remove('bg-blue-50', 'border-blue-500', 'ring-2', 'ring-blue-200');
+                customTimeInput.classList.add('border-slate-300');
+            }
+        }); // Single-select behavior (radio button style)
+        console.log('🔧 Setting up energy filters...');
+        handleFilterClick('energyFilters', '.energy-filter', (el) => {
+            const energy = el.dataset.energy;
+            if (selectedEnergyFilters.length > 0 && selectedEnergyFilters[0] === energy) {
+                // If clicking the same energy button, deselect it
+                selectedEnergyFilters = [];
+                // Manually update the visual styling to show deselected state
+                el.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
+                el.classList.add('bg-slate-100', 'text-slate-600');
+            } else {
+                // Select the new energy (single selection)
+                selectedEnergyFilters = [energy];
+            }
+            currentSuggestions = []; // Clear current suggestions when energy changes
+            generateTaskSuggestions();
+        }); // Single-select with toggle behavior
+        console.log('🔧 Setting up project filters...');
+        handleFilterClick('projectFilters', '.project-filter', (el) => {
+            const project = el.dataset.project;
+            const index = selectedProjectFilters.indexOf(project);
+            if (index > -1) {
+                selectedProjectFilters.splice(index, 1);
+            } else {
+                selectedProjectFilters.push(project);
+            }
+            currentSuggestions = []; // Clear current suggestions when project changes
+            generateTaskSuggestions();
+        }, true); // Enable toggle behavior for multi-select
         
         // Custom time filter input
-        document.getElementById('customTimeFilterInput').addEventListener('input', (e) => {
+        const customTimeFilterInput = document.getElementById('customTimeFilterInput');
+        if (customTimeFilterInput) {
+            customTimeFilterInput.addEventListener('input', (e) => {
             const value = parseInt(e.target.value);
             if (value && value > 0) {
                 // Clear other time filter selections
                 document.querySelectorAll('.time-filter').forEach(btn => {
                     btn.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
-                    btn.classList.add('bg-white', 'text-slate-700');
+                    btn.classList.add('bg-slate-100', 'text-slate-600');
                 });
                 selectedTimeFilter = value;
+                currentSuggestions = []; // Clear current suggestions when custom time changes
                 
                 // Add visual indicator for custom time selection
                 e.target.classList.add('bg-blue-50', 'border-blue-500', 'ring-2', 'ring-blue-200');
                 e.target.classList.remove('border-slate-300');
+                
+                generateTaskSuggestions();
             } else if (!value) {
                 selectedTimeFilter = null;
                 
                 // Remove visual indicator
                 e.target.classList.remove('bg-blue-50', 'border-blue-500', 'ring-2', 'ring-blue-200');
                 e.target.classList.add('border-slate-300');
+                
+                document.getElementById('taskSuggestionsSection').classList.add('hidden');
             }
         });
+        
+        // Add focus event listener to deselect time buttons when custom input is focused
+        customTimeFilterInput.addEventListener('focus', (e) => {
+            // Clear other time filter selections when user focuses on custom input
+            document.querySelectorAll('.time-filter').forEach(btn => {
+                btn.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
+                btn.classList.add('bg-slate-100', 'text-slate-600');
+            });
+        });
+        } else {
+            console.error('❌ Custom time filter input not found');
+        }
         
         handleFilterClick('contextFilters', '.context-filter', (el) => {
             const context = el.dataset.context;
             const index = selectedContextFilters.indexOf(context);
-            if (index > -1) {
-                selectedContextFilters.splice(index, 1);
-            } else {
-                selectedContextFilters.push(context);
-            }
+                if (index > -1) {
+                    selectedContextFilters.splice(index, 1);
+                } else {
+                    selectedContextFilters.push(context);
+                }
         }, true); // Allow toggle for context filters
 
         const handleModalButtonClick = (containerId, selector, stateVarSetter, isMultiSelect = false) => {
-            document.getElementById(containerId).addEventListener('click', e => {
+            const container = document.getElementById(containerId);
+            if (!container) {
+                console.error(`❌ Modal button container not found: ${containerId}`);
+                return;
+            }
+            console.log(`🔧 Setting up modal button handler for ${containerId}`);
+            container.addEventListener('click', e => {
+                console.log(`🔧 Modal button clicked in ${containerId}:`, e.target);
                 if (e.target.matches(selector)) {
                     const value = selector.includes('time') ? parseInt(e.target.dataset.time) : e.target.dataset.context || e.target.dataset.energy;
                     
@@ -2968,14 +3853,69 @@
                 e.target.classList.remove('bg-white','text-slate-700');
             }
         });
-        handleModalButtonClick('modalEnergyButtons', '.modal-energy-btn', (val) => modalSelectedEnergy = val);
+        // Custom handler for energy buttons to make them toggleable
+        document.addEventListener('click', (e) => {
+            if (e.target.matches('.modal-energy-btn')) {
+                const value = e.target.dataset.energy;
+                
+                if (modalSelectedEnergy === value) {
+                    // If clicking the same energy button, deselect it
+                    modalSelectedEnergy = null;
+                    e.target.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
+                    e.target.classList.add('bg-white', 'text-slate-700');
+                } else {
+                    // Select the new energy
+                    modalSelectedEnergy = value;
+                    document.querySelectorAll('.modal-energy-btn').forEach(b => {
+                        b.classList.remove('bg-blue-500','text-white','border-blue-500');
+                        b.classList.add('bg-white','text-slate-700');
+                    });
+                    e.target.classList.add('bg-blue-500', 'text-white', 'border-blue-500');
+                    e.target.classList.remove('bg-white','text-slate-700');
+                }
+            }
+        });
         handleModalButtonClick('modalContextButtons', '.modal-context-btn', () => modalSelectedContexts, true);
+        
+        // Custom time input for modal
+        document.getElementById('customTimeInput').addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            if (value && value > 0) {
+                modalSelectedTime = value;
+                document.querySelectorAll('.modal-time-btn').forEach(btn => {
+                    btn.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
+                    btn.classList.add('bg-white', 'text-slate-700');
+                });
+            }
+        });
+        
+        document.getElementById('customTotalTimeInput').addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            if (value && value > 0) {
+                modalSelectedTotalTime = value;
+                document.querySelectorAll('.modal-total-time-btn').forEach(btn => {
+                    btn.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
+                    btn.classList.add('bg-white', 'text-slate-700');
+                });
+            }
+        });
+        
+        document.getElementById('customMinSessionInput').addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            if (value && value > 0) {
+                modalSelectedMinSessionTime = value;
+                document.querySelectorAll('.modal-min-session-btn').forEach(btn => {
+                    btn.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
+                    btn.classList.add('bg-white', 'text-slate-700');
+                });
+            }
+        });
 
         focusPauseBtn.onclick = () => {
-         isPaused = !isPaused;
-         document.getElementById('focusPauseText').textContent = isPaused ? 'Resume' : 'Pause';
-         document.getElementById('pauseIcon').classList.toggle('hidden');
-         document.getElementById('playIcon').classList.toggle('hidden');
+          isPaused = !isPaused;
+          document.getElementById('focusPauseText').textContent = isPaused ? 'Resume' : 'Pause';
+          document.getElementById('pauseIcon').classList.toggle('hidden');
+          document.getElementById('playIcon').classList.toggle('hidden');
         };
         focusStopBtn.onclick = () => stopFocusSession();
         focusCompleteBtn.onclick = () => markTaskDone(currentFocusTaskId);
@@ -3002,12 +3942,29 @@
         document.getElementById('projectManagementModalOverlay').addEventListener('click', (e) => {
             if (e.target.id === 'projectManagementModalOverlay') closeProjectManagementModal();
         });
+        
+        // Tag Manager event listeners
+        document.getElementById('editTagsBtn').onclick = showTagManagerModal;
+        document.getElementById('closeTagManagerBtn').onclick = closeTagManagerModal;
+        document.getElementById('closeTagManagerBtn2').onclick = closeTagManagerModal;
+        document.getElementById('addTagBtn').onclick = addNewTag;
+        document.getElementById('newTagInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addNewTag();
+            }
+        });
+        document.getElementById('tagManagerModalOverlay').addEventListener('click', (e) => {
+            if (e.target.id === 'tagManagerModalOverlay') closeTagManagerModal();
+        });
+        
 
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 if (!document.getElementById('signUpModalOverlay').classList.contains('hidden')) closeSignUpModal();
                 else if (!document.getElementById('signInModalOverlay').classList.contains('hidden')) closeSignInModal();
                 else if (!document.getElementById('projectManagementModalOverlay').classList.contains('hidden')) closeProjectManagementModal();
+                else if (!document.getElementById('tagManagerModalOverlay').classList.contains('hidden')) closeTagManagerModal();
                 else if (!stopFocusModalOverlay.classList.contains('hidden')) closeStopFocusModal();
                 else if (!projectDeleteModalOverlay.classList.contains('hidden')) closeProjectDeleteModal();
                 else if (!statsModalOverlay.classList.contains('hidden')) closeStatsModal();
@@ -3023,9 +3980,25 @@
 
             const deleteButton = e.target.closest('.delete-btn');
             if (deleteButton) deleteTask(deleteButton.dataset.taskId);
+            
+            // Tag Manager event delegation
+            const editTagButton = e.target.closest('[data-action="edit-tag"]');
+            if (editTagButton) {
+                const tagName = editTagButton.dataset.tagName;
+                startInlineEdit(tagName, editTagButton);
+            }
+            
+            const deleteTagButton = e.target.closest('[data-action="delete-tag"]');
+            if (deleteTagButton) {
+                const tagName = deleteTagButton.dataset.tagName;
+                deleteTag(tagName);
+            }
 
             const startButton = e.target.closest('.start-btn');
             if (startButton) startFocusSession(startButton.dataset.taskId);
+            
+            const startTaskButton = e.target.closest('.start-task-btn');
+            if (startTaskButton) startFocusSession(startTaskButton.dataset.taskId);
 
             const removeTagButton = e.target.closest('.remove-tag-btn');
             if (removeTagButton) removeTag(parseInt(removeTagButton.dataset.tagIndex));
@@ -3048,6 +4021,7 @@
                     tagFilter.classList.remove('bg-slate-100', 'text-slate-600');
                     tagFilter.classList.add('bg-blue-500', 'text-white', 'border-blue-500');
                 }
+                generateTaskSuggestions();
             }
             
             // Handle delete project button
@@ -3082,6 +4056,11 @@
                 const projectContent = document.querySelector(`.project-content[data-project-id="${projectId}"]`);
                 const collapseIcon = projectHeader.querySelector('.collapse-icon');
                 
+                console.log('Project header clicked:', projectId);
+                console.log('Current collapsed state:', collapsedProjects.has(projectId));
+                console.log('Project content:', projectContent);
+                console.log('Collapse icon:', collapseIcon);
+                
                 // Check if elements exist before manipulating them
                 if (!projectContent || !collapseIcon) {
                     console.log('Missing elements for project collapse:', { projectContent, collapseIcon });
@@ -3090,18 +4069,24 @@
                 
                 if (collapsedProjects.has(projectId)) {
                     // Expand project
+                    console.log('Expanding project:', projectId);
                     collapsedProjects.delete(projectId);
                     projectContent.classList.remove('collapsed');
                     projectContent.classList.add('expanded');
                     collapseIcon.classList.remove('collapsed');
                     collapseIcon.classList.add('expanded');
+                    // Update allProjectsCollapsed state
+                    allProjectsCollapsed = false;
                 } else {
                     // Collapse project
+                    console.log('Collapsing project:', projectId);
                     collapsedProjects.add(projectId);
                     projectContent.classList.remove('expanded');
                     projectContent.classList.add('collapsed');
                     collapseIcon.classList.remove('expanded');
                     collapseIcon.classList.add('collapsed');
+                    // Update allProjectsCollapsed state
+                    allProjectsCollapsed = projects.every(project => collapsedProjects.has(project.id));
                 }
                 saveDataToFirestore();
             }
@@ -3124,8 +4109,8 @@
                 name: 'Meditate',
                 time: 10,
                 energy: 'Low 🧠',
-                contexts: ['Evening', 'Weekend'],
-                projectId: 'proj_1756692165018', // Personal
+                contexts: ['Personal'],
+                projectId: 'personal',
                 tags: ['mindfulness', 'wellness'],
                 isRecurring: false,
                 isDivisible: false,
@@ -3136,9 +4121,9 @@
                 name: 'Log EUC patients',
                 time: 10,
                 energy: 'Low 🧠',
-                contexts: ['Workday'],
-                projectId: 'proj_1756692201352', // ENT Urgent Care
-                tags: ['work', 'admin'],
+                contexts: ['Work'],
+                projectId: 'work',
+                tags: ['admin', 'documentation'],
                 isRecurring: true,
                 isDivisible: false,
                 timeSpent: 0
@@ -3148,8 +4133,8 @@
                 name: 'Read journal article',
                 time: 20,
                 energy: 'Low 🧠',
-                contexts: ['Evening', 'Weekend'],
-                projectId: 'proj_1756750134944', // Capital ENT
+                contexts: ['Work'],
+                projectId: 'learning',
                 tags: ['learning', 'research'],
                 isRecurring: false,
                 isDivisible: true,
@@ -3162,8 +4147,8 @@
                 name: 'Fix TP holder',
                 time: 10,
                 energy: 'Medium 💪',
-                contexts: ['Home', 'Weekend'],
-                projectId: 'proj_1756772337348', // Home
+                contexts: ['Personal'],
+                projectId: 'personal',
                 tags: ['home', 'maintenance'],
                 isRecurring: false,
                 isDivisible: false,
@@ -3174,17 +4159,29 @@
                 name: 'Review email backlog',
                 time: 15,
                 energy: 'Low 🧠',
-                contexts: ['Workday'],
+                contexts: ['Work'],
                 projectId: 'inbox',
-                tags: ['work', 'admin'],
+                tags: ['admin', 'communication'],
                 isRecurring: false,
                 isDivisible: false,
                 timeSpent: 0
             }
         ];
         
+        // Ensure sample projects exist
+        if (!projects.find(p => p.id === 'work')) {
+            projects.push({ id: 'work', name: 'Work Projects' });
+        }
+        if (!projects.find(p => p.id === 'personal')) {
+            projects.push({ id: 'personal', name: 'Personal' });
+        }
+        if (!projects.find(p => p.id === 'learning')) {
+            projects.push({ id: 'learning', name: 'Learning' });
+        }
+        
         tasks = sampleTasks;
         console.log('Created sample tasks:', tasks);
+        console.log('Current projects:', projects);
         saveDataToFirestore();
         renderAll();
     };
@@ -3220,7 +4217,10 @@
                     createSampleTasks();
                 }
                 streakData = data.streakData || { currentStreak: 0, lastCompletedDate: null };
-                collapsedProjects = new Set(data.collapsedProjects || []);
+                console.log('Loaded collapsedProjects from Firestore:', data.collapsedProjects);
+                // Force all projects to be expanded by default for now
+                collapsedProjects = new Set();
+                console.log('Final collapsedProjects Set (forced empty):', Array.from(collapsedProjects));
                 // Force completed section to be collapsed by default for existing users
                 completedSectionCollapsed = true;
             } else {
@@ -3238,15 +4238,37 @@
             console.error("Error listening to user data:", error);
         });
     };
-    
+
     const handleAuthStateChange = (user) => {
       console.log('🔐 Auth state changed:', user ? 'User logged in' : 'User logged out');
-      if (user) {
+      console.log('🔐 User object:', user);
+      console.log('🔐 Current user before:', currentUser);
+        if (user) {
             console.log('✅ User authenticated, showing main app');
             currentUser = user;
             loginScreen.classList.add('hidden');
             mainApp.classList.remove('hidden');
             mainApp.classList.add('flex');
+            
+            // Show sidebar on desktop after login
+            console.log('🖥️ Screen width:', window.innerWidth);
+            console.log('🖥️ Sidebar element:', sidebar);
+            console.log('🖥️ Sidebar classes before:', sidebar.className);
+            
+            // Force sidebar to be visible on desktop
+            if (sidebar) {
+                sidebar.classList.remove('hidden');
+                sidebar.style.display = 'flex';
+                sidebar.style.visibility = 'visible';
+                sidebar.style.position = 'relative';
+                sidebar.style.width = '33.333333%';
+                sidebar.style.maxWidth = '24rem';
+                console.log('🖥️ Sidebar classes after:', sidebar.className);
+                console.log('🖥️ Sidebar style display:', sidebar.style.display);
+                console.log('🖥️ Sidebar computed style:', window.getComputedStyle(sidebar).display);
+            } else {
+                console.error('❌ Sidebar element not found!');
+            }
             
             // Hide guest mode notice for authenticated users
             document.getElementById('guestModeNotice').classList.add('hidden');
@@ -3256,53 +4278,71 @@
             document.getElementById('userDisplay').innerHTML = `
                 <div class="flex items-center">
                     <img src="${photoURL}" alt="User Photo" class="w-8 h-8 rounded-full mr-3">
-                    <div class="flex-grow">
+                <div class="flex-grow">
                         <div class="font-semibold text-sm">${displayName}</div>
-                        <div class="text-xs text-slate-500">${user.email}</div>
-                    </div>
+                    <div class="text-xs text-slate-500">${user.email}</div>
+                </div>
                     <button id="logoutBtn" class="text-slate-400 hover:text-red-500 p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors" title="Sign out">
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
-                    </button>
+                </button>
                 </div>
             `;
             document.getElementById('logoutBtn').onclick = handleLogout;
             loadDataFromFirestore(user.uid);
             applySmartDefaults();
+            
+            // Ensure the app is rendered after login
+            console.log('🎨 Rendering app after login...');
+            renderAll();
         } else {
-            console.log('❌ No user authenticated, showing guest mode');
+            console.log('❌ No user authenticated, showing login screen');
             currentUser = null;
             if (unsubscribeFromData) {
               unsubscribeFromData();
             }
-            // Show guest mode instead of login screen
-            showGuestMode();
+            // Show login screen for unauthenticated users
+            loginScreen.classList.remove('hidden');
+            mainApp.classList.add('hidden');
+            mainApp.classList.remove('flex');
         }
     };
 
     // --- INITIALIZE APP ---
     console.log('🚀 Starting app initialization...');
-    try {
-      renderFilterButtons();
-      console.log('✅ renderFilterButtons completed');
-    } catch (error) {
-      console.error('❌ renderFilterButtons failed:', error);
-    }
     
-    try {
-      initializeEventListeners();
-      console.log('✅ initializeEventListeners completed');
-    } catch (error) {
-      console.error('❌ initializeEventListeners failed:', error);
-    }
+    // Wait for DOM to be ready
+    const initializeApp = () => {
+        console.log('🔧 DOM ready, initializing app...');
+        try {
+          renderFilterButtons();
+          console.log('✅ renderFilterButtons completed');
+        } catch (error) {
+          console.error('❌ renderFilterButtons failed:', error);
+        }
+        
+        try {
+          initializeEventListeners();
+          console.log('✅ initializeEventListeners completed');
+        } catch (error) {
+          console.error('❌ initializeEventListeners failed:', error);
+        }
+        
+        try {
+                  window.onAuthStateChanged(auth, handleAuthStateChange);
+          console.log('✅ onAuthStateChanged completed');
+        } catch (error) {
+          console.error('❌ onAuthStateChanged failed:', error);
+        }
+        
+        console.log('🎉 App initialization completed!');
+    };
     
-    try {
-              window.onAuthStateChanged(auth, handleAuthStateChange);
-      console.log('✅ onAuthStateChanged completed');
-    } catch (error) {
-      console.error('❌ onAuthStateChanged failed:', error);
+    // Initialize immediately if DOM is already ready, otherwise wait
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    } else {
+        initializeApp();
     }
-    
-    console.log('🎉 App initialization completed!');
     
     // Register Service Worker for PWA
     if ('serviceWorker' in navigator) {
