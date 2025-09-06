@@ -83,28 +83,28 @@
             .collapse-icon.expanded {
        transform: rotate(0deg);
      }
-    /* Completed section collapse/expand animations */
-    .completed-content {
+    /* Task Review section collapse/expand animations */
+    .task-review-content {
       transition: all 0.3s ease-in-out;
       overflow: hidden;
     }
-    .completed-content.collapsed {
+    .task-review-content.collapsed {
       max-height: 0;
       opacity: 0;
       margin: 0;
       padding: 0;
     }
-    .completed-content.expanded {
+    .task-review-content.expanded {
       max-height: 1000px;
       opacity: 1;
     }
-    .completed-collapse-icon {
+    .task-review-collapse-icon {
       transition: transform 0.3s ease-in-out;
     }
-    .completed-collapse-icon.collapsed {
+    .task-review-collapse-icon.collapsed {
       transform: rotate(-90deg);
     }
-    .completed-collapse-icon.expanded {
+    .task-review-collapse-icon.expanded {
       transform: rotate(0deg);
     }
     
@@ -134,7 +134,7 @@
       }
       
       /* Ensure modals appear above fixed header */
-      #modalOverlay, #statsModalOverlay, #projectDeleteModalOverlay, #stopFocusModalOverlay {
+      #modalOverlay, #statsModalOverlay, #projectDeleteModalOverlay, #stopFocusModalOverlay, #startTaskModalOverlay, #completeTaskModalOverlay {
         z-index: 60;
       }
       
@@ -224,7 +224,7 @@
         </button>
     </div>
 
-    <div id="sidebar" class="w-full md:w-1/3 md:max-w-sm p-4 sm:p-6 bg-white border-r border-slate-200 flex flex-col shrink-0 shadow-sm 
+    <div id="sidebar" class="w-full md:w-1/3 md:max-w-sm p-3 sm:p-4 bg-white border-r border-slate-200 flex flex-col shrink-0 shadow-sm 
         md:relative md:flex fixed inset-0 z-50 hidden md:!block md:!flex min-h-full h-full md:h-full
         transform transition-transform duration-300 ease-in-out md:transform-none">
         <button id="closeMenuBtn" class="md:hidden absolute top-4 right-4 text-slate-500 hover:text-slate-800 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 touch-manipulation active:bg-slate-100 transition-colors">
@@ -235,25 +235,24 @@
         <img src="selectdologo.png" alt="Select + Do Logo" class="w-32 h-auto">
       </div>
 
-      <button id="addTaskBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg transition-colors text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 touch-manipulation active:bg-blue-700 mt-8 md:mt-0">
+      <button id="addTaskBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2.5 px-4 rounded-lg transition-colors text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 touch-manipulation active:bg-blue-700 mt-6 md:mt-0">
         + Add New Task
       </button>
 
-      <button id="viewStatsBtn" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 rounded-lg transition-colors text-xs focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 my-4">Weekly Review</button>
       
-       <div class="mb-4 relative">
+       <div class="mb-3 mt-4 relative">
         <svg class="w-5 h-5 text-slate-400 absolute top-1/2 left-3 -translate-y-1/2 pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" /></svg>
         <input id="globalSearchInput" type="text" placeholder="Search all tasks..." class="w-full border border-slate-200 p-2 pl-10 rounded-lg text-xs placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
        </div>
 
-       <div class="mb-4">
-        <input id="quickAddTaskInput" type="text" placeholder="Quick Add: task :15 #tag @ctx ^proj" class="w-full border border-slate-200 p-2 rounded-lg text-xs placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
+       <div class="mb-3">
+        <input id="quickAddTaskInput" type="text" placeholder="Quick Add: task @quick #tag @work ^proj" class="w-full border border-slate-200 p-2 rounded-lg text-xs placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
        </div>
       
-      <div id="projectsContainer" class="space-y-4 overflow-y-auto flex-grow -mx-2 px-2">
+      <div id="projectsContainer" class="space-y-3 overflow-y-auto flex-grow -mx-2 px-2">
       </div>
 
-        <div class="mt-4 pt-2 border-t border-slate-100 relative">
+        <div class="mt-3 pt-2 border-t border-slate-100 relative">
           <div class="flex items-center justify-end mb-2">
             <div class="flex gap-1">
               <button id="collapseAllProjectsBtn" class="text-xs text-slate-600 hover:text-slate-700 font-medium transition-colors">
@@ -271,14 +270,14 @@
        </div>
 
       <!-- Bottom Section -->
-      <div class="bg-white border border-slate-200 mt-4 -mx-4 sm:-mx-6" style="border-radius: 0 0 0.75rem 0;">
+      <div class="bg-white border border-slate-200 mt-3 -mx-3 sm:-mx-4" style="border-radius: 0 0 0.75rem 0;">
 
 
 
       </div>
       
       <!-- Bottom Spacing -->
-      <div class="h-4"></div>
+      <div class="h-2"></div>
     </div>
 
     <div class="flex-1 p-4 md:p-8 md:overflow-y-auto max-w-4xl pt-20 md:pt-8 bg-slate-50">
@@ -403,17 +402,38 @@
       <div id="filteredTaskList" class="space-y-4">
       </div>
       
-      <!-- Completed Today Section -->
+      <!-- Task Review Section -->
       <div class="mt-8 bg-white p-5 rounded-xl border border-slate-200">
-        <div class="flex items-center justify-between cursor-pointer hover:bg-slate-50 p-2 rounded-lg transition-colors -m-2" id="completedTodayHeader">
-          <h2 class="font-semibold text-slate-900 text-sm">Completed Today</h2>
+        <div class="flex items-center justify-between cursor-pointer hover:bg-slate-50 p-2 rounded-lg transition-colors -m-2" id="taskReviewHeader">
+          <h2 class="font-semibold text-slate-900 text-sm">📊 Task Review</h2>
           <button class="text-slate-400 hover:text-slate-600 p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <svg class="w-5 h-5 completed-collapse-icon expanded" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <svg class="w-5 h-5 task-review-collapse-icon collapsed" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
             </svg>
           </button>
         </div>
-        <div id="completedTaskList" class="space-y-1 overflow-y-auto max-h-[50vh] md:max-h-full mt-2 completed-content expanded">
+        <div id="taskReviewContent" class="task-review-content collapsed mt-2">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+            <!-- Completed Today Column -->
+            <div>
+              <h3 class="font-semibold text-slate-800 mb-3 text-sm flex items-center">
+                <span class="text-sm mr-2">✅</span>
+                Completed Today
+              </h3>
+              <div id="completedTaskList" class="space-y-1 overflow-y-auto max-h-[40vh]">
+              </div>
+            </div>
+            
+            <!-- Weekly Review Column -->
+            <div>
+              <h3 class="font-semibold text-slate-800 mb-3 text-sm flex items-center">
+                <span class="text-sm mr-2">📈</span>
+                Weekly Insights
+              </h3>
+              <div id="weeklyReviewContent" class="space-y-4 text-sm">
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       
@@ -470,42 +490,17 @@
         <p class="text-xs text-slate-500 mt-1">Check this for tasks like "Read article" or "Draft proposal" that you can work on over multiple sessions.</p>
       </div>
 
-      <div id="atomicTimeSection">
-      <label class="block mb-2 font-medium text-slate-700 text-sm">Time Required</label>
+      <div id="atomicTimeSection" class="transition-all duration-200 ease-in-out min-h-[60px]">
+        <label class="block mb-2 font-medium text-slate-700 text-sm">Time Required</label>
         <div class="flex flex-wrap gap-2 mb-4">
           <div id="modalTimeButtons" class="flex flex-wrap gap-2"></div>
-          <div class="flex items-center gap-2 ml-2">
-            <span class="text-sm text-slate-500">or</span>
-            <input id="customTimeInput" type="number" placeholder="Custom" min="1" max="999" class="w-24 px-2 py-1 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
-            <span class="text-sm text-slate-500">min</span>
-          </div>
         </div>
       </div>
 
-      <div id="progressTimeSection" class="hidden">
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <label class="block mb-2 font-medium text-slate-700 text-sm">Total Time (Goal)</label>
-            <div class="flex flex-wrap gap-2">
-              <div id="modalTotalTimeButtons" class="flex flex-wrap gap-2"></div>
-              <div class="flex items-center gap-2 ml-2">
-                <span class="text-xs text-slate-500">or</span>
-                <input id="customTotalTimeInput" type="number" placeholder="Custom" min="1" max="999" class="w-24 px-2 py-1 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
-                <span class="text-xs text-slate-500">min</span>
-              </div>
-            </div>
-          </div>
-          <div>
-            <label class="block mb-2 font-medium text-slate-700 text-sm">Min. Session Time</label>
-            <div class="flex flex-wrap gap-2">
-              <div id="modalMinSessionButtons" class="flex flex-wrap gap-2"></div>
-              <div class="flex items-center gap-2 ml-2">
-                <span class="text-xs text-slate-500">or</span>
-                <input id="customMinSessionInput" type="number" placeholder="Custom" min="1" max="999" class="w-24 px-2 py-1 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
-                <span class="text-xs text-slate-500">min</span>
-              </div>
-            </div>
-          </div>
+      <div id="progressTimeSection" class="hidden transition-all duration-200 ease-in-out min-h-[60px]">
+        <label class="block mb-2 font-medium text-slate-700 text-sm">Typical session time?</label>
+        <div class="flex flex-wrap gap-2 mb-4">
+          <div id="modalSessionTimeButtons" class="flex flex-wrap gap-2"></div>
         </div>
       </div>
       
@@ -771,24 +766,97 @@
     </div>
   </div>
 
-  <div id="focusOverlay" class="fixed inset-0 bg-white z-[100] flex flex-col justify-center items-center text-center hidden p-4">
-    <h1 id="focusTaskName" class="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800 mb-8"></h1>
-    <div id="focusTimerDisplay" class="text-6xl sm:text-7xl lg:text-9xl font-mono font-bold text-blue-500 mb-12"></div>
-    <div class="flex space-x-4">
-        <button id="focusPauseBtn" class="w-32 sm:w-36 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-700 text-lg font-semibold py-2 px-4 sm:py-3 sm:px-6 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-            <svg id="pauseIcon" class="w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" /></svg>
-            <svg id="playIcon" class="w-6 h-6 mr-2 hidden" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.647c1.295.748 1.295 2.538 0 3.286L8.029 20.99c-1.25.72-2.779-.217-2.779-1.643V5.653z" /></svg>
-            <span id="focusPauseText">Pause</span>
-        </button>
-        <button id="focusStopBtn" class="w-32 sm:w-36 flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-600 text-lg font-semibold py-2 px-4 sm:py-3 sm:px-6 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-            <svg class="w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 7.5A2.25 2.25 0 017.5 5.25h9a2.25 2.25 0 012.25 2.25v9a2.25 2.25 0 01-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25v-9z" /></svg>
-            <span>Stop</span>
-        </button>
+  <div id="startTaskModalOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-[150] p-4">
+    <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
+      <div class="flex items-center mb-4">
+        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+          <svg class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.647c1.295.748 1.295 2.538 0 3.286L8.029 20.99c-1.25.72-2.779-.217-2.779-1.643V5.653z" />
+          </svg>
+        </div>
+        <h2 class="text-lg font-bold text-slate-900">Start Task</h2>
+      </div>
+      
+      <div class="mb-6">
+        <p class="text-slate-600">Are you ready to start working on this task?</p>
+        <div class="mt-3 p-3 bg-slate-50 rounded-lg">
+          <div class="font-medium text-slate-800" id="startTaskName"></div>
+          <div class="text-sm text-slate-500 mt-1" id="startTaskDetails"></div>
+        </div>
+      </div>
+      
+      <div class="flex justify-end space-x-3">
+        <button id="cancelStartTaskBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500">Cancel</button>
+        <button id="confirmStartTaskBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Start Task</button>
+      </div>
     </div>
-    <button id="focusCompleteBtn" class="hidden mt-8 bg-green-500 hover:bg-green-600 text-white text-lg font-semibold py-3 px-8 rounded-lg transition-colors flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600">
-        <svg class="w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
-        <span>Mark as Complete</span>
-    </button>
+  </div>
+
+  <div id="completeTaskModalOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-[150] p-4">
+    <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
+      <div class="flex items-center mb-4">
+        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
+          <svg class="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h2 class="text-lg font-bold text-slate-900">Complete Task</h2>
+      </div>
+      
+      <div class="mb-6">
+        <p class="text-slate-600">Are you sure you want to mark this task as complete?</p>
+        <div class="mt-3 p-3 bg-slate-50 rounded-lg">
+          <div class="font-medium text-slate-800" id="completeTaskName"></div>
+          <div class="text-sm text-slate-500 mt-1" id="completeTaskDetails"></div>
+        </div>
+      </div>
+      
+      <div class="flex justify-end space-x-3">
+        <button id="cancelCompleteTaskBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500">Cancel</button>
+        <button id="confirmCompleteTaskBtn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">Mark as Complete</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="focusOverlay" class="fixed inset-0 bg-slate-50 z-[100] flex flex-col justify-center items-center hidden p-4">
+    <div class="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-2xl p-8">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h1 id="focusTaskName" class="text-2xl sm:text-3xl font-bold text-slate-800 mb-3"></h1>
+        <div id="focusTimeBracket" class="text-sm text-slate-500 bg-slate-100 inline-block px-3 py-1 rounded-full"></div>
+      </div>
+      
+      <!-- Timer Display -->
+      <div class="text-center mb-8">
+        <div id="focusTimerDisplay" class="text-4xl sm:text-5xl font-mono font-bold text-slate-700 mb-2"></div>
+        <div class="text-sm text-slate-400">Elapsed Time</div>
+      </div>
+      
+      <!-- Control Buttons -->
+      <div class="flex flex-col sm:flex-row gap-3 justify-center mb-6">
+        <button id="focusPauseBtn" class="flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-3 px-6 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          <svg id="pauseIcon" class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" /></svg>
+          <svg id="playIcon" class="w-5 h-5 mr-2 hidden" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.647c1.295.748 1.295 2.538 0 3.286L8.029 20.99c-1.25.72-2.779-.217-2.779-1.643V5.653z" /></svg>
+          <span id="focusPauseText">Pause</span>
+        </button>
+        <button id="focusStopBtn" class="flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-600 font-medium py-3 px-6 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+          <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 7.5A2.25 2.25 0 017.5 5.25h9a2.25 2.25 0 012.25 2.25v9a2.25 2.25 0 01-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25v-9z" /></svg>
+          <span>Stop</span>
+        </button>
+      </div>
+      
+      <!-- Action Buttons -->
+      <div id="focusActionButtons" class="flex flex-col sm:flex-row gap-3 justify-center">
+        <button id="focusSaveProgressBtn" class="hidden flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-6 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+          <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+          <span>Save Progress</span>
+        </button>
+        <button id="focusCompleteBtn" class="flex items-center justify-center bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-6 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600">
+          <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+          <span>Mark as Complete</span>
+        </button>
+      </div>
+    </div>
   </div>
   
   <input type="file" id="importFile" class="hidden" accept=".json">
@@ -882,16 +950,19 @@
     let originalCollapsedProjects = new Set(); // Track original collapsed state before search
     const energyLevels = ['Low 🧠', 'Medium 💪', 'High 🔥'];
     let timerInterval = null;
-    let remainingSeconds = 0;
+    let elapsedSeconds = 0;
     let isPaused = false;
     let currentFocusTaskId = null;
+    let currentTask = null;
+    let sessionLength = null; // Track session length for Find a task selections
+    let targetTimeBracket = null;
     const originalTitle = document.title;
     let currentUser = null;
     let unsubscribeFromData = null; 
     const emptyCompletedSVG = `<svg class="w-16 h-16 mx-auto text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
     const emptyFilterSVG = `<svg class="w-16 h-16 mx-auto text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>`;
     let collapsedProjects = new Set(); // Track which projects are collapsed
-    let completedSectionCollapsed = true; // Track if completed section is collapsed
+    let taskReviewCollapsed = true; // Track if task review section is collapsed
     let allProjectsCollapsed = false; // Track if all projects are collapsed
 
     // --- DOM ELEMENTS ---
@@ -906,12 +977,15 @@
     const projectDeleteModalOverlay = document.getElementById('projectDeleteModalOverlay');
     const projectDeleteContent = document.getElementById('projectDeleteContent');
     const stopFocusModalOverlay = document.getElementById('stopFocusModalOverlay');
+    const startTaskModalOverlay = document.getElementById('startTaskModalOverlay');
+    const completeTaskModalOverlay = document.getElementById('completeTaskModalOverlay');
     const focusOverlay = document.getElementById('focusOverlay');
     const focusTaskName = document.getElementById('focusTaskName');
     const focusTimerDisplay = document.getElementById('focusTimerDisplay');
     const focusPauseBtn = document.getElementById('focusPauseBtn');
     const focusStopBtn = document.getElementById('focusStopBtn');
     const focusCompleteBtn = document.getElementById('focusCompleteBtn');
+    const focusSaveProgressBtn = document.getElementById('focusSaveProgressBtn');
     const menuBtn = document.getElementById('menuBtn');
     const closeMenuBtn = document.getElementById('closeMenuBtn');
     const mobileHeader = document.getElementById('mobileHeader');
@@ -925,7 +999,7 @@
         }
         const userDocRef = window.doc(db, 'users', currentUser.uid);
         try {
-            await window.setDoc(userDocRef, { projects, tasks, completedTasks, streakData, collapsedProjects: Array.from(collapsedProjects), completedSectionCollapsed });
+            await window.setDoc(userDocRef, { projects, tasks, completedTasks, streakData, collapsedProjects: Array.from(collapsedProjects), taskReviewCollapsed });
         } catch (error) {
             console.error("Error saving data: ", error);
         }
@@ -935,6 +1009,7 @@
         console.log('🎨 renderAll called - projects:', projects.length, 'tasks:', tasks.length);
         renderTasksAndProjects();
         renderCompletedTasks();
+        renderWeeklyReview();
         initializeStreak();
         renderProjectFilters();
         renderTagCloud();
@@ -1093,6 +1168,12 @@
     const updateContentArea = () => {
         const welcomeContent = document.getElementById('welcomeContent');
         
+        // Check if welcomeContent element exists
+        if (!welcomeContent) {
+            console.log('welcomeContent element not found, skipping updateContentArea');
+            return;
+        }
+        
         // Check if user has any activity (completed tasks, used filters, etc.)
         const hasActivity = completedTasks.length > 0 || 
                            (selectedTimeFilter || selectedContextFilters.length > 0 || selectedEnergyFilter);
@@ -1123,9 +1204,9 @@
             {
                 id: 'task_1',
                 name: 'Send project update email',
-                time: 5,
+                timeBracket: 'Quick',
                 isDivisible: false,
-                contexts: ['Workday'],
+                contexts: ['Work'],
                 energy: 'Low 🧠',
                 tags: ['communication'],
                 projectId: 'work',
@@ -1134,9 +1215,9 @@
             {
                 id: 'task_2',
                 name: 'Review meeting notes',
-                time: 10,
+                timeBracket: 'Quick',
                 isDivisible: false,
-                contexts: ['Workday'],
+                contexts: ['Work'],
                 energy: 'Medium 💪',
                 tags: ['review'],
                 projectId: 'work',
@@ -1145,9 +1226,9 @@
             {
                 id: 'task_3',
                 name: 'Quick workout',
-                time: 15,
+                timeBracket: 'Quick',
                 isDivisible: false,
-                contexts: ['Evening', 'Weekend'],
+                contexts: ['Personal'],
                 energy: 'High 🔥',
                 tags: ['fitness'],
                 projectId: 'personal',
@@ -1158,11 +1239,11 @@
             {
                 id: 'task_4',
                 name: 'Read industry article',
-                totalTime: 30,
-                minSessionTime: 10,
+                totalTimeBracket: 'Quick',
+                sessionTimeBracket: 'Quick',
                 timeSpent: 15,
                 isDivisible: true,
-                contexts: ['Workday', 'Evening'],
+                contexts: ['Work', 'Personal'],
                 energy: 'Low 🧠',
                 tags: ['learning', 'research'],
                 projectId: 'learning',
@@ -1171,11 +1252,11 @@
             {
                 id: 'task_5',
                 name: 'Draft project proposal',
-                totalTime: 120,
-                minSessionTime: 25,
+                totalTimeBracket: 'Standard',
+                sessionTimeBracket: 'Standard',
                 timeSpent: 0,
                 isDivisible: true,
-                contexts: ['Workday'],
+                contexts: ['Work'],
                 energy: 'Medium 💪',
                 tags: ['writing', 'planning'],
                 projectId: 'work',
@@ -1184,11 +1265,11 @@
             {
                 id: 'task_6',
                 name: 'Learn new programming concept',
-                totalTime: 90,
-                minSessionTime: 20,
+                totalTimeBracket: 'Standard',
+                sessionTimeBracket: 'Standard',
                 timeSpent: 45,
                 isDivisible: true,
-                contexts: ['Evening', 'Weekend'],
+                contexts: ['Personal'],
                 energy: 'High 🔥',
                 tags: ['programming', 'learning'],
                 projectId: 'learning',
@@ -1197,11 +1278,11 @@
             {
                 id: 'task_7',
                 name: 'Organize home office',
-                totalTime: 60,
-                minSessionTime: 15,
+                totalTimeBracket: 'Quick',
+                sessionTimeBracket: 'Quick',
                 timeSpent: 30,
                 isDivisible: true,
-                contexts: ['Weekend', 'Home'],
+                contexts: ['Personal'],
                 energy: 'Medium 💪',
                 tags: ['organization'],
                 projectId: 'personal',
@@ -1245,7 +1326,7 @@
         
         // Reset UI state
         collapsedProjects = new Set();
-        completedSectionCollapsed = true;
+        taskReviewCollapsed = true;
         
         console.log('✅ Example data loaded:', { projects: projects.length, tasks: tasks.length, completedTasks: completedTasks.length });
     };
@@ -1446,7 +1527,7 @@
                 projectTasks.forEach(task => {
                     console.log(`    - Rendering task: ${task.name}`);
                     const taskDiv = document.createElement('div');
-                    taskDiv.className = 'group flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors duration-150';
+                    taskDiv.className = 'group flex items-center p-1.5 rounded-lg hover:bg-slate-100 transition-colors duration-150';
                     taskDiv.setAttribute('data-task-container-id', task.id);
                     taskDiv.innerHTML = `
                         <button data-task-id="${task.id}" class="quick-complete-btn text-slate-300 hover:text-green-500 mr-3 shrink-0 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 rounded-full">
@@ -1454,19 +1535,15 @@
                         </button>
                         <div class="flex-grow cursor-pointer" data-task-id="${task.id}" data-action="quick-edit">
                           <div class="font-medium text-slate-800 flex items-center text-sm">
-                            <span class="task-name">${task.name}</span>
+                            <span class="task-name cursor-pointer hover:text-blue-600 transition-colors" data-task-id="${task.id}">${task.name}</span>
                             ${task.isRecurring ? `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2 text-blue-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>` : ''}
                             ${task.isDivisible ? `<span class="ml-1 text-xs bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded-full font-medium">P</span>` : `<span class="ml-1 text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full font-medium">A</span>`}
                           </div>
-                          <div class="text-xs text-slate-500">${task.isDivisible ? `${task.totalTime} min (${task.minSessionTime} min)` : `${task.time} min`} • ${task.energy}</div>
+                          <div class="text-xs text-slate-500">${task.isDivisible ? `${task.sessionTimeBracket || task.minSessionTime || task.totalTimeBracket || task.totalTime}` : `${task.timeBracket || task.time}`}${task.energy ? ` • ${task.energy}` : ''}</div>
                           ${task.isDivisible && task.timeSpent > 0 ? `
-                            <div class="mt-1">
-                              <div class="flex justify-between text-xs text-slate-400 mb-1">
-                                <span>Progress</span>
-                                <span>${task.timeSpent}/${task.totalTime} min</span>
-                              </div>
-                              <div class="w-full bg-slate-200 rounded-full h-1.5">
-                                <div class="bg-orange-500 h-1.5 rounded-full transition-all duration-300" style="width: ${Math.min((task.timeSpent / task.totalTime) * 100, 100)}%"></div>
+                            <div class="mt-0.5">
+                              <div class="text-xs text-slate-400">
+                                <span>Time spent: ${task.timeSpent} min</span>
                               </div>
                             </div>
                           ` : ''}
@@ -1499,25 +1576,23 @@
         const tasksCompletedToday = completedTasks.filter(task => task.completedAt && task.completedAt.slice(0, 10) === today);
         
         // Update the collapse icon state
-        const collapseIcon = document.querySelector('.completed-collapse-icon');
+        const collapseIcon = document.querySelector('.task-review-collapse-icon');
         if (collapseIcon) {
             // Remove existing classes and add new ones
             collapseIcon.classList.remove('collapsed', 'expanded');
-            collapseIcon.classList.add(completedSectionCollapsed ? 'collapsed' : 'expanded');
+            collapseIcon.classList.add(taskReviewCollapsed ? 'collapsed' : 'expanded');
         }
         
         // Update the content container state
-        const contentContainer = document.getElementById('completedTaskList');
+        const contentContainer = document.getElementById('taskReviewContent');
         if (contentContainer) {
             // Remove existing classes and add new ones
             contentContainer.classList.remove('collapsed', 'expanded');
-            contentContainer.classList.add(completedSectionCollapsed ? 'collapsed' : 'expanded');
+            contentContainer.classList.add(taskReviewCollapsed ? 'collapsed' : 'expanded');
         }
         
-
-        
         // Only render content if not collapsed
-        if (completedSectionCollapsed) {
+        if (taskReviewCollapsed) {
             return;
         }
         
@@ -1539,7 +1614,238 @@
         });
     };
 
-
+    const renderWeeklyReview = () => {
+        const weeklyReviewContent = document.getElementById('weeklyReviewContent');
+        if (!weeklyReviewContent) return;
+        
+        // Only render content if task review is not collapsed
+        if (taskReviewCollapsed) {
+            return;
+        }
+        
+        // Calculate weekly data
+        const today = new Date();
+        const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const weekAgoStr = weekAgo.toISOString().slice(0, 10);
+        const todayStr = today.toISOString().slice(0, 10);
+        
+        // Tasks completed this week
+        const tasksThisWeek = completedTasks.filter(t => 
+            t.completedAt && t.completedAt.slice(0, 10) >= weekAgoStr && t.completedAt.slice(0, 10) <= todayStr
+        );
+        
+        // Calculate time spent (using time brackets)
+        const timeBracketMinutes = { 'Quick': 10, 'Standard': 30, 'Long': 67.5 }; // Average of ranges
+        const totalTimeSpent = tasksThisWeek.reduce((total, task) => {
+            if (task.timeBracket) {
+                return total + timeBracketMinutes[task.timeBracket] || 30;
+            } else if (task.totalTimeBracket) {
+                return total + timeBracketMinutes[task.totalTimeBracket] || 30;
+            } else if (task.time) {
+                return total + task.time;
+            }
+            return total + 30; // Default fallback
+        }, 0);
+        
+        const focusTimeHours = Math.round((totalTimeSpent / 60) * 10) / 10;
+        
+        // Context performance (Work vs Personal)
+        const contextCounts = { 'Work': 0, 'Personal': 0 };
+        tasksThisWeek.forEach(task => {
+            if (task.contexts && task.contexts.length > 0) {
+                task.contexts.forEach(context => {
+                    if (context === 'Work' || context === 'Personal') {
+                        contextCounts[context]++;
+                    }
+                });
+            }
+        });
+        
+        const mostProductiveContext = contextCounts['Work'] > contextCounts['Personal'] ? 'Work' : 'Personal';
+        const contextRatio = contextCounts['Work'] > 0 && contextCounts['Personal'] > 0 
+            ? Math.round((Math.max(contextCounts['Work'], contextCounts['Personal']) / Math.min(contextCounts['Work'], contextCounts['Personal']))) 
+            : 1;
+        
+        // Time bracket distribution
+        const timeBracketCounts = { 'Quick': 0, 'Standard': 0, 'Long': 0 };
+        tasksThisWeek.forEach(task => {
+            if (task.timeBracket) {
+                timeBracketCounts[task.timeBracket]++;
+            } else if (task.totalTimeBracket) {
+                timeBracketCounts[task.totalTimeBracket]++;
+            }
+        });
+        
+        const preferredTimeBracket = Object.keys(timeBracketCounts).reduce((a, b) => 
+            timeBracketCounts[a] > timeBracketCounts[b] ? a : b, 'Standard'
+        );
+        
+        // Progress tasks completed
+        const progressTasksCompleted = tasksThisWeek.filter(task => task.isDivisible).length;
+        const atomicTasksCompleted = tasksThisWeek.filter(task => !task.isDivisible).length;
+        
+        // Longest streak
+        const longestStreak = Math.max(streakData.currentStreak, streakData.longestStreak || 0);
+        
+        // Tasks not touched in a while
+        const untouchedTasks = tasks.filter(task => {
+            const lastWeekTasks = tasksThisWeek.filter(ct => ct.taskId === task.id);
+            return lastWeekTasks.length === 0 && (task.timeSpent || 0) === 0;
+        }).slice(0, 3);
+        
+        weeklyReviewContent.innerHTML = `
+            <div class="space-y-4 text-sm">
+                <!-- Weekly Summary -->
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
+                    <h3 class="font-semibold text-slate-800 mb-2 flex items-center text-sm">
+                        <span class="text-lg mr-2">📈</span>
+                        This Week's Summary
+                    </h3>
+                    <p class="text-slate-700 leading-relaxed text-xs">
+                        You completed <strong>${tasksThisWeek.length} tasks</strong> this week, spending 
+                        <strong>${focusTimeHours} hours</strong> in focus mode. You were most productive in 
+                        <strong>${mostProductiveContext}</strong> context. Your longest streak is 
+                        <strong>${longestStreak} days</strong>.
+                    </p>
+                </div>
+                
+                <!-- Productivity Insights -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="bg-slate-50 p-3 rounded-lg">
+                        <h4 class="font-semibold text-slate-800 mb-2 flex items-center text-xs">
+                            <span class="text-sm mr-2">🎯</span>
+                            Context Performance
+                        </h4>
+                        <p class="text-xs text-slate-600 mb-1">Most productive context:</p>
+                        <div class="text-sm font-semibold text-slate-800">${mostProductiveContext}</div>
+                        <div class="text-xs text-slate-500 mt-1">
+                            ${contextCounts[mostProductiveContext]} tasks completed
+                            ${contextRatio > 1 ? `(${contextRatio}:1 ratio)` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="bg-slate-50 p-3 rounded-lg">
+                        <h4 class="font-semibold text-slate-800 mb-2 flex items-center text-xs">
+                            <span class="text-sm mr-2">⏱️</span>
+                            Time Patterns
+                        </h4>
+                        <p class="text-xs text-slate-600 mb-1">Preferred time bracket:</p>
+                        <div class="text-sm font-semibold text-slate-800">${preferredTimeBracket}</div>
+                        <div class="text-xs text-slate-500 mt-1">
+                            ${timeBracketCounts['Quick']} Quick • ${timeBracketCounts['Standard']} Standard • ${timeBracketCounts['Long']} Long
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Task Type Breakdown -->
+                <div class="bg-slate-50 p-3 rounded-lg">
+                    <h4 class="font-semibold text-slate-800 mb-2 flex items-center text-xs">
+                        <span class="text-sm mr-2">📊</span>
+                        Task Breakdown
+                    </h4>
+                    <div class="grid grid-cols-2 gap-4 text-xs">
+                        <div>
+                            <div class="text-slate-600">Atomic Tasks</div>
+                            <div class="font-semibold text-slate-800">${atomicTasksCompleted}</div>
+                        </div>
+                        <div>
+                            <div class="text-slate-600">Progress Tasks</div>
+                            <div class="font-semibold text-slate-800">${progressTasksCompleted}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Top Progress Tasks by Time Spent -->
+                ${(() => {
+                    // Get all Progress tasks with time spent, sorted by time spent
+                    const progressTasksWithTime = tasks
+                        .filter(task => task.isDivisible && (task.timeSpent || 0) > 0)
+                        .sort((a, b) => (b.timeSpent || 0) - (a.timeSpent || 0))
+                        .slice(0, 5); // Top 5
+                    
+                    if (progressTasksWithTime.length === 0) return '';
+                    
+                    const formatTime = (minutes) => {
+                        const hours = Math.floor(minutes / 60);
+                        const mins = Math.round(minutes % 60);
+                        if (hours > 0) {
+                            return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+                        }
+                        return `${mins}m`;
+                    };
+                    
+                    return `
+                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-3 rounded-lg border border-purple-200">
+                        <h4 class="font-semibold text-slate-800 mb-3 flex items-center text-xs">
+                            <span class="text-sm mr-2">⏰</span>
+                            Most Time Spent on Progress Tasks
+                        </h4>
+                        <div class="space-y-2">
+                            ${progressTasksWithTime.map((task, index) => `
+                                <div class="flex items-center justify-between bg-white p-2 rounded border border-purple-100">
+                                    <div class="flex items-center">
+                                        <span class="text-xs text-slate-500 w-4 mr-2">${index + 1}.</span>
+                                        <span class="text-xs text-slate-700 font-medium">${task.name}</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs text-purple-600 bg-purple-100 px-2 py-0.5 rounded">
+                                            ${formatTime(task.timeSpent || 0)}
+                                        </span>
+                                        ${task.totalTimeBracket ? `
+                                            <span class="text-xs text-slate-500">
+                                                ${task.totalTimeBracket}
+                                            </span>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <p class="text-xs text-purple-700 mt-2">
+                            These are your most worked-on Progress tasks. Keep building momentum!
+                        </p>
+                    </div>
+                    `;
+                })()}
+                
+                <!-- Neglected Tasks -->
+                ${untouchedTasks.length > 0 ? `
+                <div class="bg-amber-50 p-3 rounded-lg border border-amber-200">
+                    <h4 class="font-semibold text-amber-800 mb-2 flex items-center text-xs">
+                        <span class="text-sm mr-2">⏰</span>
+                        Tasks You Haven't Touched
+                    </h4>
+                    <div class="space-y-1">
+                        ${untouchedTasks.map(task => `
+                            <div class="flex items-center justify-between bg-white p-2 rounded border border-amber-100">
+                                <span class="text-xs text-slate-700">${task.name}</span>
+                                <span class="text-xs text-amber-600 bg-amber-100 px-2 py-0.5 rounded">
+                                    ${task.timeBracket || task.totalTimeBracket || 'Standard'}
+                                </span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <p class="text-xs text-amber-700 mt-2">Consider scheduling these tasks or breaking them into smaller chunks.</p>
+                </div>
+                ` : ''}
+                
+                <!-- Motivational Message -->
+                <div class="bg-green-50 p-3 rounded-lg border border-green-200 text-center">
+                    <h4 class="font-semibold text-green-800 mb-1 flex items-center justify-center text-xs">
+                        <span class="text-sm mr-2">🌟</span>
+                        Keep Up the Great Work!
+                    </h4>
+                    <p class="text-xs text-green-700">
+                        ${tasksThisWeek.length >= 10 ? 
+                            "You're on fire this week! Your consistency is impressive." :
+                            tasksThisWeek.length >= 5 ?
+                            "Great progress this week! You're building solid habits." :
+                            "Every task completed is a step forward. Keep going!"
+                        }
+                    </p>
+                </div>
+            </div>
+        `;
+    };
 
     const populateProjectDropdown = () => {
         const projectSelect = document.getElementById('projectSelect');
@@ -1582,10 +1888,7 @@
         // Hide new project input and reset dropdown
         hideNewProjectInput();
         
-        // Clear custom time inputs
-        document.getElementById('customTimeInput').value = '';
-        document.getElementById('customTotalTimeInput').value = '';
-        document.getElementById('customMinSessionInput').value = '';
+        // Clear custom time inputs (no longer used with time brackets)
     };
     const openModal = (mode = 'add') => {
         document.body.classList.add('overflow-hidden');
@@ -1612,6 +1915,13 @@
         tagDiv.innerHTML = modalTagList.map((tag, i) => `<span class="bg-slate-200 text-slate-700 text-sm font-medium px-2 py-1 rounded-md flex items-center">${tag}<button data-tag-index="${i}" class="remove-tag-btn ml-2 text-slate-400 hover:text-red-500 font-bold focus:outline-none focus:ring-1 focus:ring-red-500 rounded-full">&times;</button></span>`).join('');
     };
     const saveTask = () => {
+        console.log('🔧 Save task called with values:');
+        console.log('🔧 modalSelectedTime:', modalSelectedTime);
+        console.log('🔧 modalSelectedTotalTime:', modalSelectedTotalTime);
+        console.log('🔧 modalSelectedMinSessionTime:', modalSelectedMinSessionTime);
+        console.log('🔧 modalSelectedContexts:', modalSelectedContexts);
+        console.log('🔧 modalSelectedEnergy:', modalSelectedEnergy);
+        
         const name = document.getElementById('taskName').value.trim();
         const projectId = document.getElementById('projectSelect').value;
         const isRecurring = document.getElementById('taskRecurring').checked;
@@ -1619,14 +1929,23 @@
         const isDivisible = taskDivisible ? taskDivisible.checked : false;
         
         // Validation for Atomic tasks
-        if (!isDivisible && (!name || !modalSelectedTime || modalSelectedContexts.length === 0 || !modalSelectedEnergy)) {
-          alert('Please provide a task name, time, context, and energy level.');
+        if (!isDivisible && (!name || !modalSelectedTime || modalSelectedContexts.length === 0)) {
+          console.log('🔧 Atomic task validation failed:');
+          console.log('🔧 name:', name);
+          console.log('🔧 modalSelectedTime:', modalSelectedTime);
+          console.log('🔧 modalSelectedContexts:', modalSelectedContexts);
+          alert('Please provide a task name, time bracket, and context.');
           return;
         }
         
         // Validation for Progress tasks
-        if (isDivisible && (!name || !modalSelectedTotalTime || !modalSelectedMinSessionTime || modalSelectedContexts.length === 0 || !modalSelectedEnergy)) {
-            alert('Please provide a task name, total time, minimum session time, context, and energy level.');
+        if (isDivisible && (!name || !modalSelectedTotalTime || !modalSelectedMinSessionTime || modalSelectedContexts.length === 0)) {
+            console.log('🔧 Progress task validation failed:');
+            console.log('🔧 name:', name);
+            console.log('🔧 modalSelectedTotalTime:', modalSelectedTotalTime);
+            console.log('🔧 modalSelectedMinSessionTime:', modalSelectedMinSessionTime);
+            console.log('🔧 modalSelectedContexts:', modalSelectedContexts);
+            alert('Please provide a task name, total time bracket, session time bracket, and context.');
             return;
         }
         
@@ -1646,11 +1965,11 @@
                 id: editingTaskId || `task_${Date.now()}`,
                 name,
                 isDivisible: true,
-                totalTime: modalSelectedTotalTime,
-                minSessionTime: modalSelectedMinSessionTime,
+                totalTimeBracket: modalSelectedMinSessionTime, // Use session time for both
+                sessionTimeBracket: modalSelectedMinSessionTime,
                 timeSpent: 0,
                 contexts: [...modalSelectedContexts],
-                energy: modalSelectedEnergy,
+                energy: modalSelectedEnergy || null,
                 tags: [...modalTagList],
                 projectId,
                 isRecurring
@@ -1660,10 +1979,10 @@
             taskData = {
                 id: editingTaskId || `task_${Date.now()}`,
                 name,
-                time: modalSelectedTime,
+                timeBracket: modalSelectedTime,
                 isDivisible: false,
                 contexts: [...modalSelectedContexts],
-                energy: modalSelectedEnergy,
+                energy: modalSelectedEnergy || null,
                 tags: [...modalTagList],
                 projectId,
                 isRecurring
@@ -1707,24 +2026,41 @@
         const task = tasks.find(t => t.id === taskId);
         if (!task) return;
         editingTaskId = taskId;
-        populateProjectDropdown();
-        document.getElementById('projectSelect').value = task.projectId || 'inbox';
+        
+        // Set all the task data first
         document.getElementById('taskName').value = task.name;
         document.getElementById('taskRecurring').checked = task.isRecurring || false;
         document.getElementById('taskDivisible').checked = task.isDivisible || false;
         modalTagList = [...task.tags];
-        modalSelectedTime = task.time;
-        modalSelectedTotalTime = task.totalTime;
-        modalSelectedMinSessionTime = task.minSessionTime;
+        modalSelectedTime = task.timeBracket || task.time; // Handle both old and new format
+        modalSelectedMinSessionTime = task.sessionTimeBracket || task.minSessionTime || task.totalTimeBracket || task.totalTime; // Use session time for both
         modalSelectedContexts = [...task.contexts];
         modalSelectedEnergy = task.energy;
         renderTagPreview();
-        document.querySelectorAll('.modal-time-btn').forEach(btn => { if (parseInt(btn.dataset.time) === task.time) { btn.classList.add('bg-blue-500', 'text-white', 'border-blue-500'); btn.classList.remove('bg-white','text-slate-700'); } });
-        document.querySelectorAll('.modal-total-time-btn').forEach(btn => { if (parseInt(btn.dataset.time) === task.totalTime) { btn.classList.add('bg-blue-500', 'text-white', 'border-blue-500'); btn.classList.remove('bg-white','text-slate-700'); } });
-        document.querySelectorAll('.modal-min-session-btn').forEach(btn => { if (parseInt(btn.dataset.time) === task.minSessionTime) { btn.classList.add('bg-blue-500', 'text-white', 'border-blue-500'); btn.classList.remove('bg-white','text-slate-700'); } });
+        
+        // Open the modal first (this will populate the dropdown)
+        openModal('edit');
+        
+        // Now set the project value AFTER the modal is open and dropdown is populated
+        const projectSelect = document.getElementById('projectSelect');
+        const projectId = task.projectId || 'inbox';
+        console.log('🔧 Edit task - task.projectId:', task.projectId);
+        console.log('🔧 Edit task - projectId to set:', projectId);
+        console.log('🔧 Edit task - available options:', Array.from(projectSelect.options).map(opt => ({value: opt.value, text: opt.textContent})));
+        const optionExists = Array.from(projectSelect.options).some(option => option.value === projectId);
+        if (optionExists) {
+            projectSelect.value = projectId;
+            console.log('🔧 Edit task - set project to:', projectId);
+        } else {
+            console.warn('Project ID not found in dropdown:', projectId);
+            projectSelect.value = 'inbox';
+        }
+        
+        // Set button states after modal is open
+        document.querySelectorAll('.modal-time-btn').forEach(btn => { if (btn.dataset.timebracket === task.timeBracket || (task.time && parseInt(btn.dataset.time) === task.time)) { btn.classList.add('bg-blue-500', 'text-white', 'border-blue-500'); btn.classList.remove('bg-white','text-slate-700'); } });
+        document.querySelectorAll('.modal-session-time-btn').forEach(btn => { if (btn.dataset.timebracket === modalSelectedMinSessionTime) { btn.classList.add('bg-blue-500', 'text-white', 'border-blue-500'); btn.classList.remove('bg-white','text-slate-700'); } });
         document.querySelectorAll('.modal-context-btn').forEach(btn => { if (task.contexts.includes(btn.dataset.context)) { btn.classList.add('bg-blue-500', 'text-white', 'border-blue-500'); btn.classList.remove('bg-white','text-slate-700'); }});
         document.querySelectorAll('.modal-energy-btn').forEach(btn => { if (btn.dataset.energy === task.energy) { btn.classList.add('bg-blue-500', 'text-white', 'border-blue-500'); btn.classList.remove('bg-white','text-slate-700'); }});
-        openModal('edit');
     };
     const removeTag = (index) => {
         modalTagList.splice(index, 1);
@@ -2713,8 +3049,8 @@
 
     // --- TIMER AND FOCUS FUNCTIONS ---
     const updateTimerDisplay = () => {
-        const minutes = Math.floor(remainingSeconds / 60).toString().padStart(2, '0');
-        const seconds = (remainingSeconds % 60).toString().padStart(2, '0');
+        const minutes = Math.floor(elapsedSeconds / 60).toString().padStart(2, '0');
+        const seconds = (elapsedSeconds % 60).toString().padStart(2, '0');
         const timeString = `${minutes}:${seconds}`;
         focusTimerDisplay.textContent = timeString;
         document.title = `${timeString} - ${focusTaskName.textContent}`;
@@ -2724,17 +3060,8 @@
         if (timerInterval) clearInterval(timerInterval);
         timerInterval = setInterval(() => {
             if (!isPaused) {
-                remainingSeconds--;
+                elapsedSeconds++;
                 updateTimerDisplay();
-                if (remainingSeconds <= 0) {
-                    clearInterval(timerInterval);
-                    document.title = "Time's up! - Select + Do";
-                    focusPauseBtn.classList.add('hidden');
-                    focusStopBtn.classList.add('hidden');
-                    focusCompleteBtn.classList.remove('hidden');
-                    // Optional: Play a sound
-                    new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg").play().catch(e => console.log("Sound play failed:", e));
-                }
             }
         }, 1000);
     };
@@ -2771,7 +3098,202 @@
         stopFocusModalOverlay.classList.add('hidden');
     };
 
-    const startFocusSession = (taskId) => {
+    const showStartTaskModal = (taskId) => {
+        const task = tasks.find(t => t.id === taskId);
+        if (!task) return;
+        
+        // Populate modal with task details
+        document.getElementById('startTaskName').textContent = task.name;
+        
+        let details = '';
+        if (task.isDivisible) {
+            details = `Progress Task • ${task.sessionTimeBracket || task.minSessionTime || task.totalTimeBracket || 'Quick'}`;
+            if (task.timeSpent > 0) {
+                details += ` • ${task.timeSpent} min spent`;
+            }
+        } else {
+            details = `Atomic Task • ${task.timeBracket || 'Quick'}`;
+        }
+        
+        if (task.energy) {
+            details += ` • ${task.energy}`;
+        }
+        
+        document.getElementById('startTaskDetails').textContent = details;
+        
+        // Store task ID for confirmation
+        startTaskModalOverlay.dataset.taskId = taskId;
+        
+        // Show modal
+        document.body.classList.add('overflow-hidden');
+        startTaskModalOverlay.classList.remove('hidden');
+    };
+
+    const closeStartTaskModal = () => {
+        document.body.classList.remove('overflow-hidden');
+        startTaskModalOverlay.classList.add('hidden');
+        startTaskModalOverlay.dataset.taskId = '';
+    };
+
+    const showCompleteTaskModal = () => {
+        if (!currentTask || !currentFocusTaskId) return;
+        
+        // Populate modal with task details
+        document.getElementById('completeTaskName').textContent = currentTask.name;
+        
+        let details = '';
+        if (currentTask.isDivisible) {
+            details = `Progress Task • ${currentTask.sessionTimeBracket || currentTask.minSessionTime || currentTask.totalTimeBracket || 'Quick'}`;
+            if (currentTask.timeSpent > 0) {
+                details += ` • ${currentTask.timeSpent} min spent`;
+            }
+        } else {
+            details = `Atomic Task • ${currentTask.timeBracket || 'Quick'}`;
+        }
+        
+        if (currentTask.energy) {
+            details += ` • ${currentTask.energy}`;
+        }
+        
+        // Add current session time
+        const currentSessionTime = Math.floor(elapsedSeconds / 60);
+        if (currentSessionTime > 0) {
+            details += ` • ${currentSessionTime} min this session`;
+        }
+        
+        document.getElementById('completeTaskDetails').textContent = details;
+        
+        // Show modal
+        document.body.classList.add('overflow-hidden');
+        completeTaskModalOverlay.classList.remove('hidden');
+    };
+
+    const closeCompleteTaskModal = () => {
+        document.body.classList.remove('overflow-hidden');
+        completeTaskModalOverlay.classList.add('hidden');
+    };
+
+    const saveProgress = () => {
+        if (!currentTask || !currentFocusTaskId) return;
+        
+        const timeSpent = Math.floor(elapsedSeconds / 60); // Convert to minutes
+        const taskIndex = tasks.findIndex(t => t.id === currentFocusTaskId);
+        
+        if (taskIndex === -1) return;
+        
+        // Add time spent to existing time (no upper limit for Progress tasks)
+        tasks[taskIndex].timeSpent = (tasks[taskIndex].timeSpent || 0) + timeSpent;
+        
+        saveDataToFirestore();
+        
+        // Show success message
+        const message = `Progress saved! +${timeSpent} min (Total: ${tasks[taskIndex].timeSpent} min)`;
+        const filteredList = document.getElementById('filteredList');
+        if (filteredList) {
+            filteredList.innerHTML = `<div class="text-center text-orange-600 p-4 bg-orange-50 rounded-lg border border-orange-200 shadow-sm animate-fade-in">${message}</div>`;
+            setTimeout(() => { 
+                if(filteredList.firstChild && filteredList.firstChild.textContent.includes(message)) {
+                    filteredList.innerHTML = '';
+                }
+            }, 4000);
+        }
+        
+        // Update content area and re-render tasks to show progress
+        updateContentArea();
+        renderAll();
+        
+        // Close timer
+        stopFocusSession(false);
+    };
+
+    const clearAllFilters = () => {
+        // Reset all selections
+        selectedMode = null;
+        selectedTimeFilter = null;
+        selectedEnergyFilters = [];
+        selectedProjectFilters = [];
+        selectedTagFilters = [];
+        
+        // Reset mode buttons
+        document.getElementById('workModeBtn').classList.remove('bg-blue-500', 'text-white', 'shadow-sm');
+        document.getElementById('workModeBtn').classList.add('text-slate-700');
+        document.getElementById('personalModeBtn').classList.remove('bg-blue-500', 'text-white', 'shadow-sm');
+        document.getElementById('personalModeBtn').classList.add('text-slate-700');
+        
+        // Reset time filters
+        document.querySelectorAll('.time-filter').forEach(b => {
+            b.classList.remove('bg-blue-500','text-white','border-blue-500');
+            b.classList.add('bg-slate-100','text-slate-600');
+        });
+        
+        // Reset advanced filters
+        document.querySelectorAll('.energy-filter').forEach(b => {
+            b.classList.remove('bg-blue-500','text-white','border-blue-500');
+            b.classList.add('bg-slate-100','text-slate-600');
+        });
+        document.querySelectorAll('.project-filter').forEach(b => {
+            b.classList.remove('bg-blue-500','text-white','border-blue-500');
+            b.classList.add('bg-slate-100','text-slate-600');
+        });
+        document.querySelectorAll('.tag-filter').forEach(b => {
+            b.classList.remove('bg-blue-500','text-white','border-blue-500');
+            b.classList.add('bg-slate-100','text-slate-600');
+        });
+        
+        // Clear custom time input
+        const customTimeInput = document.getElementById('customTimeFilterInput');
+        if (customTimeInput) {
+            customTimeInput.value = '';
+            customTimeInput.classList.remove('bg-blue-50', 'border-blue-500', 'ring-2', 'ring-blue-200');
+            customTimeInput.classList.add('border-slate-300');
+        }
+        
+        // Hide task suggestions
+        document.getElementById('taskSuggestionsSection').classList.add('hidden');
+        
+        // Show content area
+        document.getElementById('contentArea').classList.remove('hidden');
+        updateContentArea();
+    };
+
+    const completeTask = () => {
+        if (!currentTask || !currentFocusTaskId) return;
+        
+        const timeSpent = Math.floor(elapsedSeconds / 60); // Convert to minutes
+        const taskIndex = tasks.findIndex(t => t.id === currentFocusTaskId);
+        
+        if (taskIndex === -1) return;
+        
+        // Mark task as complete
+        const completedTask = { ...tasks[taskIndex], completedAt: new Date().toISOString() };
+        completedTasks.push(completedTask);
+        tasks.splice(taskIndex, 1);
+        updateStreak();
+        saveDataToFirestore();
+        
+        // Clear all filters and refresh suggestions
+        clearAllFilters();
+        
+        // Show success message
+        const message = `Task completed! Time spent: ${timeSpent} min`;
+        const filteredList = document.getElementById('filteredList');
+        if (filteredList) {
+            filteredList.innerHTML = `<div class="text-center text-green-600 p-4 bg-green-50 rounded-lg border border-green-200 shadow-sm animate-fade-in">${message}</div>`;
+            setTimeout(() => { 
+                if(filteredList.firstChild && filteredList.firstChild.textContent.includes(message)) {
+                    filteredList.innerHTML = '';
+                }
+            }, 4000);
+        }
+        
+        // Update content area
+        updateContentArea();
+        
+        // Close timer
+        stopFocusSession(false);
+    };
+
+    const startFocusSession = (taskId, sessionLengthMinutes = null) => {
         const task = tasks.find(t => t.id === taskId);
         if (!task) {
             console.error("Task not found for ID:", taskId);
@@ -2779,29 +3301,50 @@
         }
         document.body.classList.add('overflow-hidden');
         currentFocusTaskId = taskId;
+        currentTask = task;
+        sessionLength = sessionLengthMinutes;
         
-        // Use the selected time filter if available, otherwise use task time
-        let sessionTime;
-        if (selectedTimeFilter) {
-            // Use the filtered time (what user selected)
-            sessionTime = selectedTimeFilter;
+        // Reset timer
+        elapsedSeconds = 0;
+        isPaused = false;
+        
+        // Determine time bracket to display
+        let timeBracketText = '';
+        if (sessionLength) {
+            // Task started from Find a task - show session length
+            timeBracketText = `${sessionLength} min session`;
+        } else if (task.isDivisible) {
+            // Progress task - show session time bracket
+            timeBracketText = `Session: ${task.sessionTimeBracket || task.minSessionTime || task.totalTimeBracket || 'Quick'}`;
         } else {
-            // Fallback to task time
-            sessionTime = task.isDivisible ? task.minSessionTime : task.time;
+            // Atomic task - show time bracket
+            timeBracketText = `Time: ${task.timeBracket || 'Quick'}`;
         }
         
-        remainingSeconds = sessionTime * 60;
-        
         focusTaskName.textContent = task.name;
+        document.getElementById('focusTimeBracket').textContent = timeBracketText;
         updateTimerDisplay(); 
         
+        // Reset button states
         document.getElementById('focusPauseText').textContent = 'Pause';
         document.getElementById('pauseIcon').classList.remove('hidden');
         document.getElementById('playIcon').classList.add('hidden');
 
+        // Show appropriate buttons
         focusPauseBtn.classList.remove('hidden');
         focusStopBtn.classList.remove('hidden');
-        focusCompleteBtn.classList.add('hidden');
+        
+        // Show appropriate action buttons based on task type
+        if (task.isDivisible) {
+            // Progress task - show both Save Progress and Mark as Complete buttons
+            focusSaveProgressBtn.classList.remove('hidden');
+            focusCompleteBtn.classList.remove('hidden');
+        } else {
+            // Atomic task - show only Mark as Complete button
+            focusCompleteBtn.classList.remove('hidden');
+            focusSaveProgressBtn.classList.add('hidden');
+        }
+        
         focusOverlay.classList.remove('hidden');
         startTimer();
     };
@@ -2820,7 +3363,7 @@
                   ${task.isRecurring ? `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2 text-blue-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>` : ''}
                 ${task.isDivisible ? `<span class="ml-2 text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full font-medium">Progress</span>` : `<span class="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Atomic</span>`}
                 </h3>
-              <p class="text-sm text-slate-500">Time: ${task.isDivisible ? `${task.totalTime} min (${task.minSessionTime} min)` : `${task.time} min`} | Energy: ${task.energy}</p>
+              <p class="text-sm text-slate-500">Time: ${task.isDivisible ? `${task.totalTimeBracket || task.totalTime} (${task.sessionTimeBracket || task.minSessionTime})` : `${task.timeBracket || task.time}`}${task.energy ? ` | Energy: ${task.energy}` : ''}</p>
               ${task.isDivisible ? `
                 <div class="mt-2">
                   ${task.timeSpent > 0 ? `
@@ -2936,24 +3479,66 @@
         });
     };
 
+    // Convert time brackets to minute ranges
+    const getTimeBracketRange = (bracket) => {
+        switch (bracket) {
+            case 'Quick': return { min: 1, max: 15 };
+            case 'Standard': return { min: 15, max: 45 };
+            case 'Long': return { min: 45, max: 90 };
+            default: return { min: 0, max: 0 };
+        }
+    };
+
     const checkTimeMatch = (task, timeAvailable) => {
-        const tolerance = 10; // ±10 minutes tolerance
-        
-        // For Atomic Tasks: use task.time
-        // For Progress Tasks: use task.minSessionTime (minimum session requirement)
-        const taskTime = task.isDivisible ? task.minSessionTime : task.time;
-        return taskTime <= timeAvailable + tolerance;
+        // Handle both old format (specific minutes) and new format (time brackets)
+        if (task.timeBracket || task.totalTimeBracket || task.sessionTimeBracket) {
+            // New format: use time brackets
+            const taskBracket = task.isDivisible ? task.sessionTimeBracket : task.timeBracket;
+            const bracketRange = getTimeBracketRange(taskBracket);
+            
+            // Check if available time falls within the bracket range
+            return timeAvailable >= bracketRange.min && timeAvailable <= bracketRange.max;
+        } else {
+            // Old format: use specific minutes with tolerance
+            const tolerance = 10; // ±10 minutes tolerance
+            const taskTime = task.isDivisible ? task.minSessionTime : task.time;
+            return taskTime <= timeAvailable + tolerance;
+        }
     };
 
     const selectTopTasks = (candidates, count, useRandomization = true) => {
-        // Simple scoring system
+        // Smart scoring system based on time bracket priority
         const scored = candidates.map(task => {
             let score = 0;
             
-            // Time fit score (closer to selected time = higher score)
-            const taskTime = task.isDivisible ? task.minSessionTime : task.time;
-            const timeDiff = Math.abs(taskTime - selectedTimeFilter);
-            score += Math.max(0, 10 - timeDiff); // 0-10 points based on time fit
+            // Time bracket priority scoring
+            if (task.timeBracket || task.totalTimeBracket || task.sessionTimeBracket) {
+                // New format: use time brackets
+                const taskBracket = task.isDivisible ? task.sessionTimeBracket : task.timeBracket;
+                const bracketRange = getTimeBracketRange(taskBracket);
+                
+                // Priority 1: Tasks that fit exactly in the time bracket
+                if (selectedTimeFilter >= bracketRange.min && selectedTimeFilter <= bracketRange.max) {
+                    score += 20; // Highest priority
+                }
+                // Priority 2: Quick tasks can be done in any available time
+                else if (taskBracket === 'Quick' && selectedTimeFilter >= 1) {
+                    score += 15; // Second priority
+                }
+                // Priority 3: Standard tasks for longer available times
+                else if (taskBracket === 'Standard' && selectedTimeFilter >= 15) {
+                    score += 10; // Third priority
+                }
+                // Priority 4: Long tasks only for very long available times
+                else if (taskBracket === 'Long' && selectedTimeFilter >= 45) {
+                    score += 5; // Fourth priority
+                }
+            } else {
+                // Old format: use specific minutes
+                const taskTime = task.isDivisible ? task.minSessionTime : task.time;
+                const timeDiff = Math.abs(taskTime - selectedTimeFilter);
+                score += Math.max(0, 10 - timeDiff); // 0-10 points based on time fit
+            }
             
             // Energy match bonus
             if (selectedEnergyFilters.length > 0 && selectedEnergyFilters.includes(task.energy)) {
@@ -3000,16 +3585,20 @@
             const taskTime = task.isDivisible ? task.minSessionTime : task.time;
             const isProgressTask = task.isDivisible;
             
+            const timeDisplay = task.isDivisible ? 
+                `${task.totalTimeBracket || task.totalTime} (${task.sessionTimeBracket || task.minSessionTime})` : 
+                `${task.timeBracket || task.time}`;
+            
             return `
                 <div class="bg-white border border-slate-200 rounded-lg p-4 hover:shadow-md transition-shadow h-full flex flex-col">
                     <h4 class="font-semibold text-slate-800 mb-2 text-sm flex-shrink-0">${task.name}</h4>
                     <div class="flex flex-wrap gap-1 mb-3 flex-shrink-0">
-                        <span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700">${taskTime} min</span>
-                        <span class="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-700">${task.energy}</span>
+                        <span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700">${timeDisplay}</span>
+                        ${task.energy ? `<span class="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-700">${task.energy}</span>` : ''}
                         ${isProgressTask ? '<span class="text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-700">Progress</span>' : ''}
                     </div>
                     <div class="flex gap-2 mt-auto">
-                        <button data-task-id="${task.id}" class="start-task-btn w-full bg-green-500 hover:bg-green-600 text-white py-2 px-3 rounded-lg text-sm font-medium transition-colors">
+                        <button data-task-id="${task.id}" class="start-btn w-full bg-green-500 hover:bg-green-600 text-white py-2 px-3 rounded-lg text-sm font-medium transition-colors">
                             Start
                         </button>
                     </div>
@@ -3173,17 +3762,18 @@
         if (e.key !== 'Enter' || !e.target.value.trim()) return;
 
         let input = e.target.value;
-        const timeRegex = /:(\d+)/;
+        const timeBracketRegex = /@(quick|standard|long)/i;
         const tagRegex = /#(\w+)/g;
-        const contextRegex = /@(\w+)/g;
+        const contextRegex = /@(work|personal)/i;
         const projectRegex = /\^([\w\s]+)/;
 
-        const timeMatch = input.match(timeRegex);
+        const timeBracketMatch = input.match(timeBracketRegex);
         const tagsMatch = [...input.matchAll(tagRegex)];
-        const contextMatch = [...input.matchAll(contextRegex)];
+        const contextMatch = input.match(contextRegex);
         const projectMatch = input.match(projectRegex);
         
-        let name = input.replace(timeRegex, '').replace(tagRegex, '').replace(contextRegex, '').replace(projectRegex, '').trim();
+        // Remove all special syntax from the task name
+        let name = input.replace(timeBracketRegex, '').replace(tagRegex, '').replace(contextRegex, '').replace(projectRegex, '').trim();
 
         if (!name) return;
         resetModal();
@@ -3198,21 +3788,23 @@
             }
         }
 
-        if (timeMatch) {
-            modalSelectedTime = parseInt(timeMatch[1]);
-            const btn = document.querySelector(`.modal-time-btn[data-time="${modalSelectedTime}"]`);
+        if (timeBracketMatch) {
+            const timeBracket = timeBracketMatch[1].charAt(0).toUpperCase() + timeBracketMatch[1].slice(1).toLowerCase();
+            modalSelectedTime = timeBracket;
+            const btn = document.querySelector(`.modal-time-btn[data-timeBracket="${timeBracket}"]`);
             if(btn) { btn.classList.add('bg-blue-500', 'text-white', 'border-blue-500'); btn.classList.remove('bg-white', 'text-slate-700'); }
         }
+        
         if (tagsMatch.length > 0) {
             modalTagList = tagsMatch.map(match => match[1]);
             renderTagPreview();
         }
-        if (contextMatch.length > 0) {
-            modalSelectedContexts = contextMatch.map(match => match[1].charAt(0).toUpperCase() + match[1].slice(1));
-            modalSelectedContexts.forEach(context => {
-                const btn = document.querySelector(`.modal-context-btn[data-context="${context}"]`);
-                if(btn) { btn.classList.add('bg-blue-500', 'text-white', 'border-blue-500'); btn.classList.remove('bg-white', 'text-slate-700'); }
-            });
+        
+        if (contextMatch) {
+            const context = contextMatch[1].charAt(0).toUpperCase() + contextMatch[1].slice(1).toLowerCase();
+            modalSelectedContexts = [context];
+            const btn = document.querySelector(`.modal-context-btn[data-context="${context}"]`);
+            if(btn) { btn.classList.add('bg-blue-500', 'text-white', 'border-blue-500'); btn.classList.remove('bg-white', 'text-slate-700'); }
         }
 
         e.target.value = '';
@@ -3313,7 +3905,9 @@
     };
 
     const renderFilterButtons = () => {
+        // renderFilterButtons called
         const timeOptions = [5, 10, 15, 20, 25, 30, 45, 60];
+        const timeBrackets = ['Quick', 'Standard', 'Long'];
         const contextOptions = ['Work', 'Personal']; // Simplified contexts
         const energyOptions = ['Low 🧠', 'Medium 💪', 'High 🔥'];
 
@@ -3321,14 +3915,49 @@
             const container = document.getElementById(containerId);
             if (container) {
                 console.log(`🔧 Creating buttons for ${containerId}:`, opts);
-                container.innerHTML = opts.map(opt => `<button data-${dataAttr}="${opt}" class="${className} bg-slate-100 text-slate-600 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-colors text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500">${dataAttr === 'time' ? `${opt} min` : opt}</button>`).join('');
+                console.log(`🔧 Data attribute: ${dataAttr}`);
+                console.log(`🔧 Class name: ${className}`);
+                
+                const buttonHtml = opts.map(opt => {
+                    const displayText = dataAttr === 'time' ? `${opt} min` : opt;
+                    // Use different styling for modal buttons vs filter buttons
+                    const isModalButton = containerId.includes('modal');
+                    const buttonClass = isModalButton 
+                        ? `${className} bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-3 py-2 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1`
+                        : `${className} bg-slate-100 text-slate-600 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-colors text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500`;
+                    // Use proper camelCase for data attributes
+                    const dataAttrCamel = dataAttr === 'timeBracket' ? 'timeBracket' : dataAttr;
+                    
+                    // Add tooltip for time bracket buttons in modal
+                    let tooltip = '';
+                    if (isModalButton && dataAttr === 'timeBracket') {
+                        const tooltips = {
+                            'Quick': '1-15 minutes - Small tasks like checking email or quick calls',
+                            'Standard': '15-45 minutes - Regular tasks like writing or research',
+                            'Long': '45-90 minutes - Complex tasks requiring deep focus'
+                        };
+                        tooltip = `title="${tooltips[opt] || ''}"`;
+                    }
+                    
+                    return `<button data-${dataAttrCamel}="${opt}" class="${buttonClass}" ${tooltip}>${displayText}</button>`;
+                }).join('');
+                
+                container.innerHTML = buttonHtml;
                 console.log(`🔧 Buttons created for ${containerId}, container:`, container);
+                console.log(`🔧 Button HTML:`, buttonHtml);
+                
+                // Verify buttons were created
+                const createdButtons = container.querySelectorAll(`[data-${dataAttr}]`);
+                console.log(`🔧 Created ${createdButtons.length} buttons with data-${dataAttr}`);
+                createdButtons.forEach((btn, i) => {
+                    console.log(`🔧 Button ${i}:`, btn.dataset, btn.className);
+                });
             } else {
                 console.error(`❌ Container not found: ${containerId}`);
             }
         };
         
-        // Main time filters
+        // Main time filters (keep as minutes for user selection)
         createButtons(timeOptions, 'timeFilters', 'time-filter', 'time');
         
         // Advanced filters (energy, projects, and tags)
@@ -3336,20 +3965,18 @@
         renderProjectFilters();
         renderTagCloud();
         
-        // Modal filters (keep existing for add task modal)
-        createButtons(timeOptions, 'modalTimeButtons', 'modal-time-btn', 'time');
-        
-        // Only create new button sets if the containers exist
-        const totalTimeContainer = document.getElementById('modalTotalTimeButtons');
-        const minSessionContainer = document.getElementById('modalMinSessionButtons');
-        if (totalTimeContainer) createButtons(timeOptions, 'modalTotalTimeButtons', 'modal-total-time-btn', 'time');
-        if (minSessionContainer) createButtons(timeOptions, 'modalMinSessionButtons', 'modal-min-session-btn', 'time');
+        // Modal time bracket buttons
+        // Creating modal buttons
+        createButtons(timeBrackets, 'modalTimeButtons', 'modal-time-btn', 'timeBracket');
+        createButtons(timeBrackets, 'modalSessionTimeButtons', 'modal-session-time-btn', 'timeBracket');
         createButtons(contextOptions, 'modalContextButtons', 'modal-context-btn', 'context');
         createButtons(energyOptions, 'modalEnergyButtons', 'modal-energy-btn', 'energy');
+        // Modal buttons creation complete
     };
       
     const initializeEventListeners = () => {
         console.log('🔧 initializeEventListeners called');
+        console.log('🔧 About to set up modal button handlers...');
         // --- Mobile Menu Toggle ---
 
         
@@ -3471,51 +4098,7 @@
             }
         };
         document.getElementById('clearFiltersBtn').onclick = () => {
-            // Reset all selections
-            selectedMode = null;
-            selectedTimeFilter = null;
-            selectedEnergyFilters = [];
-            selectedProjectFilters = [];
-            selectedTagFilters = [];
-            
-            // Reset mode buttons
-            document.getElementById('workModeBtn').classList.remove('bg-blue-500', 'text-white', 'shadow-sm');
-            document.getElementById('workModeBtn').classList.add('text-slate-700');
-            document.getElementById('personalModeBtn').classList.remove('bg-blue-500', 'text-white', 'shadow-sm');
-            document.getElementById('personalModeBtn').classList.add('text-slate-700');
-            
-            // Reset time filters
-            document.querySelectorAll('.time-filter').forEach(b => {
-                b.classList.remove('bg-blue-500','text-white','border-blue-500');
-                b.classList.add('bg-slate-100','text-slate-600');
-            });
-            
-            // Reset advanced filters
-            document.querySelectorAll('.energy-filter').forEach(b => {
-                b.classList.remove('bg-blue-500','text-white','border-blue-500');
-                b.classList.add('bg-slate-100','text-slate-600');
-            });
-            document.querySelectorAll('.project-filter').forEach(b => {
-                b.classList.remove('bg-blue-500','text-white','border-blue-500');
-                b.classList.add('bg-slate-100','text-slate-600');
-            });
-            document.querySelectorAll('.tag-filter').forEach(b => {
-                b.classList.remove('bg-blue-500','text-white','border-blue-500');
-                b.classList.add('bg-slate-100','text-slate-600');
-            });
-            
-            // Clear custom time input
-            const customTimeInput = document.getElementById('customTimeFilterInput');
-            customTimeInput.value = '';
-            customTimeInput.classList.remove('bg-blue-50', 'border-blue-500', 'ring-2', 'ring-blue-200');
-            customTimeInput.classList.add('border-slate-300');
-            
-            // Hide task suggestions
-            document.getElementById('taskSuggestionsSection').classList.add('hidden');
-            
-            // Show content area
-            document.getElementById('contentArea').classList.remove('hidden');
-            updateContentArea();
+            clearAllFilters();
         };
         document.getElementById('cancelTaskBtn').onclick = closeModal;
         
@@ -3552,69 +4135,7 @@
             }
         });
         
-        // Custom time input event listeners
-        document.getElementById('customTimeInput').addEventListener('focus', (e) => {
-            // Clear other time button selections when focusing on custom input
-            document.querySelectorAll('.modal-time-btn').forEach(btn => {
-                btn.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
-                btn.classList.add('bg-white', 'text-slate-700');
-            });
-            modalSelectedTime = null; // Clear the selected time
-        });
-        
-        document.getElementById('customTimeInput').addEventListener('input', (e) => {
-            const value = parseInt(e.target.value);
-            if (value && value > 0) {
-                // Clear other time button selections
-                document.querySelectorAll('.modal-time-btn').forEach(btn => {
-                    btn.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
-                    btn.classList.add('bg-white', 'text-slate-700');
-                });
-                modalSelectedTime = value;
-            }
-        });
-        
-        document.getElementById('customTotalTimeInput').addEventListener('focus', (e) => {
-            // Clear other total time button selections when focusing on custom input
-            document.querySelectorAll('.modal-total-time-btn').forEach(btn => {
-                btn.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
-                btn.classList.add('bg-white', 'text-slate-700');
-            });
-            modalSelectedTotalTime = null; // Clear the selected time
-        });
-        
-        document.getElementById('customTotalTimeInput').addEventListener('input', (e) => {
-            const value = parseInt(e.target.value);
-            if (value && value > 0) {
-                // Clear other total time button selections
-                document.querySelectorAll('.modal-total-time-btn').forEach(btn => {
-                    btn.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
-                    btn.classList.add('bg-white', 'text-slate-700');
-                });
-                modalSelectedTotalTime = value;
-            }
-        });
-        
-        document.getElementById('customMinSessionInput').addEventListener('focus', (e) => {
-            // Clear other min session button selections when focusing on custom input
-            document.querySelectorAll('.modal-min-session-btn').forEach(btn => {
-                btn.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
-                btn.classList.add('bg-white', 'text-slate-700');
-            });
-            modalSelectedMinSessionTime = null; // Clear the selected time
-        });
-        
-        document.getElementById('customMinSessionInput').addEventListener('input', (e) => {
-            const value = parseInt(e.target.value);
-            if (value && value > 0) {
-                // Clear other min session button selections
-                document.querySelectorAll('.modal-min-session-btn').forEach(btn => {
-                    btn.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
-                    btn.classList.add('bg-white', 'text-slate-700');
-                });
-                modalSelectedMinSessionTime = value;
-            }
-        });
+        // Custom time input event listeners removed - using time brackets now
 
         // Add event listener for divisibility checkbox (if it exists)
         const taskDivisible = document.getElementById('taskDivisible');
@@ -3633,7 +4154,6 @@
         globalSearchInput.addEventListener('input', (e) => renderTasksAndProjects(e.target.value));
         
         // --- Stats Modal Listeners ---
-        document.getElementById('viewStatsBtn').onclick = showStatsModal;
         document.getElementById('closeStatsBtn').onclick = closeStatsModal;
 
         // Sign up/Sign in modal event listeners
@@ -3667,6 +4187,23 @@
         // --- Stop Focus Session Modal Listeners ---
         document.getElementById('cancelStopFocusBtn').onclick = closeStopFocusModal;
         document.getElementById('confirmStopFocusBtn').onclick = executeStopFocusSession;
+        
+        // --- Start Task Modal Listeners ---
+        document.getElementById('cancelStartTaskBtn').onclick = closeStartTaskModal;
+        document.getElementById('confirmStartTaskBtn').onclick = () => {
+            const taskId = startTaskModalOverlay.dataset.taskId;
+            if (taskId) {
+                startFocusSession(taskId); // No session length for sidebar tasks
+                closeStartTaskModal();
+            }
+        };
+        
+        // --- Complete Task Modal Listeners ---
+        document.getElementById('cancelCompleteTaskBtn').onclick = closeCompleteTaskModal;
+        document.getElementById('confirmCompleteTaskBtn').onclick = () => {
+            completeTask();
+            closeCompleteTaskModal();
+        };
         
 
 
@@ -3703,6 +4240,7 @@
         handleFilterClick('timeFilters', '.time-filter', (el) => {
             const timeValue = parseInt(el.dataset.time);
             selectedTimeFilter = timeValue;
+            console.log('🔧 Time filter clicked, selectedTimeFilter set to:', selectedTimeFilter);
             currentSuggestions = []; // Clear current suggestions when time changes
             generateTaskSuggestions();
             // Clear custom input when button is clicked and reset visual indicator
@@ -3801,10 +4339,43 @@
                 return;
             }
             console.log(`🔧 Setting up modal button handler for ${containerId}`);
+            console.log(`🔧 Container found:`, container);
+            console.log(`🔧 Selector: ${selector}`);
+            
+            // Check if buttons exist at setup time
+            const existingButtons = container.querySelectorAll(selector);
+            console.log(`🔧 Existing buttons at setup time:`, existingButtons.length, existingButtons);
+            
             container.addEventListener('click', e => {
                 console.log(`🔧 Modal button clicked in ${containerId}:`, e.target);
+                console.log(`🔧 Clicked element classes:`, e.target.className);
+                console.log(`🔧 Clicked element dataset:`, e.target.dataset);
+                console.log(`🔧 Matches selector "${selector}":`, e.target.matches(selector));
+                
                 if (e.target.matches(selector)) {
-                    const value = selector.includes('time') ? parseInt(e.target.dataset.time) : e.target.dataset.context || e.target.dataset.energy;
+                    console.log(`🔧 Button matches selector, processing click`);
+                    // Handle time bracket buttons differently
+                    let value;
+                    console.log(`🔧 Dataset keys:`, Object.keys(e.target.dataset));
+                    console.log(`🔧 timebracket:`, e.target.dataset.timebracket);
+                    console.log(`🔧 time:`, e.target.dataset.time);
+                    
+                    if (selector.includes('time') && e.target.dataset.timebracket) {
+                        value = e.target.dataset.timebracket;
+                        console.log(`🔧 Using timebracket value:`, value);
+                    } else if (selector.includes('time') && e.target.dataset.time) {
+                        value = parseInt(e.target.dataset.time);
+                        console.log(`🔧 Using time value:`, value);
+                    } else if (e.target.dataset.context) {
+                        value = e.target.dataset.context;
+                        console.log(`🔧 Using context value:`, value);
+                    } else if (e.target.dataset.energy) {
+                        value = e.target.dataset.energy;
+                        console.log(`🔧 Using energy value:`, value);
+                    } else {
+                        console.log(`🔧 No matching dataset found!`);
+                        return;
+                    }
                     
                     if (isMultiSelect) {
                         const stateArray = stateVarSetter();
@@ -3820,38 +4391,42 @@
                         }
                     } else {
                         stateVarSetter(value);
-                        document.querySelectorAll(selector).forEach(b => {b.classList.remove('bg-blue-500','text-white','border-blue-500');b.classList.add('bg-white','text-slate-700')});
-                        e.target.classList.add('bg-blue-500', 'text-white', 'border-blue-500');
-                        e.target.classList.remove('bg-white','text-slate-700');
+                        // Handle different button styles for modal vs filter buttons
+                        const isModalButton = containerId.includes('modal');
+                        if (isModalButton) {
+                            document.querySelectorAll(selector).forEach(b => {
+                                b.classList.remove('bg-blue-500','text-white','border-blue-500');
+                                b.classList.add('bg-white','text-slate-700','border-slate-200');
+                            });
+                            e.target.classList.add('bg-blue-500', 'text-white', 'border-blue-500');
+                            e.target.classList.remove('bg-white','text-slate-700','border-slate-200');
+                        } else {
+                            document.querySelectorAll(selector).forEach(b => {
+                                b.classList.remove('bg-blue-500','text-white','border-blue-500');
+                                b.classList.add('bg-slate-100','text-slate-600');
+                            });
+                            e.target.classList.add('bg-blue-500', 'text-white', 'border-blue-500');
+                            e.target.classList.remove('bg-slate-100','text-slate-600');
+                        }
                     }
+                    console.log(`🔧 Button click processed successfully`);
+                } else {
+                    console.log(`🔧 Clicked element does not match selector`);
                 }
             });
         };
+        
+        // Setting up modal button handlers
+        
         handleModalButtonClick('modalTimeButtons', '.modal-time-btn', (val) => {
+            console.log('🔧 Time button clicked, value:', val);
             modalSelectedTime = val;
-            document.getElementById('customTimeInput').value = '';
+            console.log('🔧 modalSelectedTime set to:', modalSelectedTime);
         });
-        handleModalButtonClick('modalTotalTimeButtons', '.modal-total-time-btn', (val) => {
-            modalSelectedTotalTime = val;
-            document.getElementById('customTotalTimeInput').value = '';
-        });
-        // Use event delegation for min session time buttons
-        document.addEventListener('click', (e) => {
-            if (e.target.matches('.modal-min-session-btn')) {
-                const value = parseInt(e.target.dataset.time);
-                modalSelectedMinSessionTime = value;
-                
-                // Clear custom input
-                document.getElementById('customMinSessionInput').value = '';
-                
-                // Update button styling
-                document.querySelectorAll('.modal-min-session-btn').forEach(b => {
-                    b.classList.remove('bg-blue-500','text-white','border-blue-500');
-                    b.classList.add('bg-white','text-slate-700');
-                });
-                e.target.classList.add('bg-blue-500', 'text-white', 'border-blue-500');
-                e.target.classList.remove('bg-white','text-slate-700');
-            }
+        handleModalButtonClick('modalSessionTimeButtons', '.modal-session-time-btn', (val) => {
+            console.log('🔧 Session time button clicked, value:', val);
+            modalSelectedMinSessionTime = val;
+            console.log('🔧 modalSelectedMinSessionTime set to:', modalSelectedMinSessionTime);
         });
         // Custom handler for energy buttons to make them toggleable
         document.addEventListener('click', (e) => {
@@ -3862,54 +4437,45 @@
                     // If clicking the same energy button, deselect it
                     modalSelectedEnergy = null;
                     e.target.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
-                    e.target.classList.add('bg-white', 'text-slate-700');
+                    e.target.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
                 } else {
                     // Select the new energy
                     modalSelectedEnergy = value;
                     document.querySelectorAll('.modal-energy-btn').forEach(b => {
                         b.classList.remove('bg-blue-500','text-white','border-blue-500');
-                        b.classList.add('bg-white','text-slate-700');
+                        b.classList.add('bg-white','text-slate-700','border-slate-200');
                     });
                     e.target.classList.add('bg-blue-500', 'text-white', 'border-blue-500');
-                    e.target.classList.remove('bg-white','text-slate-700');
+                    e.target.classList.remove('bg-white','text-slate-700','border-slate-200');
                 }
             }
         });
-        handleModalButtonClick('modalContextButtons', '.modal-context-btn', () => modalSelectedContexts, true);
-        
-        // Custom time input for modal
-        document.getElementById('customTimeInput').addEventListener('input', (e) => {
-            const value = parseInt(e.target.value);
-            if (value && value > 0) {
-                modalSelectedTime = value;
-                document.querySelectorAll('.modal-time-btn').forEach(btn => {
-                    btn.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
-                    btn.classList.add('bg-white', 'text-slate-700');
-                });
+        // Custom handler for context buttons to make them multi-select
+        document.addEventListener('click', (e) => {
+            if (e.target.matches('.modal-context-btn')) {
+                const value = e.target.dataset.context;
+                console.log('🔧 Context button clicked, value:', value);
+                console.log('🔧 Current contexts before:', modalSelectedContexts);
+                
+                const index = modalSelectedContexts.indexOf(value);
+                if (index > -1) {
+                    // Remove if already selected
+                    modalSelectedContexts.splice(index, 1);
+                    e.target.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
+                    e.target.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
+                } else {
+                    // Add if not selected
+                    modalSelectedContexts.push(value);
+                    e.target.classList.add('bg-blue-500', 'text-white', 'border-blue-500');
+                    e.target.classList.remove('bg-white', 'text-slate-700', 'border-slate-200');
+                }
+                console.log('🔧 Current contexts after:', modalSelectedContexts);
             }
         });
         
-        document.getElementById('customTotalTimeInput').addEventListener('input', (e) => {
-            const value = parseInt(e.target.value);
-            if (value && value > 0) {
-                modalSelectedTotalTime = value;
-                document.querySelectorAll('.modal-total-time-btn').forEach(btn => {
-                    btn.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
-                    btn.classList.add('bg-white', 'text-slate-700');
-                });
-            }
-        });
+        // Custom time input handlers removed - using time brackets only
         
-        document.getElementById('customMinSessionInput').addEventListener('input', (e) => {
-            const value = parseInt(e.target.value);
-            if (value && value > 0) {
-                modalSelectedMinSessionTime = value;
-                document.querySelectorAll('.modal-min-session-btn').forEach(btn => {
-                    btn.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
-                    btn.classList.add('bg-white', 'text-slate-700');
-                });
-            }
-        });
+        // Custom time input handlers removed - using time brackets only
 
         focusPauseBtn.onclick = () => {
           isPaused = !isPaused;
@@ -3918,7 +4484,8 @@
           document.getElementById('playIcon').classList.toggle('hidden');
         };
         focusStopBtn.onclick = () => stopFocusSession();
-        focusCompleteBtn.onclick = () => markTaskDone(currentFocusTaskId);
+        focusCompleteBtn.onclick = () => showCompleteTaskModal();
+        focusSaveProgressBtn.onclick = () => saveProgress();
 
         // --- UX Improvement: Add listeners for closing modals ---
         modalOverlay.addEventListener('click', (e) => {
@@ -3932,6 +4499,12 @@
         });
         stopFocusModalOverlay.addEventListener('click', (e) => {
             if (e.target.id === 'stopFocusModalOverlay') closeStopFocusModal();
+        });
+        startTaskModalOverlay.addEventListener('click', (e) => {
+            if (e.target.id === 'startTaskModalOverlay') closeStartTaskModal();
+        });
+        completeTaskModalOverlay.addEventListener('click', (e) => {
+            if (e.target.id === 'completeTaskModalOverlay') closeCompleteTaskModal();
         });
         document.getElementById('signUpModalOverlay').addEventListener('click', (e) => {
             if (e.target.id === 'signUpModalOverlay') closeSignUpModal();
@@ -3966,6 +4539,8 @@
                 else if (!document.getElementById('projectManagementModalOverlay').classList.contains('hidden')) closeProjectManagementModal();
                 else if (!document.getElementById('tagManagerModalOverlay').classList.contains('hidden')) closeTagManagerModal();
                 else if (!stopFocusModalOverlay.classList.contains('hidden')) closeStopFocusModal();
+                else if (!startTaskModalOverlay.classList.contains('hidden')) closeStartTaskModal();
+                else if (!completeTaskModalOverlay.classList.contains('hidden')) closeCompleteTaskModal();
                 else if (!projectDeleteModalOverlay.classList.contains('hidden')) closeProjectDeleteModal();
                 else if (!statsModalOverlay.classList.contains('hidden')) closeStatsModal();
                 else if (!modalOverlay.classList.contains('hidden')) closeModal();
@@ -3995,10 +4570,21 @@
             }
 
             const startButton = e.target.closest('.start-btn');
-            if (startButton) startFocusSession(startButton.dataset.taskId);
+            if (startButton) {
+                // Get the current value of selectedTimeFilter at click time
+                const currentTimeFilter = selectedTimeFilter;
+                console.log('🔧 Start button clicked, selectedTimeFilter:', currentTimeFilter);
+                startFocusSession(startButton.dataset.taskId, currentTimeFilter);
+            }
             
             const startTaskButton = e.target.closest('.start-task-btn');
             if (startTaskButton) startFocusSession(startTaskButton.dataset.taskId);
+
+            // Task title click handler for starting tasks
+            const taskTitle = e.target.closest('.task-name');
+            if (taskTitle && !e.target.closest('.edit-btn') && !e.target.closest('.delete-btn') && !e.target.closest('.quick-complete-btn')) {
+                showStartTaskModal(taskTitle.dataset.taskId); // No session length for sidebar tasks
+            }
 
             const removeTagButton = e.target.closest('.remove-tag-btn');
             if (removeTagButton) removeTag(parseInt(removeTagButton.dataset.tagIndex));
@@ -4040,12 +4626,13 @@
                 return;
             }
             
-            // Handle completed section toggle
-            if (e.target.closest('#completedTodayHeader')) {
-                console.log('Completed section clicked, current state:', completedSectionCollapsed);
-                completedSectionCollapsed = !completedSectionCollapsed;
-                console.log('New state:', completedSectionCollapsed);
+            // Handle task review section toggle
+            if (e.target.closest('#taskReviewHeader')) {
+                console.log('Task review section clicked, current state:', taskReviewCollapsed);
+                taskReviewCollapsed = !taskReviewCollapsed;
+                console.log('New state:', taskReviewCollapsed);
                 renderCompletedTasks();
+                renderWeeklyReview();
                 return;
             }
             
@@ -4107,7 +4694,7 @@
             {
                 id: 'task_1',
                 name: 'Meditate',
-                time: 10,
+                timeBracket: 'Quick',
                 energy: 'Low 🧠',
                 contexts: ['Personal'],
                 projectId: 'personal',
@@ -4119,7 +4706,7 @@
             {
                 id: 'task_2',
                 name: 'Log EUC patients',
-                time: 10,
+                timeBracket: 'Quick',
                 energy: 'Low 🧠',
                 contexts: ['Work'],
                 projectId: 'work',
@@ -4131,21 +4718,20 @@
             {
                 id: 'task_3',
                 name: 'Read journal article',
-                time: 20,
+                totalTimeBracket: 'Standard',
+                sessionTimeBracket: 'Quick',
                 energy: 'Low 🧠',
                 contexts: ['Work'],
                 projectId: 'learning',
                 tags: ['learning', 'research'],
                 isRecurring: false,
                 isDivisible: true,
-                totalTime: 20,
-                minSessionTime: 10,
                 timeSpent: 0
             },
             {
                 id: 'task_4',
                 name: 'Fix TP holder',
-                time: 10,
+                timeBracket: 'Quick',
                 energy: 'Medium 💪',
                 contexts: ['Personal'],
                 projectId: 'personal',
@@ -4157,7 +4743,7 @@
             {
                 id: 'task_5',
                 name: 'Review email backlog',
-                time: 15,
+                timeBracket: 'Quick',
                 energy: 'Low 🧠',
                 contexts: ['Work'],
                 projectId: 'inbox',
@@ -4221,8 +4807,8 @@
                 // Force all projects to be expanded by default for now
                 collapsedProjects = new Set();
                 console.log('Final collapsedProjects Set (forced empty):', Array.from(collapsedProjects));
-                // Force completed section to be collapsed by default for existing users
-                completedSectionCollapsed = true;
+                // Force task review section to be collapsed by default for existing users
+                taskReviewCollapsed = true;
             } else {
                 console.log("Document does not exist. Initializing data for new user.");
                 projects = [{ id: 'inbox', name: 'Inbox' }];
@@ -4230,7 +4816,7 @@
                 completedTasks = [];
                 streakData = { currentStreak: 0, lastCompletedDate: null };
                 collapsedProjects = new Set();
-                completedSectionCollapsed = true;
+                taskReviewCollapsed = true;
                 saveDataToFirestore();
             }
             renderAll();
@@ -4358,4 +4944,5 @@
     }
   </script>
 </body>
+</html>
 </html>
