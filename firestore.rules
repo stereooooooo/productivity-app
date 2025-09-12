@@ -1,0 +1,61 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users collection - allow authenticated users to read/write their own data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Validate tasks array structure
+      allow read, write: if request.auth != null && request.auth.uid == userId
+        && (!('tasks' in resource.data) || 
+            (resource.data.tasks is list && 
+             resource.data.tasks.size() <= 1000 &&
+             resource.data.tasks.hasAll(['id', 'name', 'projectId']) &&
+             resource.data.tasks[0].id is string &&
+             resource.data.tasks[0].name is string &&
+             resource.data.tasks[0].projectId is string));
+    }
+    
+    // Tasks collection - validate individual task documents
+    match /tasks/{taskId} {
+      allow read, write: if request.auth != null;
+      
+      // Validate task document structure on create and update
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasAll(['id', 'name', 'projectId'])
+        && request.resource.data.id is string
+        && request.resource.data.name is string
+        && request.resource.data.projectId is string
+        && (!('isActive' in request.resource.data) || request.resource.data.isActive is bool)
+        && (!('isPriority' in request.resource.data) || request.resource.data.isPriority is bool);
+      
+      allow update: if request.auth != null
+        && request.resource.data.keys().hasAll(['id', 'name', 'projectId'])
+        && request.resource.data.id is string
+        && request.resource.data.name is string
+        && request.resource.data.projectId is string
+        && (!('isActive' in request.resource.data) || request.resource.data.isActive is bool)
+        && (!('isPriority' in request.resource.data) || request.resource.data.isPriority is bool);
+    }
+    
+    // Worklogs collection - allow authenticated users to read/write their own worklogs
+    match /worklogs/{worklogId} {
+      allow read, write: if request.auth != null
+        && request.auth.uid == resource.data.userId;
+      
+      // Validate worklog document structure on create and update
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasAll(['id', 'taskId', 'userId', 'sessionType', 'startTime'])
+        && request.resource.data.id is string
+        && request.resource.data.taskId is string
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.sessionType is string
+        && request.resource.data.startTime is string;
+      
+      allow update: if request.auth != null
+        && request.auth.uid == resource.data.userId
+        && request.resource.data.userId == resource.data.userId;
+    }
+  }
+}
