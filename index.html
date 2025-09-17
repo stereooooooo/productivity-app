@@ -1437,8 +1437,10 @@
         }
         
         // Check if user has any activity (completed tasks, used filters, etc.)
-        const hasActivity = completedTasks.length > 0 || 
-                           (selectedTimeFilter || selectedContextFilters.length > 0 || selectedEnergyFilter);
+        const hasActivity = completedTasks.length > 0 ||
+                            Boolean(selectedTimeFilter) ||
+                            selectedContextFilters.length > 0 ||
+                            selectedEnergyFilters.length > 0;
         
         if (hasActivity) {
             // Hide welcome content when user has activity
@@ -5250,6 +5252,7 @@
 
     const applyFiltersAndSuggest = (mode = 'suggest') => {
         filteredList.innerHTML = '';
+        const activeEnergyFilter = selectedEnergyFilters[0] || null;
         
         // Hide content area when filters are applied to focus on tasks
         document.getElementById('contentArea').classList.add('hidden');
@@ -5275,8 +5278,8 @@
                 };
                 const contextMatches = selectedContextFilters.length === 0 || task.contexts.some(c => selectedContextFilters.includes(c));
                 const energyMatches = () => {
-                    if (!selectedEnergyFilter) return true;
-                    const selectedEnergyIndex = energyLevels.indexOf(selectedEnergyFilter);
+                    if (!activeEnergyFilter) return true;
+                    const selectedEnergyIndex = energyLevels.indexOf(activeEnergyFilter);
                     const taskEnergyIndex = energyLevels.indexOf(task.energy);
                     return taskEnergyIndex <= selectedEnergyIndex;
                 };
@@ -5314,10 +5317,10 @@
                     }
                     
                     // Energy matching score
-                    if (selectedEnergyFilter) {
-                        const selectedEnergyIndex = energyLevels.indexOf(selectedEnergyFilter);
+                    if (activeEnergyFilter) {
+                        const selectedEnergyIndex = energyLevels.indexOf(activeEnergyFilter);
                         const taskEnergyIndex = energyLevels.indexOf(task.energy);
-                        
+
                         if (taskEnergyIndex === selectedEnergyIndex) {
                             score += 50; // Perfect energy match
                         } else if (Math.abs(taskEnergyIndex - selectedEnergyIndex) === 1) {
