@@ -12,6 +12,12 @@
   <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.tailwindcss.com">
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://www.gstatic.com">
+  <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js" crossorigin>
+  <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js" crossorigin>
+  <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
   
   <link rel="manifest" href="/manifest.json">
@@ -23,6 +29,13 @@
   <link rel="icon" type="image/png" href="/selectdologo.png">
   <style>
     :root { font-family: 'Inter', sans-serif; }
+    html {
+      font-size: 106%; /* Slight bump to enhance readability without oversized UI */
+    }
+    body {
+      font-size: 1rem;
+      line-height: 1.6;
+    }
     @supports (font-variation-settings: normal) {
       :root { font-family: 'Inter var', sans-serif; }
     }
@@ -114,12 +127,51 @@
       button, input, select {
         min-height: 44px;
       }
-      
+
       /* Improved spacing for mobile */
       .space-y-4 > * + * {
         margin-top: 1rem;
       }
-      
+
+      /* Sidebar sheet styling */
+      #sidebar {
+        border-radius: 1.5rem 1.5rem 0 0;
+        padding: 1.25rem 1rem 4.5rem;
+        box-shadow: 0 -18px 45px -28px rgba(15,23,42,0.35);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      #sidebar::-webkit-scrollbar {
+        display: none;
+      }
+
+      #sidebar {
+        scrollbar-width: none;
+      }
+
+      #mobileHeader {
+        padding-top: calc(env(safe-area-inset-top, 0px) + 0.5rem);
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+
+      .context-mode-btn {
+        flex: 1;
+        padding-inline: 0.75rem;
+      }
+
+      #timeFilters {
+        display: grid !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.5rem;
+      }
+
+      #timeFilters button {
+        width: 100%;
+        justify-content: center;
+      }
+
       /* Better modal positioning on mobile */
       #modalOverlay {
         padding: 1rem;
@@ -143,12 +195,35 @@
         margin-top: 1rem;
       }
     }
-    
+
     /* Touch-friendly improvements */
     .touch-manipulation {
       touch-action: manipulation;
     }
-    
+
+    @media (max-width: 640px) {
+      #taskSuggestions > .start-task-card,
+      #filteredTaskList > .start-task-card {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+      }
+
+      #filteredTaskList > div h3 {
+        font-size: 1.05rem;
+      }
+
+      #commandHelpBtn {
+        right: 0.5rem;
+      }
+
+      #commandHelpCard {
+        right: 0;
+        left: 0;
+        width: auto;
+      }
+    }
+
     /* Prevent text selection on buttons */
     button {
       user-select: none;
@@ -288,47 +363,254 @@
     }
 
     /* Font size classes */
+    .text-xs {
+      font-size: 0.8rem !important;
+    }
+
+    .text-sm {
+      font-size: 0.9rem !important;
+    }
+
+    .text-base {
+      font-size: 1rem !important;
+    }
+
+    .text-lg {
+      font-size: 1.1rem !important;
+    }
+
+    .text-xl {
+      font-size: 1.25rem !important;
+    }
+
+    .section-header {
+      font-size: 0.95rem !important;
+      line-height: 1.4;
+      margin-bottom: 0.75rem !important;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .section-header svg {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    .step-hint {
+      margin-top: -0.35rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 999px;
+      background: #3b82f6;
+      color: #e2e8f0;
+      font-size: 0.8rem;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.15rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    .chip svg {
+      width: 0.9rem;
+      height: 0.9rem;
+    }
+
+    .chip--blue {
+      background-color: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .chip--orange {
+      background-color: #ffedd5;
+      color: #c2410c;
+    }
+
+    .chip--slate {
+      background-color: #e2e8f0;
+      color: #1f2937;
+    }
+
+    .chip--amber {
+      background-color: #fef3c7;
+      color: #b45309;
+    }
+
+    .icon-16 {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    .icon-20 {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    .start-task-card {
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+      outline: none;
+    }
+
+    .start-task-card:hover,
+    .start-task-card:focus-visible {
+      transform: translateY(-2px);
+      box-shadow: 0 24px 36px -24px rgba(15, 23, 42, 0.35);
+      border-color: #3b82f6 !important;
+      background-color: #f8fbff;
+    }
+
+    .start-task-card:focus-visible {
+      outline: 2px solid rgba(59,130,246,0.5);
+      outline-offset: 2px;
+    }
+
+    .start-task-card__chevron {
+      color: #cbd5f5;
+      transition: color 0.2s ease;
+    }
+
+    .start-task-card:hover .start-task-card__chevron,
+    .start-task-card:focus-visible .start-task-card__chevron {
+      color: #2563eb;
+    }
+
+    /* Task review drawer */
+    #taskReviewDrawerOverlay {
+      pointer-events: none;
+    }
+
+    #taskReviewDrawerPanel {
+      transition: transform 0.25s ease;
+      transform: translateX(110%);
+    }
+
+    #taskReviewDrawerOverlay.active {
+      pointer-events: auto;
+    }
+
+    #taskReviewDrawerOverlay.active #taskReviewDrawerPanel {
+      transform: translateX(0);
+    }
+
+    /* Utility bar */
+    #utilityBar {
+      background: #1d4ed8;
+      color: #f8fafc;
+      font-size: 0.8rem;
+      letter-spacing: 0.01em;
+    }
+
+    .utility-bar-inner {
+      width: 100%;
+      margin: 0;
+    }
+
+    .utility-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.8rem;
+      border-radius: 999px;
+      font-weight: 600;
+      transition: background-color 0.15s ease, color 0.15s ease;
+      color: inherit;
+    }
+
+    .utility-btn:hover {
+      background-color: rgba(255,255,255,0.12);
+    }
+
+    /* Settings drawer */
+    #settingsDrawerOverlay {
+      pointer-events: none;
+    }
+
+    #settingsDrawerPanel {
+      transition: transform 0.25s ease;
+      transform: translateX(110%);
+    }
+
+    #settingsDrawerOverlay.active {
+      pointer-events: auto;
+    }
+
+    #settingsDrawerOverlay.active #settingsDrawerPanel {
+      transform: translateX(0);
+    }
+
     .text-small-size {
-      font-size: 0.75rem; /* 12px */
+      font-size: 0.9rem;
     }
 
     .text-small-size h1, .text-small-size h2, .text-small-size h3, .text-small-size h4, .text-small-size h5, .text-small-size h6 {
-      font-size: 0.875rem; /* 14px */
+      font-size: 1.05rem;
     }
 
     .text-medium-size {
-      font-size: 0.875rem; /* 14px - default */
+      font-size: 0.95rem;
     }
 
     .text-large-size {
-      font-size: 1rem; /* 16px */
+      font-size: 1.05rem;
     }
 
     .text-large-size h1, .text-large-size h2, .text-large-size h3, .text-large-size h4, .text-large-size h5, .text-large-size h6 {
-      font-size: 1.125rem; /* 18px */
+      font-size: 1.2rem;
     }
 
     .text-extra-large-size {
-      font-size: 1.125rem; /* 18px */
+      font-size: 1.15rem;
     }
 
     .text-extra-large-size h1, .text-extra-large-size h2, .text-extra-large-size h3, .text-extra-large-size h4, .text-extra-large-size h5, .text-extra-large-size h6 {
-      font-size: 1.25rem; /* 20px */
+      font-size: 1.35rem;
     }
 
     /* Override specific section headers to maintain consistent sizing */
-    .text-small-size .section-header,
-    .text-medium-size .section-header,
-    .text-large-size .section-header,
+    .text-small-size .section-header {
+      font-size: 0.92rem !important;
+    }
+    .text-medium-size .section-header {
+      font-size: 0.98rem !important;
+    }
+    .text-large-size .section-header {
+      font-size: 1.04rem !important;
+    }
     .text-extra-large-size .section-header {
-      font-size: 1rem !important; /* 16px - consistent across all font sizes */
+      font-size: 1.08rem !important;
+    }
+
+    .step-toolbar {
+      margin-bottom: 0.75rem !important;
+    }
+
+    .step-toolbar .section-header {
+      margin-bottom: 0 !important;
     }
 
     .text-small-size .sidebar-header,
     .text-medium-size .sidebar-header,
     .text-large-size .sidebar-header,
     .text-extra-large-size .sidebar-header {
-      font-size: 0.875rem !important; /* 14px - consistent across all font sizes */
+      font-size: 0.95rem !important;
     }
 
     /* Reduced motion */
@@ -337,54 +619,268 @@
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
     }
+
+    /* Focus overlay enhancements */
+    #focusOverlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(140deg, rgba(15,23,42,0.72), rgba(30,41,59,0.78));
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      overflow-y: auto;
+    }
+
+    #focusOverlay::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 15% 20%, rgba(56,189,248,0.18), transparent 60%),
+                  radial-gradient(circle at 85% 30%, rgba(129,140,248,0.22), transparent 55%),
+                  radial-gradient(circle at 50% 80%, rgba(59,130,246,0.16), transparent 65%);
+      opacity: 0.9;
+      animation: focusOverlayDrift 24s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+
+    @keyframes focusOverlayDrift {
+      0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.9; }
+      50% { transform: translate3d(-1.5%, 1.5%, 0) scale(1.02); opacity: 0.95; }
+      100% { transform: translate3d(1%, -1.5%, 0) scale(1.01); opacity: 0.9; }
+    }
+
+    .focus-session-card {
+      position: relative;
+      background: linear-gradient(135deg, rgba(255,255,255,0.92), rgba(241,245,249,0.9), rgba(224,231,255,0.92));
+      background-size: 180% 180%;
+      border-radius: 28px;
+      border: 1px solid rgba(148,163,184,0.28);
+      box-shadow: 0 40px 80px -28px rgba(15,23,42,0.45);
+      overflow: hidden;
+      animation: focusCardGradient 28s ease-in-out infinite;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+
+    .focus-session-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, rgba(96,165,250,0.22), transparent 65%),
+                  radial-gradient(circle at bottom right, rgba(167,139,250,0.18), transparent 60%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    @keyframes focusCardGradient {
+      0% { background-position: 0% 0%; }
+      50% { background-position: 100% 100%; }
+      100% { background-position: 0% 0%; }
+    }
+
+    .focus-session-top {
+      position: relative;
+      z-index: 1;
+    }
+
+    .focus-task-title {
+      font-size: clamp(1.75rem, 3vw, 2.25rem);
+      font-weight: 700;
+      color: #0f172a;
+      letter-spacing: -0.01em;
+    }
+
+    .focus-task-subtitle {
+      font-size: 0.95rem;
+      color: #475569;
+      margin-top: 0.35rem;
+    }
+
+    .focus-status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border: 1px solid rgba(59,130,246,0.25);
+      background: rgba(59,130,246,0.12);
+      color: #1d4ed8;
+    }
+
+    .focus-status-chip--accent {
+      border-color: rgba(16,185,129,0.22);
+      background: rgba(16,185,129,0.12);
+      color: #047857;
+    }
+
+    .focus-timer-display {
+      position: relative;
+      z-index: 1;
+      font-size: clamp(3rem, 6vw, 3.75rem);
+      font-weight: 700;
+      color: #0f172a;
+      letter-spacing: 0.12em;
+    }
+
+    .focus-progress-ring {
+      position: relative;
+      width: clamp(220px, 34vw, 260px);
+      aspect-ratio: 1/1;
+      margin: 0 auto 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .focus-progress-ring svg {
+      position: absolute;
+      inset: 0;
+      transform: rotate(-90deg);
+    }
+
+    .focus-progress-ring circle {
+      fill: none;
+      stroke-width: 12;
+      stroke-linecap: round;
+    }
+
+    .focus-progress-bg {
+      stroke: rgba(148,163,184,0.26);
+    }
+
+    .focus-progress-value {
+      stroke: url(#focusProgressGradient);
+      stroke-dasharray: 0;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 0.35s ease, stroke 0.35s ease;
+      filter: drop-shadow(0 6px 12px rgba(59,130,246,0.18));
+    }
+
+    .focus-progress-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+    }
+
+    @media (max-width: 640px) {
+      .focus-progress-ring {
+        width: 220px;
+      }
+    }
+
+    .focus-controls button,
+    .focus-actions button {
+      border-radius: 18px;
+      font-weight: 600;
+      min-width: 180px;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .focus-controls button:hover,
+    .focus-actions button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 25px -12px rgba(15,23,42,0.3);
+    }
+
+    .focus-action-hint {
+      font-size: 0.7rem;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: #94a3b8;
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans overflow-x-hidden">
 
   <div id="loginScreen" class="flex h-screen w-screen items-center justify-center">
     <div class="text-center p-8 bg-white rounded-xl shadow-md border border-slate-200 max-w-md w-full mx-4">
-        <img src="selectdologo.png" alt="Select + Do Logo" class="w-48 h-auto mb-6 mx-auto">
-        <h1 class="text-2xl font-bold text-slate-800 mb-2">Welcome to Select + Do</h1>
-        <p class="text-slate-500 mb-8">Sign in to continue to your personalized dashboard.</p>
-        
+        <img src="selectdologo.png" alt="Select + Do Logo" class="w-44 h-auto mb-5 mx-auto">
+        <h1 class="sr-only">Sign in to Select + Do</h1>
+
+        <ul class="text-left text-sm text-slate-600 space-y-2 mb-6 list-disc pl-5">
+          <li><span class="font-medium">Personalized suggestions</span> help you pick the right task fast.</li>
+          <li><span class="font-medium">Built-in focus tools</span> keep momentum with sessions and streaks.</li>
+          <li><span class="font-medium">Instant demo access</span> lets you explore with sample data anytime.</li>
+        </ul>
+
+        <!-- Primary Entry Points -->
+        <div class="mb-6 text-left">
+          <span class="text-xs font-semibold text-slate-500">Get started your way</span>
+          <div class="mt-2 grid gap-3">
+            <button id="googleLoginBtn" class="w-full flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-lg transition-colors text-base font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm">
+              <svg class="w-5 h-5 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.574l6.19,5.238C42.022,35.244,44,30.036,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
+              Continue with Google
+            </button>
+            <button id="guestLoginBtn" class="w-full flex items-center justify-center bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 py-3 px-6 rounded-lg transition-colors text-base font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 shadow-sm">
+              Browse the interactive demo
+            </button>
+          </div>
+          <p class="mt-3 text-xs text-slate-500">No signup required—explore with sample data or sign in to save your own.</p>
+        </div>
+
+        <div class="flex items-center mb-5 text-xs text-slate-400 uppercase tracking-wide">
+            <div class="flex-1 border-t border-slate-200"></div>
+            <span class="px-3">Or use email</span>
+            <div class="flex-1 border-t border-slate-200"></div>
+        </div>
+
         <!-- Email/Password Form -->
-        <div id="emailPasswordForm" class="mb-6">
-            <div class="mb-4">
-                <input type="email" id="emailInput" placeholder="Email address" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <div id="emailPasswordForm" class="mb-5 text-left space-y-3">
+            <div>
+                <label for="emailInput" class="block text-xs font-medium text-slate-600 mb-1">Email address</label>
+                <input type="email" id="emailInput" placeholder="you@example.com" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             </div>
-            <div class="mb-4">
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label for="passwordInput" class="text-xs font-medium text-slate-600">Password</label>
+                  <button id="emailCreateAccountLink" type="button" class="text-xs text-blue-500 hover:text-blue-600 font-medium">Need an account?</button>
+                </div>
                 <input type="password" id="passwordInput" placeholder="Password" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             </div>
-            <div class="flex gap-2 mb-4">
-                <button id="signInBtn" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <div class="flex gap-2">
+                <button id="signInBtn" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white py-3 px-4 rounded-lg transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900">
                     Sign In
                 </button>
-                <button id="signUpBtn" class="flex-1 bg-slate-500 hover:bg-slate-600 text-white py-3 px-4 rounded-lg transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500">
-                    Sign Up
+                <button id="signUpBtn" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-800 py-3 px-4 rounded-lg transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
+                    Create Account
                 </button>
             </div>
-            <div id="authError" class="text-red-500 text-sm mb-4 hidden"></div>
+            <div id="authError" class="text-red-500 text-sm hidden"></div>
         </div>
-        
-        <!-- Divider -->
-        <div class="flex items-center mb-6">
-            <div class="flex-1 border-t border-slate-300"></div>
-            <span class="px-4 text-slate-500 text-sm">or</span>
-            <div class="flex-1 border-t border-slate-300"></div>
-        </div>
-        
-        <!-- Google Sign In -->
-        <button id="googleLoginBtn" class="w-full flex items-center justify-center bg-white hover:bg-slate-50 text-slate-700 py-3 px-6 rounded-lg transition-colors text-base font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 border border-slate-300">
-            <svg class="w-6 h-6 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48px" height="48px"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.574l6.19,5.238C42.022,35.244,44,30.036,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
-            Sign in with Google
-        </button>
-        
-        <!-- Continue as Guest -->
-        <div class="mt-4 text-center">
-            <button id="guestLoginBtn" class="text-slate-400 hover:text-blue-500 p-1.5 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
-                Continue as Guest
-        </button>
-        </div>
+
+        <!-- Continue as Guest placeholder removed (button moved above) -->
+    </div>
+  </div>
+
+  <div id="utilityBar" class="hidden w-full shadow-sm">
+    <div class="utility-bar-inner px-4 sm:px-6 py-1.5 h-10 flex items-center justify-end gap-2">
+      <button id="openTaskReviewDrawerIconBtn" class="utility-btn" type="button">
+        <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 19h16" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M7 15l3-4 4 3 5-6" />
+        </svg>
+        Task Review
+      </button>
+      <button id="desktopSettingsBtn" class="utility-btn" type="button">
+        <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6a6 6 0 100 12 6 6 0 000-12z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v2m0 16v2m-8-8H2m20 0h-2m-3.757-6.243l1.414-1.414M6.343 17.657l-1.414 1.414m0-14.828l1.414 1.414M17.657 17.657l1.414 1.414" />
+        </svg>
+        Settings
+      </button>
+      <button class="utility-btn" type="button">
+        <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 14h.01M16 10h.01M21 12c0 5.523-4.477 10-10 10S1 17.523 1 12 5.477 2 11 2s10 4.477 10 10z" />
+        </svg>
+        Help
+      </button>
     </div>
   </div>
 
@@ -411,20 +907,33 @@
 
       <div class="flex justify-between items-center mb-2">
         <img src="selectdologo.png" alt="Select + Do Logo" class="w-32 h-auto">
-        <button id="desktopSettingsBtn" class="text-slate-500 hover:text-slate-700 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" title="Accessibility Settings">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" /></svg>
-        </button>
       </div>
 
       <button id="addTaskBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2.5 px-4 rounded-lg transition-colors text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 touch-manipulation active:bg-blue-700 mt-6 md:mt-0">
-        + Add New Task
+        + Add new task
       </button>
 
       
        <div class="mb-3 mt-4 relative">
-        <svg class="w-5 h-5 text-slate-400 absolute top-1/2 left-3 -translate-y-1/2 pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" /></svg>
-        <input id="unifiedCommandInput" type="text" placeholder="Search or create new. Fix sink @standard #personal" class="w-full border border-slate-200 p-2 pl-10 rounded-lg text-xs placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" />
-        <div id="commandSuggestions" class="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-50 hidden max-h-60 overflow-y-auto"></div>
+        <svg class="icon-16 text-slate-400 absolute top-1/2 left-3 -translate-y-1/2 pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" /></svg>
+        <input id="unifiedCommandInput" type="text" placeholder="Search tasks or type commands…" class="w-full border border-slate-200 p-2 pl-10 rounded-lg text-xs placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" autocomplete="off" />
+        <button id="commandHelpBtn" class="absolute inset-y-0 right-2 flex items-center text-slate-400 hover:text-blue-500 text-xs" aria-label="Command help">
+          ?
+        </button>
+        <div id="commandHelpCard" class="absolute top-full right-0 mt-2 w-72 bg-white border border-slate-200 rounded-lg shadow-lg p-3 text-xs text-left hidden z-40">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-semibold text-slate-700">Quick command tips</span>
+            <button id="closeCommandHelpBtn" class="text-slate-300 hover:text-slate-500" aria-label="Close command tips">✕</button>
+          </div>
+          <ul class="space-y-2 text-slate-500">
+            <li><span class="font-medium text-slate-700">Search</span>: type any word (e.g. <span class="italic">meeting</span>)</li>
+            <li><span class="font-medium text-slate-700">New task</span>: <span class="italic">Fix sink @standard #personal</span></li>
+            <li><span class="font-medium text-slate-700">Project</span>: type <span class="italic">project:Personal</span></li>
+            <li><span class="font-medium text-slate-700">Energy</span>: use <span class="italic">energy:High</span></li>
+            <li><span class="font-medium text-slate-700">Time</span>: <span class="italic">time:15</span> or <span class="italic">time:Quick</span></li>
+          </ul>
+        </div>
+        <div id="commandSuggestions" class="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-30 hidden max-h-60 overflow-y-auto"></div>
        </div>
 
       <div id="projectsContainer" class="space-y-3 overflow-y-auto flex-grow -mx-2 px-2">
@@ -473,31 +982,36 @@
       
       <!-- Simplified Task Selection -->
       <div class="mb-6 bg-white p-5 rounded-xl border border-slate-200">
-        <h2 class="font-semibold text-slate-900 mb-4 text-base">Find a task</h2>
+        <div class="flex items-center justify-between mb-4 gap-3">
+          <h2 class="font-semibold text-slate-900 text-base">Find a Task</h2>
+          <button id="clearFiltersBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg transition-colors text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 touch-manipulation active:bg-slate-300 border border-slate-200">Reset filters</button>
+        </div>
         
         <!-- Step 1: Context Selection -->
         <div class="mb-6">
-          <h3 class="font-medium text-slate-600 mb-3 text-sm section-header">1. What mode are you in?</h3>
+          <h3 class="font-medium text-slate-600 text-sm section-header"><span class="step-badge">1</span>What Mode Are You In?</h3>
+          <p id="modeStepHint" class="text-xs text-blue-500 step-hint hidden">Choose Work or Personal to start matching tasks.</p>
           <div class="inline-flex bg-slate-100 rounded-lg p-1 border border-slate-200">
             <button id="workModeBtn" class="context-mode-btn flex items-center justify-center gap-3 px-4 py-2 rounded-md transition-all text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1" data-context="Work">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <svg class="icon-20" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd" />
                 <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z" />
               </svg>
               Work
             </button>
             <button id="personalModeBtn" class="context-mode-btn flex items-center justify-center gap-3 px-4 py-2 rounded-md transition-all text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1" data-context="Personal">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <svg class="icon-20" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z" clip-rule="evenodd" />
               </svg>
               Personal
             </button>
           </div>
         </div>
-
+        
         <!-- Step 2: Time Selection -->
         <div class="mb-6">
-          <h3 class="font-medium text-slate-600 mb-3 text-sm section-header">2. How much time do you have?</h3>
+          <h3 class="font-medium text-slate-600 text-sm section-header"><span class="step-badge">2</span>How Much Time Do You Have?</h3>
+          <p id="timeStepHint" class="text-xs text-blue-500 step-hint hidden">Pick a time window to see tasks that fit.</p>
           <div class="flex flex-wrap gap-2">
                 <div id="timeFilters" class="flex flex-wrap gap-2"></div>
             <div class="flex items-center gap-2 ml-2">
@@ -510,10 +1024,10 @@
 
         <!-- Step 3: Task Suggestions -->
         <div id="taskSuggestionsSection" class="hidden mb-6">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="font-medium text-slate-600 text-sm">3. Pick a task</h3>
+          <div class="flex items-center justify-between step-toolbar">
+            <h3 class="font-medium text-slate-600 text-sm section-header"><span class="step-badge">3</span>Pick a Task</h3>
             <button id="reshuffleBtn" class="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center">
-              <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <svg class="icon-16 mr-1" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
               Reshuffle
@@ -528,7 +1042,7 @@
         <div class="mb-4">
           <button id="toggleAdvancedFilters" class="text-xs text-slate-600 hover:text-slate-700 font-medium mb-3 flex items-center">
             <span id="advancedFiltersIcon" class="mr-1">▼</span>
-            Advanced Filters
+            Advanced filters
           </button>
           <div id="advancedFilters" class="hidden space-y-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
             <div>
@@ -571,61 +1085,29 @@
             
         </div>
 
-        <!-- Action Buttons -->
-        <div class="flex flex-col sm:flex-row gap-3 sm:gap-2 border-t border-slate-100 pt-4">
-          <button id="clearFiltersBtn" class="w-full sm:w-auto bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-3 sm:py-2 rounded-lg transition-colors text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 touch-manipulation active:bg-slate-300 border border-slate-200">Clear All</button>
-        </div>
       </div>
       
+      <div class="flex justify-end mb-4">
+      </div>
+
       <!-- Content Area -->
       <div id="contentArea" class="mb-6">
-        
-
+        <div id="contentEmptyState" class="bg-white border border-slate-200 rounded-xl p-5 text-sm text-slate-600">
+          <h3 id="contentEmptyStateTitle" class="font-semibold text-slate-800 mb-2 flex items-center text-base">
+            <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            Welcome! Here’s how to get started
+          </h3>
+          <div id="contentEmptyStateBody" class="space-y-2">
+            <p><span class="font-medium text-slate-700">1.</span> Capture a task with <span class="font-semibold">+ Add New Task</span> or by typing it in the command bar.</p>
+            <p><span class="font-medium text-slate-700">2.</span> Choose a mode and time in <span class="font-semibold">Find a task</span> to get a smart suggestion.</p>
+            <p><span class="font-medium text-slate-700">3.</span> Visit <span class="font-semibold">Task Review</span> below to celebrate progress and plan what’s next.</p>
+          </div>
         </div>
+      </div>
         
       <div id="filteredTaskList" class="space-y-4">
             </div>
       
-      <!-- Task Review Section -->
-      <div class="mt-8 bg-white p-5 rounded-xl border border-slate-200">
-        <div class="flex items-center justify-between cursor-pointer hover:bg-slate-50 p-2 rounded-lg transition-colors -m-2" id="taskReviewHeader">
-          <h2 class="font-semibold text-slate-900 text-sm section-header">📊 Task Review</h2>
-          <button class="text-slate-400 hover:text-slate-600 p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <svg class="w-5 h-5 task-review-collapse-icon expanded" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-            </div>
-        <div id="taskReviewContent" class="task-review-content expanded mt-2">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
-            <!-- Completed Today Column -->
-            <div>
-              <h3 class="font-semibold text-slate-800 mb-3 text-sm flex items-center">
-                <span class="text-sm mr-2">✅</span>
-                Completed Today
-              </h3>
-              <div id="completedTaskList" class="space-y-1 overflow-y-auto max-h-[40vh]">
-              </div>
-            </div>
-            
-            <!-- Weekly Review Column -->
-            <div>
-              <h3 class="font-semibold text-slate-800 mb-3 text-sm flex items-center">
-                <span class="text-sm mr-2">📈</span>
-                <span class="section-header">Weekly Insights</span>
-              </h3>
-              <div id="weeklyReviewContent" class="space-y-4 text-sm">
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- User Profile Section -->
-      <div class="mt-6 bg-white p-5 rounded-xl border border-slate-200">
-        <div id="userDisplay">
-        </div>
-      </div>
     </div>
   </div>
 
@@ -941,7 +1423,43 @@
     </div>
   </div>
 
-    <div id="projectDeleteModalOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-[80] p-4" inert aria-hidden="true">
+  <!-- Task Review Drawer -->
+  <div id="taskReviewDrawerOverlay" class="fixed inset-0 bg-transparent hidden z-[95] flex justify-end">
+    <div id="taskReviewDrawerPanel" class="ml-auto h-full w-full sm:w-[28rem] bg-white shadow-2xl flex flex-col pointer-events-auto">
+      <button id="closeTaskReviewDrawerBtn" class="flex items-center justify-between w-full p-4 border-b border-slate-200 text-left hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+        <span class="font-semibold text-slate-900 text-base">Task Review</span>
+        <svg class="icon-20 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+      <div id="taskReviewContent" class="task-review-content flex-1 overflow-y-auto p-4 space-y-6">
+        <section class="space-y-3">
+          <div class="bg-slate-100 border border-slate-200 rounded-lg px-3 py-3 flex items-center gap-2">
+            <svg class="icon-20 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 4V2m8 2V2m-4 11l-2 2 2 2 4-4m-9 7h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v11a2 2 0 002 2z" />
+            </svg>
+            <span class="text-sm font-semibold tracking-wide text-slate-700 uppercase">Completed Today</span>
+          </div>
+          <div id="completedTaskList" class="space-y-2 overflow-y-auto max-h-[38vh] pr-1">
+          </div>
+        </section>
+
+        <section class="space-y-3">
+          <div class="bg-slate-100 border border-slate-200 rounded-lg px-3 py-3 flex items-center gap-2">
+            <svg class="icon-20 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 19h16" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M7 15l3-4 4 3 5-6" />
+            </svg>
+            <span class="text-sm font-semibold tracking-wide text-slate-700 uppercase">Weekly Insights</span>
+          </div>
+          <div id="weeklyReviewContent" class="space-y-4 text-sm">
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div id="projectDeleteModalOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-[80] p-4" inert aria-hidden="true">
     <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
       <div class="flex items-center mb-4">
         <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
@@ -1062,46 +1580,56 @@
     </div>
   </div>
 
-  <div id="focusOverlay" class="fixed inset-0 z-[100] flex flex-col justify-center items-center hidden p-4" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);">
-    <!-- Subtle geometric pattern background -->
-    <div class="absolute inset-0 opacity-5" style="background-image: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23000000" fill-opacity="0.1"><path d="M30 0l15 15-15 15-15-15z"/></g></g></svg>'); background-size: 60px 60px;"></div>
-    
-    <div class="relative bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-lg p-8 backdrop-blur-sm">
-      <!-- Header -->
-      <div class="text-center mb-8">
-        <h1 id="focusTaskName" class="text-2xl font-bold text-slate-800 mb-3"></h1>
-        <div id="focusTimeBracket" class="text-sm text-slate-500 bg-slate-100 inline-block px-4 py-2 rounded-full font-medium"></div>
+  <div id="focusOverlay" class="fixed inset-0 z-[100] flex flex-col justify-center items-center hidden p-4">
+
+    <div class="focus-session-card relative w-full max-w-xl lg:max-w-2xl p-8 sm:p-10">
+      <div class="focus-session-top text-center mb-8">
+        <div class="flex items-center justify-center gap-2 mb-4">
+          <span class="focus-status-chip">Focus Session</span>
+          <span id="focusTimeBracket" class="focus-status-chip focus-status-chip--accent"></span>
+        </div>
+        <h1 id="focusTaskName" class="focus-task-title mb-1"></h1>
+        <p class="focus-task-subtitle">Stay present—we'll keep the clock.</p>
       </div>
-      
-      <!-- Timer Display -->
-      <div class="text-center mb-8">
-        <div id="focusTimerDisplay" class="text-4xl font-bold text-slate-700 mb-2 tracking-tight"></div>
-        <div class="text-sm text-slate-400 font-medium">Elapsed Time</div>
+
+      <div class="focus-progress-ring mb-8">
+        <svg viewBox="0 0 240 240" aria-hidden="true">
+          <defs>
+            <linearGradient id="focusProgressGradient" x1="1" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#60a5fa"></stop>
+              <stop offset="100%" stop-color="#a855f7"></stop>
+            </linearGradient>
+          </defs>
+          <circle class="focus-progress-bg" cx="120" cy="120" r="102"></circle>
+          <circle id="focusProgressCircle" class="focus-progress-value" cx="120" cy="120" r="102"></circle>
+        </svg>
+        <div class="focus-progress-inner">
+          <div id="focusTimerDisplay" class="focus-timer-display">00:00</div>
+          <div class="focus-action-hint">Elapsed Time</div>
+        </div>
       </div>
-      
-      <!-- Control Buttons -->
-      <div class="flex flex-col sm:flex-row gap-3 justify-center mb-6">
-        <button id="focusPauseBtn" class="flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-3 px-6 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 hover:shadow-md">
+
+      <div class="focus-controls flex flex-col sm:flex-row gap-3 justify-center mb-6">
+        <button id="focusPauseBtn" class="focus-btn flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-3 px-7 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
           <svg id="pauseIcon" class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" /></svg>
           <svg id="playIcon" class="w-5 h-5 mr-2 hidden" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.647c1.295.748 1.295 2.538 0 3.286L8.029 20.99c-1.25.72-2.779-.217-2.779-1.643V5.653z" /></svg>
-            <span id="focusPauseText">Pause</span>
+          <span id="focusPauseText">Pause</span>
         </button>
-        <button id="focusStopBtn" class="flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-600 font-medium py-3 px-6 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 hover:shadow-md">
+        <button id="focusStopBtn" class="focus-btn flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-600 font-medium py-3 px-7 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
           <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 7.5A2.25 2.25 0 017.5 5.25h9a2.25 2.25 0 012.25 2.25v9a2.25 2.25 0 01-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25v-9z" /></svg>
           <span>Stop & Discard</span>
         </button>
-    </div>
-      
-      <!-- Action Buttons -->
-      <div id="focusActionButtons" class="flex flex-col sm:flex-row gap-3 justify-center">
-        <button id="focusSaveProgressBtn" class="hidden flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 hover:shadow-lg">
+      </div>
+
+      <div id="focusActionButtons" class="focus-actions flex flex-col sm:flex-row gap-3 justify-center">
+        <button id="focusSaveProgressBtn" class="focus-btn hidden flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-7 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
           <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12" /></svg>
           <span>Save Progress</span>
         </button>
-        <button id="focusCompleteBtn" class="flex items-center justify-center bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 hover:shadow-lg">
+        <button id="focusCompleteBtn" class="focus-btn flex items-center justify-center bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-7 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
           <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
-        <span>Mark as Complete</span>
-    </button>
+          <span>Mark as Complete</span>
+        </button>
       </div>
     </div>
   </div>
@@ -1121,23 +1649,25 @@
     console.log('🔄 Loading Firebase scripts...');
     
     try {
-        console.log('🔄 Importing Firebase App...');
-        const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
-        console.log('✅ Firebase App loaded');
-        
-        console.log('🔄 Importing Firebase Auth...');
-        const { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
-        console.log('✅ Firebase Auth loaded');
-        
-        console.log('🔄 Importing Firebase Firestore...');
-        const { getFirestore, doc, onSnapshot, setDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-        console.log('✅ Firebase Firestore loaded');
+        console.log('🔄 Importing Firebase modules in parallel...');
+        const [
+            { initializeApp },
+            { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword },
+            { getFirestore, doc, onSnapshot, setDoc }
+        ] = await Promise.all([
+            import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"),
+            import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"),
+            import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js")
+        ]);
+        console.log('✅ Firebase modules loaded');
         
         // Make functions available globally
         window.initializeApp = initializeApp;
         window.getAuth = getAuth;
         window.GoogleAuthProvider = GoogleAuthProvider;
         window.signInWithPopup = signInWithPopup;
+        window.signInWithRedirect = signInWithRedirect;
+        window.getRedirectResult = getRedirectResult;
         window.signOut = signOut;
         window.onAuthStateChanged = onAuthStateChanged;
         window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
@@ -1200,6 +1730,10 @@
     let advancedFiltersOpen = false;
     let originalCollapsedProjects = new Set(); // Track original collapsed state before search
     const energyLevels = ['Low 🧠', 'Medium 💪', 'High 🔥'];
+    const TIME_BRACKET_MINUTES = { Quick: 15, Standard: 30, Long: 60 };
+    const DEFAULT_SESSION_MINUTES = 25;
+    const FOCUS_PROGRESS_RADIUS = 102;
+    const FOCUS_PROGRESS_CIRCUMFERENCE = 2 * Math.PI * FOCUS_PROGRESS_RADIUS;
     let timerInterval = null;
     let elapsedSeconds = 0;
     let isPaused = false;
@@ -1207,6 +1741,7 @@
     let currentTask = null;
     let sessionLength = null; // Track session length for Find a task selections
     let targetTimeBracket = null;
+    let sessionTargetSeconds = 0;
     const originalTitle = document.title;
     let currentUser = null;
     let lastLoginDate = null; // Add this
@@ -1245,11 +1780,77 @@
     const focusStopBtn = document.getElementById('focusStopBtn');
     const focusCompleteBtn = document.getElementById('focusCompleteBtn');
     const focusSaveProgressBtn = document.getElementById('focusSaveProgressBtn');
+    const focusProgressCircle = document.getElementById('focusProgressCircle');
+    const focusTimeBracketChip = document.getElementById('focusTimeBracket');
     const menuBtn = document.getElementById('menuBtn');
     const closeMenuBtn = document.getElementById('closeMenuBtn');
     const mobileHeader = document.getElementById('mobileHeader');
     const unifiedCommandInput = document.getElementById('unifiedCommandInput');
     const commandSuggestions = document.getElementById('commandSuggestions');
+    const contentArea = document.getElementById('contentArea');
+    const contentEmptyState = document.getElementById('contentEmptyState');
+    const contentEmptyStateTitle = document.getElementById('contentEmptyStateTitle');
+    const contentEmptyStateBody = document.getElementById('contentEmptyStateBody');
+    const modeStepHint = document.getElementById('modeStepHint');
+    const timeStepHint = document.getElementById('timeStepHint');
+    const taskSuggestionsSection = document.getElementById('taskSuggestionsSection');
+    const utilityBar = document.getElementById('utilityBar');
+    const openTaskReviewDrawerIconBtn = document.getElementById('openTaskReviewDrawerIconBtn');
+    const taskReviewDrawerOverlay = document.getElementById('taskReviewDrawerOverlay');
+    const taskReviewDrawerPanel = document.getElementById('taskReviewDrawerPanel');
+    const closeTaskReviewDrawerBtn = document.getElementById('closeTaskReviewDrawerBtn');
+    const settingsDrawerOverlay = document.getElementById('settingsDrawerOverlay');
+    const settingsDrawerPanel = document.getElementById('settingsDrawerPanel');
+    const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+    const logoutBtnDrawer = document.getElementById('logoutBtnDrawer');
+
+    if (focusProgressCircle) {
+        focusProgressCircle.style.strokeDasharray = `${FOCUS_PROGRESS_CIRCUMFERENCE}`;
+        focusProgressCircle.style.strokeDashoffset = `${FOCUS_PROGRESS_CIRCUMFERENCE}`;
+    }
+
+    const getMinutesFromBracket = (bracket) => {
+        if (!bracket) return DEFAULT_SESSION_MINUTES;
+        return TIME_BRACKET_MINUTES[bracket] || DEFAULT_SESSION_MINUTES;
+    };
+
+    // Content area messaging
+    let contentAreaState = 'welcome';
+    const contentMessages = {
+        welcome: {
+            title: "Welcome! Here’s how to get started",
+            body: `<p><span class="font-medium text-slate-700">1.</span> Capture a task with <span class="font-semibold">+ Add New Task</span> or by typing it in the command bar.</p>
+                   <p><span class="font-medium text-slate-700">2.</span> Choose a mode and time in <span class="font-semibold">Find a task</span> to get a smart suggestion.</p>
+                   <p><span class="font-medium text-slate-700">3.</span> Visit <span class="font-semibold">Task Review</span> below to celebrate progress and plan what’s next.</p>`
+        },
+        noTasks: {
+            title: "No tasks yet",
+            body: `<p>Add your first task with the blue <span class="font-semibold">+ Add New Task</span> button or try typing <span class="italic">"Plan weekend @standard #personal"</span> in the command bar.</p>`
+        },
+        noMatches: {
+            title: "No tasks match these filters",
+            body: `<p>Broaden your filters or adjust time, context, or energy to find a better fit. You can always add a new task that matches what you need right now.</p>`
+        }
+    };
+
+    const setContentAreaMessage = (key) => {
+        if (!contentArea || !contentEmptyState || !contentEmptyStateTitle || !contentEmptyStateBody) return;
+        const message = contentMessages[key] || contentMessages.welcome;
+        contentEmptyStateTitle.innerHTML = message.title;
+        contentEmptyStateBody.innerHTML = message.body;
+        contentArea.classList.remove('hidden');
+        contentAreaState = key;
+    };
+
+    const hideContentArea = () => {
+        if (contentArea) {
+            contentArea.classList.add('hidden');
+        }
+        contentAreaState = 'hidden';
+    };
+
+    // Initialize default content message
+    setContentAreaMessage('welcome');
 
     // --- CORE FUNCTIONS ---
     const saveDataToFirestore = async () => {
@@ -1277,15 +1878,112 @@
         setupLazyLoading(); // Setup lazy loading for performance
         console.log('🎨 renderAll completed');
     };
+
+    const openTaskReviewDrawer = () => {
+        if (!taskReviewDrawerOverlay) return;
+        taskReviewCollapsed = false;
+        renderCompletedTasks();
+        renderWeeklyReview();
+        taskReviewDrawerOverlay.classList.remove('hidden');
+        requestAnimationFrame(() => taskReviewDrawerOverlay.classList.add('active'));
+        document.body.classList.add('overflow-hidden');
+    };
+
+    const closeTaskReviewDrawer = () => {
+        if (!taskReviewDrawerOverlay) return;
+        taskReviewDrawerOverlay.classList.remove('active');
+        setTimeout(() => {
+            if (taskReviewDrawerOverlay && !taskReviewDrawerOverlay.classList.contains('active')) {
+                taskReviewDrawerOverlay.classList.add('hidden');
+            }
+        }, 260);
+        document.body.classList.remove('overflow-hidden');
+    };
       
-    const handleGoogleLogin = () => {
+    const handleGoogleLogin = async () => {
         console.log('🔐 handleGoogleLogin function called!');
-        console.log('🔐 Google login clicked');
         const provider = new window.GoogleAuthProvider();
-        window.signInWithPopup(auth, provider).catch(error => {
-            console.error("Google login failed: ", error);
-            showAuthError("Google login failed. Please try again.");
-        });
+        provider.setCustomParameters({ prompt: 'select_account' });
+
+        const fallbackToRedirect = async () => {
+            try {
+                console.log('🔐 Falling back to Google redirect sign-in');
+                await window.signInWithRedirect(auth, provider);
+            } catch (redirectError) {
+                console.error('Google redirect sign-in failed:', redirectError);
+                showAuthError(getAuthErrorMessage(redirectError.code));
+            }
+        };
+
+        try {
+            const result = await window.signInWithPopup(auth, provider);
+            console.log('✅ Google popup sign-in success:', result?.user?.uid || 'no-user');
+        } catch (error) {
+            console.error('Google popup login failed: ', error);
+            const redirectFallbackErrors = [
+                'auth/operation-not-supported-in-this-environment',
+                'auth/auth-domain-config-required',
+                'auth/unauthorized-domain',
+                'auth/popup-blocked'
+            ];
+
+            if (error.code === 'auth/unauthorized-domain') {
+                const host = window.location.hostname || 'this domain';
+                console.warn(`Google sign-in blocked for unauthorized domain: ${host}`);
+                showAuthError(`Google sign-in is blocked for ${host}. Add it to Firebase Auth → Settings → Authorized domains or use a configured domain.`);
+                return;
+            }
+
+            if (redirectFallbackErrors.includes(error.code)) {
+                await fallbackToRedirect();
+                return;
+            }
+
+            if (error.code === 'auth/popup-closed-by-user') {
+                showAuthError('The Google sign-in popup was closed before completing. Please try again.');
+                return;
+            }
+
+            showAuthError(getAuthErrorMessage(error.code));
+        }
+    };
+
+    const setEmailAuthLoading = (isLoading, action = 'signIn') => {
+        const signInBtn = document.getElementById('signInBtn');
+        const signUpBtn = document.getElementById('signUpBtn');
+        if (!signInBtn || !signUpBtn) return;
+
+        signInBtn.disabled = isLoading;
+        signUpBtn.disabled = isLoading;
+
+        const loadingClass = 'opacity-70 cursor-not-allowed';
+        if (isLoading) {
+            signInBtn.classList.add(loadingClass);
+            signUpBtn.classList.add(loadingClass);
+            if (!signInBtn.dataset.originalText) {
+                signInBtn.dataset.originalText = signInBtn.textContent;
+            }
+            if (!signUpBtn.dataset.originalText) {
+                signUpBtn.dataset.originalText = signUpBtn.textContent;
+            }
+
+            if (action === 'signIn') {
+                signInBtn.textContent = 'Signing in…';
+            } else if (action === 'signUp') {
+                signUpBtn.textContent = 'Creating…';
+            }
+        } else {
+            signInBtn.classList.remove(loadingClass);
+            signUpBtn.classList.remove(loadingClass);
+            if (signInBtn.dataset.originalText) {
+                signInBtn.textContent = signInBtn.dataset.originalText;
+                delete signInBtn.dataset.originalText;
+            }
+            if (signUpBtn.dataset.originalText) {
+                signUpBtn.textContent = signUpBtn.dataset.originalText;
+                delete signUpBtn.dataset.originalText;
+            }
+        }
     };
 
     const handleEmailSignUp = async () => {
@@ -1303,6 +2001,7 @@
         }
         
         try {
+            setEmailAuthLoading(true, 'signUp');
             await window.createUserWithEmailAndPassword(auth, email, password);
             // Success handled by onAuthStateChanged
         } catch (error) {
@@ -1310,6 +2009,8 @@
             console.error("Error code: ", error.code);
             console.error("Error message: ", error.message);
             showAuthError(getAuthErrorMessage(error.code));
+        } finally {
+            setEmailAuthLoading(false);
         }
     };
 
@@ -1324,11 +2025,14 @@
         }
         
         try {
+            setEmailAuthLoading(true, 'signIn');
             await window.signInWithEmailAndPassword(auth, email, password);
             // Success handled by onAuthStateChanged
         } catch (error) {
             console.error("Sign in failed: ", error);
             showAuthError(getAuthErrorMessage(error.code));
+        } finally {
+            setEmailAuthLoading(false);
         }
     };
 
@@ -1359,6 +2063,16 @@
                 return 'Email/password authentication is not enabled. Please contact support or use Google sign-in.';
             case 'auth/network-request-failed':
                 return 'Network error. Please check your internet connection and try again.';
+            case 'auth/popup-blocked':
+                return 'Your browser blocked the Google sign-in popup. Please allow popups or try again.';
+            case 'auth/popup-closed-by-user':
+                return 'The Google sign-in popup closed before finishing. Please try again.';
+            case 'auth/unauthorized-domain': {
+                const host = window.location.hostname || 'this domain';
+                return `Google sign-in is not authorized for ${host}. Add it in Firebase Auth settings or use a configured domain.`;
+            }
+            case 'auth/operation-not-supported-in-this-environment':
+                return 'Google sign-in popup is not supported here. Trying redirect instead...';
             default:
                 return `Authentication failed: ${errorCode}. Please try again or use Google sign-in.`;
         }
@@ -1374,41 +2088,40 @@
         loginScreen.classList.add('hidden');
         mainApp.classList.remove('hidden');
         mainApp.classList.add('flex');
-        
+        if (utilityBar) utilityBar.classList.remove('hidden');
+
         // Show guest mode notice
         document.getElementById('guestModeNotice').classList.remove('hidden');
         
         // Set up guest user display
         document.getElementById('userDisplay').innerHTML = `
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <img src="https://ui-avatars.com/api/?name=Guest&background=6b7280&color=ffffff&size=32" alt="Guest User" class="w-8 h-8 rounded-full">
-                    <div>
-                        <div class="font-semibold text-sm text-slate-800">Demo User</div>
-                        <div class="text-xs text-slate-500">Interactive Preview</div>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <button id="guestSignUpBtn2" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-md text-xs font-medium transition-colors shadow-sm">
-                        Sign up to save
-                    </button>
-                    <button id="guestLoginBtn" class="text-slate-400 hover:text-blue-500 p-1.5 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" /></svg>
-                    </button>
+            <div class="flex items-center gap-3">
+                <img src="https://ui-avatars.com/api/?name=Guest&background=6b7280&color=ffffff&size=40" alt="Guest User" class="w-10 h-10 rounded-full">
+                <div>
+                    <div class="font-semibold text-sm text-slate-800">Demo User</div>
+                    <div class="text-xs text-slate-500">Interactive Preview</div>
                 </div>
             </div>
+            <div class="grid grid-cols-2 gap-2 mt-3">
+                <button id="guestSignUpDrawerBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-medium transition-colors shadow-sm">Sign up</button>
+                <button id="guestLoginDrawerBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-lg text-xs font-medium transition-colors border border-slate-200">Sign in</button>
+            </div>
         `;
-        
-        // Add event listeners for guest mode buttons
-        document.getElementById('guestLoginBtn').onclick = () => {
-            showSignInModal();
-        };
+
+        const guestLoginDrawerBtn = document.getElementById('guestLoginDrawerBtn');
+        if (guestLoginDrawerBtn) guestLoginDrawerBtn.onclick = () => showSignInModal();
         document.getElementById('guestSignUpBtn').onclick = () => {
             showSignUpModal();
         };
-        document.getElementById('guestSignUpBtn2').onclick = () => {
-            showSignUpModal();
-        };
+        const guestSignUpDrawerBtn = document.getElementById('guestSignUpDrawerBtn');
+        if (guestSignUpDrawerBtn) guestSignUpDrawerBtn.onclick = () => showSignUpModal();
+
+        if (logoutBtnDrawer) {
+            logoutBtnDrawer.textContent = 'Sign in';
+            logoutBtnDrawer.classList.remove('bg-red-500', 'hover:bg-red-600');
+            logoutBtnDrawer.classList.add('bg-blue-500', 'hover:bg-blue-600');
+            logoutBtnDrawer.onclick = () => showSignInModal();
+        }
         
         // Load example data
         loadExampleData();
@@ -1421,6 +2134,13 @@
         loginScreen.classList.remove('hidden');
         mainApp.classList.add('hidden');
         mainApp.classList.remove('flex');
+        if (utilityBar) utilityBar.classList.add('hidden');
+        if (logoutBtnDrawer) {
+            logoutBtnDrawer.textContent = 'Sign in';
+            logoutBtnDrawer.classList.remove('bg-red-500', 'hover:bg-red-600');
+            logoutBtnDrawer.classList.add('bg-blue-500', 'hover:bg-blue-600');
+            logoutBtnDrawer.onclick = () => showSignInModal();
+        }
     };
 
 
@@ -1428,26 +2148,30 @@
 
 
     const updateContentArea = () => {
-        const welcomeContent = document.getElementById('welcomeContent');
-        
-        // Check if welcomeContent element exists
-        if (!welcomeContent) {
-            console.log('welcomeContent element not found, skipping updateContentArea');
+        if (!contentArea || !contentEmptyState) {
             return;
         }
-        
-        // Check if user has any activity (completed tasks, used filters, etc.)
+
+        if (tasks.length === 0) {
+            setContentAreaMessage('noTasks');
+            return;
+        }
+
         const hasActivity = completedTasks.length > 0 ||
                             Boolean(selectedTimeFilter) ||
                             selectedContextFilters.length > 0 ||
-                            selectedEnergyFilters.length > 0;
-        
+                            selectedEnergyFilters.length > 0 ||
+                            selectedProjectFilters.length > 0 ||
+                            selectedTagFilters.length > 0 ||
+                            filterByPriorityOnly;
+
         if (hasActivity) {
-            // Hide welcome content when user has activity
-            welcomeContent.classList.add('hidden');
-            } else {
-            // Show welcome content when no activity
-            welcomeContent.classList.remove('hidden');
+            // Keep explicit "no matches" messaging visible; otherwise hide
+            if (contentAreaState !== 'noMatches') {
+                hideContentArea();
+            }
+        } else {
+            setContentAreaMessage('welcome');
         }
     };
 
@@ -1880,14 +2604,6 @@
         const tasksCompletedToday = completedTasks.filter(task => task.completedAt && task.completedAt.slice(0, 10) === today);
         
         // Update the collapse icon state
-        const collapseIcon = document.querySelector('.task-review-collapse-icon');
-        if (collapseIcon) {
-            // Remove existing classes and add new ones
-            collapseIcon.classList.remove('collapsed', 'expanded');
-            collapseIcon.classList.add(taskReviewCollapsed ? 'collapsed' : 'expanded');
-        }
-        
-        // Update the content container state
         const contentContainer = document.getElementById('taskReviewContent');
         if (contentContainer) {
             // Remove existing classes and add new ones
@@ -2408,15 +3124,29 @@
     };
 
     // --- SETTINGS MODAL FUNCTIONS ---
-    const showSettingsModal = () => {
-        document.body.classList.add('overflow-hidden');
-        showModal(document.getElementById('settingsModalOverlay'));
+    const openSettingsDrawer = () => {
         loadSettingsIntoModal();
+        document.body.classList.add('overflow-hidden');
+        if (settingsDrawerOverlay) {
+            settingsDrawerOverlay.classList.remove('hidden');
+            settingsDrawerOverlay.setAttribute('aria-hidden', 'false');
+            settingsDrawerOverlay.removeAttribute('inert');
+            requestAnimationFrame(() => settingsDrawerOverlay.classList.add('active'));
+        }
     };
 
     const closeSettingsModal = () => {
         document.body.classList.remove('overflow-hidden');
-        hideModal(document.getElementById('settingsModalOverlay'));
+        if (settingsDrawerOverlay) {
+            settingsDrawerOverlay.classList.remove('active');
+            settingsDrawerOverlay.setAttribute('aria-hidden', 'true');
+            settingsDrawerOverlay.setAttribute('inert', '');
+            setTimeout(() => {
+                if (!settingsDrawerOverlay.classList.contains('active')) {
+                    settingsDrawerOverlay.classList.add('hidden');
+                }
+            }, 260);
+        }
     };
 
     const loadSettingsIntoModal = () => {
@@ -4177,17 +4907,19 @@
         currentWorklogId = sessionData.worklogId;
         isPaused = sessionData.isPaused || false;
         startTime = sessionData.startTime;
-        sessionLength = sessionData.sessionDuration || 25;
+        sessionLength = sessionData.sessionDuration ? Number(sessionData.sessionDuration) : DEFAULT_SESSION_MINUTES;
         elapsedSeconds = Math.floor((sessionData.elapsedTime || 0) / 1000);
         pausedTime = sessionData.pausedTime || 0;
-
-        // Calculate remaining time
-        const totalElapsed = sessionData.elapsedTime + (Date.now() - startTime - pausedTime);
-        const remainingTime = Math.max(0, (sessionLength * 60 * 1000) - totalElapsed);
+        sessionTargetSeconds = Math.max(60, (sessionLength || DEFAULT_SESSION_MINUTES) * 60);
 
         // Update UI
-        document.getElementById('focusTaskName').textContent = task.name;
-        document.getElementById('focusTimeRemaining').textContent = formatTime(remainingTime);
+        if (focusTaskName) {
+            focusTaskName.textContent = task.name;
+        }
+        if (focusTimeBracketChip) {
+            const restoredLabel = sessionLength ? `${sessionLength} min session` : `Session: ${task.sessionTimeBracket || task.timeBracket || 'Focus'}`;
+            focusTimeBracketChip.textContent = restoredLabel;
+        }
         document.getElementById('focusPauseText').textContent = isPaused ? 'Resume' : 'Pause';
         document.getElementById('pauseIcon').classList.toggle('hidden', !isPaused);
         document.getElementById('playIcon').classList.toggle('hidden', isPaused);
@@ -4199,6 +4931,7 @@
 
         // Update timer display
         updateTimerDisplay();
+        updateProgressRing();
 
         // Start timer
         if (!isPaused) {
@@ -4420,6 +5153,24 @@
     };
 
     // --- TIMER AND FOCUS FUNCTIONS ---
+    const updateProgressRing = () => {
+        if (!focusProgressCircle) return;
+
+        if (!sessionTargetSeconds || sessionTargetSeconds <= 0) {
+            focusProgressCircle.style.strokeDashoffset = `${FOCUS_PROGRESS_CIRCUMFERENCE}`;
+            return;
+        }
+
+        const progress = Math.min(elapsedSeconds / sessionTargetSeconds, 1);
+        const offset = FOCUS_PROGRESS_CIRCUMFERENCE * (1 - progress);
+        focusProgressCircle.style.strokeDashoffset = `${offset}`;
+    };
+
+    const resetFocusProgress = () => {
+        if (!focusProgressCircle) return;
+        focusProgressCircle.style.strokeDashoffset = `${FOCUS_PROGRESS_CIRCUMFERENCE}`;
+    };
+
     const updateTimerDisplay = () => {
         const minutes = Math.floor(elapsedSeconds / 60).toString().padStart(2, '0');
         const seconds = (elapsedSeconds % 60).toString().padStart(2, '0');
@@ -4434,6 +5185,7 @@
             if (!isPaused) {
                 elapsedSeconds++;
                 updateTimerDisplay();
+                updateProgressRing();
                 
                 // Update localStorage with current session state
                 if (currentFocusTaskId && currentWorklogId) {
@@ -4473,6 +5225,8 @@
             currentFocusTaskId = null;
             focusOverlay.classList.add('hidden');
             document.title = originalTitle;
+            sessionTargetSeconds = 0;
+            resetFocusProgress();
             return;
         }
         
@@ -4496,6 +5250,8 @@
         currentFocusTaskId = null;
         focusOverlay.classList.add('hidden');
         document.title = originalTitle;
+        sessionTargetSeconds = 0;
+        resetFocusProgress();
             return;
         }
         
@@ -4686,6 +5442,9 @@
         
         // Show content area
         document.getElementById('contentArea').classList.remove('hidden');
+        if (modeStepHint) modeStepHint.classList.remove('hidden');
+        if (timeStepHint) timeStepHint.classList.add('hidden');
+        filteredList.innerHTML = '';
         updateContentArea();
     };
 
@@ -4773,7 +5532,9 @@
         document.body.classList.add('overflow-hidden');
         currentFocusTaskId = taskId;
         currentTask = task;
-        sessionLength = sessionLengthMinutes;
+        sessionLength = (sessionLengthMinutes !== null && sessionLengthMinutes !== undefined && sessionLengthMinutes !== '')
+            ? Number(sessionLengthMinutes)
+            : null;
         
         // Create worklog for this session
         createWorklog(taskId, 'focus');
@@ -4807,9 +5568,38 @@
             timeBracketText = `Time: ${task.timeBracket || 'Quick'}`;
         }
         
+        let derivedMinutes = sessionLength ?? null;
+        if (!derivedMinutes) {
+            if (task.isDivisible) {
+                if (task.sessionTimeBracket) {
+                    derivedMinutes = getMinutesFromBracket(task.sessionTimeBracket);
+                } else if (task.minSessionTime) {
+                    derivedMinutes = Number(task.minSessionTime);
+                } else if (task.totalTimeBracket) {
+                    derivedMinutes = getMinutesFromBracket(task.totalTimeBracket);
+                }
+            } else {
+                if (task.timeBracket) {
+                    derivedMinutes = getMinutesFromBracket(task.timeBracket);
+                } else if (task.time) {
+                    derivedMinutes = Number(task.time);
+                }
+            }
+        }
+
+        if (!derivedMinutes || Number.isNaN(derivedMinutes)) {
+            derivedMinutes = DEFAULT_SESSION_MINUTES;
+        }
+
+        sessionTargetSeconds = Math.max(60, derivedMinutes * 60);
+        resetFocusProgress();
+        
         focusTaskName.textContent = task.name;
-        document.getElementById('focusTimeBracket').textContent = timeBracketText;
-        updateTimerDisplay(); 
+        if (focusTimeBracketChip) {
+            focusTimeBracketChip.textContent = timeBracketText;
+        }
+        updateTimerDisplay();
+        updateProgressRing(); 
         
         // Reset button states
         document.getElementById('focusPauseText').textContent = 'Pause';
@@ -4854,49 +5644,68 @@
     };
       
     const renderSuggestedTask = (task, isSurprise = false) => {
-          const div = document.createElement('div');
-          const baseClasses = 'bg-white border rounded-xl p-4 animate-fade-in flex items-center justify-between';
-          div.className = isSurprise
-              ? `${baseClasses} border-2 border-blue-500 shadow-lg`
-              : `${baseClasses} border-slate-200`;
-          
-          div.innerHTML = `
+        const div = document.createElement('div');
+        const baseClasses = 'start-task-card bg-white border rounded-xl p-4 animate-fade-in transition-colors duration-200';
+        div.className = isSurprise
+            ? `${baseClasses} border-2 border-blue-500 shadow-lg`
+            : `${baseClasses} border-slate-200`;
+
+        div.dataset.taskId = task.id;
+        div.setAttribute('role', 'button');
+        div.setAttribute('tabindex', '0');
+
+        const tags = task.tags || [];
+        const progressMarkup = task.isDivisible ? `
+            <div class="mt-3">
+              ${task.timeSpent > 0 ? `
+                <div class="flex justify-between text-xs text-slate-400 mb-1">
+                  <span>Progress</span>
+                  <span>${task.timeSpent}/${task.totalTime} min (${Math.round((task.timeSpent / task.totalTime) * 100)}%)</span>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                  <div class="bg-orange-500 h-2 rounded-full transition-all duration-300" style="width: ${Math.min((task.timeSpent / task.totalTime) * 100, 100)}%"></div>
+                </div>
+              ` : `
+                <div class="text-xs text-slate-400">
+                  <span class="inline-flex items-center">
+                    <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    ~${Math.ceil(task.totalTime / task.minSessionTime)} sessions to complete
+                  </span>
+                </div>
+              `}
+            </div>
+        ` : '';
+
+        const tagsMarkup = tags.length > 0 ? `
+            <div class="flex flex-wrap gap-2 mt-3">
+              ${tags.map(tag => `<span class="chip chip--slate">${tag}</span>`).join('')}
+            </div>
+        ` : '';
+
+        div.innerHTML = `
+            <div class="flex items-start justify-between gap-3">
               <div class="flex-grow">
-                <h3 class="font-bold text-slate-900 flex items-center">
-                  ${task.name}
-                  ${task.isRecurring ? `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2 text-blue-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>` : ''}
-                ${task.isDivisible ? `<span class="ml-2 text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full font-medium">Progress</span>` : `<span class="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Atomic</span>`}
+                <h3 class="font-bold text-slate-900 flex items-center flex-wrap gap-2">
+                  <span>${task.name}</span>
+                  ${task.isRecurring ? `<svg xmlns="http://www.w3.org/2000/svg" class="icon-16 text-blue-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>` : ''}
+                  ${task.isDivisible ? `<span class="chip chip--orange">Progress</span>` : `<span class="chip chip--blue">Atomic</span>`}
                 </h3>
-              <p class="text-sm text-slate-500">Time: ${task.isDivisible ? `${task.totalTimeBracket || task.totalTime} (${task.sessionTimeBracket || task.minSessionTime})` : `${task.timeBracket || task.time}`}${task.energy ? ` | Energy: ${task.energy}` : ''}</p>
-              ${task.isDivisible ? `
-                <div class="mt-2">
-                  ${task.timeSpent > 0 ? `
-                    <div class="flex justify-between text-xs text-slate-400 mb-1">
-                      <span>Progress</span>
-                      <span>${task.timeSpent}/${task.totalTime} min (${Math.round((task.timeSpent / task.totalTime) * 100)}%)</span>
-                    </div>
-                    <div class="w-full bg-slate-200 rounded-full h-2">
-                      <div class="bg-orange-500 h-2 rounded-full transition-all duration-300" style="width: ${Math.min((task.timeSpent / task.totalTime) * 100, 100)}%"></div>
-                    </div>
-                  ` : `
-                    <div class="text-xs text-slate-400">
-                      <span class="inline-flex items-center">
-                        <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                        ~${Math.ceil(task.totalTime / task.minSessionTime)} sessions to complete
-                      </span>
-                    </div>
-                  `}
+                <div class="flex flex-wrap gap-2 mt-2">
+                  <span class="chip chip--blue">Time: ${task.isDivisible ? `${task.totalTimeBracket || task.totalTime}` : `${task.timeBracket || task.time}`}</span>
+                  ${task.isDivisible ? `<span class="chip chip--slate">Session: ${task.sessionTimeBracket || task.minSessionTime}</span>` : ''}
+                  ${task.energy ? `<span class="chip chip--slate">${task.energy}</span>` : ''}
                 </div>
-              ` : ''}
-                 <div class="flex flex-wrap gap-2 mt-2 ${task.tags.length === 0 ? 'hidden' : ''}">
-                    ${task.tags.map(tag => `<span class="text-xs bg-slate-100 text-slate-600 font-medium px-2 py-1 rounded-md">${tag}</span>`).join('')}
-                </div>
+                ${progressMarkup}
+                ${tagsMarkup}
               </div>
-              <button data-task-id="${task.id}" class="start-btn ml-4 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg transition-colors font-semibold shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600">Start</button>
-          `;
-          filteredList.appendChild(div);
+              <svg class="icon-16 text-slate-300 start-task-card__chevron shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+        `;
+        filteredList.appendChild(div);
     };
 
     // --- SIMPLIFIED TASK SUGGESTION SYSTEM ---
@@ -5189,8 +5998,17 @@
                     <p class="text-sm text-amber-700">No tasks match your current filters. Try adjusting your time or mode.</p>
                 </div>
             `;
+            if (tasks.length === 0) {
+                setContentAreaMessage('noTasks');
+            } else {
+                hideContentArea();
+            }
             return;
         }
+
+        hideContentArea();
+        if (modeStepHint) modeStepHint.classList.add('hidden');
+        if (timeStepHint) timeStepHint.classList.add('hidden');
 
         container.innerHTML = suggestions.map(task => {
             const taskTime = task.isDivisible ? task.minSessionTime : task.time;
@@ -5209,21 +6027,23 @@
                 `${task.timeBracket || task.time}`;
             
             return `
-                <div class="bg-white border ${isTodayTask ? 'border-amber-300' : 'border-slate-200'} rounded-lg p-4 hover:shadow-md transition-shadow h-full flex flex-col ${isTodayTask ? 'bg-amber-50' : ''}">
-                    <h4 class="font-semibold ${isTodayTask ? 'text-amber-800' : 'text-slate-800'} mb-2 text-sm flex-shrink-0 flex items-start">
-                        <span class="flex items-center">
-                            ${task.name}
-                        </span>
-                        ${isProgressTask ? '<span class="ml-1 text-xs bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded-full font-medium flex-shrink-0">P</span>' : '<span class="ml-1 text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full font-medium flex-shrink-0">A</span>'}
-                    </h4>
-                    <div class="flex flex-wrap gap-1 mb-3 flex-shrink-0">
-                        <span class="text-xs px-2 py-1 rounded-full ${isTodayTask ? 'bg-amber-200 text-amber-800' : 'bg-blue-100 text-blue-700'}">${timeDisplay}</span>
-                        ${task.energy ? `<span class="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-700">${task.energy}</span>` : ''}
+                <div class="start-task-card bg-white border ${isTodayTask ? 'border-amber-300 bg-amber-50' : 'border-slate-200'} rounded-lg p-4 transition-colors duration-200 flex flex-col gap-3 h-full" data-task-id="${task.id}" role="button" tabindex="0">
+                    <div class="flex items-start justify-between gap-3">
+                        <h4 class="font-semibold ${isTodayTask ? 'text-amber-800' : 'text-slate-800'} text-sm flex items-start gap-2 flex-wrap">
+                            <span>${task.name}</span>
+                            ${isProgressTask ? '<span class="chip chip--orange flex-shrink-0">Progress</span>' : '<span class="chip chip--blue flex-shrink-0">Atomic</span>'}
+                        </h4>
+                        <svg class="icon-16 text-slate-300 start-task-card__chevron shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
                     </div>
-                    <div class="flex gap-2 mt-auto">
-                        <button data-task-id="${task.id}" class="start-btn w-full bg-green-500 hover:bg-green-600 text-white py-2 px-3 rounded-lg text-sm font-medium transition-colors">
-                            Start
-                        </button>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="chip ${isTodayTask ? 'chip--amber' : 'chip--blue'}">${timeDisplay}</span>
+                        ${task.energy ? `<span class="chip chip--slate">${task.energy}</span>` : ''}
+                    </div>
+                    <div class="mt-auto text-xs text-slate-500 font-medium flex items-center gap-1">
+                        <span>${isProgressTask ? 'Tap to log a session' : 'Tap to start focus'}</span>
+                        ${isTodayTask ? '<span class="inline-flex items-center text-amber-600">• Today</span>' : ''}
                     </div>
                 </div>
             `;
@@ -5254,16 +6074,58 @@
         filteredList.innerHTML = '';
         const activeEnergyFilter = selectedEnergyFilters[0] || null;
         
-        // Hide content area when filters are applied to focus on tasks
-        document.getElementById('contentArea').classList.add('hidden');
-        
+        const showNoMatchMessage = () => {
+            if (taskSuggestionsSection) {
+                taskSuggestionsSection.classList.add('hidden');
+            }
+            filteredList.innerHTML = `<div class="text-center text-slate-400 p-4 bg-white rounded-xl border border-slate-200">
+                ${emptyFilterSVG}
+                <p class="mt-2 font-medium text-slate-500">No tasks found</p>
+                <p>Try adjusting your filters.</p>
+            </div>`;
+            if (modeStepHint) modeStepHint.classList.add('hidden');
+            if (timeStepHint) timeStepHint.classList.add('hidden');
+            if (tasks.length === 0) {
+                setContentAreaMessage('noTasks');
+            } else {
+                hideContentArea();
+            }
+        };
+
+        const showStepGuidance = (message, hintElement) => {
+            if (taskSuggestionsSection) {
+                taskSuggestionsSection.classList.add('hidden');
+            }
+            filteredList.innerHTML = '';
+            if (hintElement) {
+                hintElement.classList.remove('hidden');
+                hintElement.textContent = message;
+            }
+            setContentAreaMessage(tasks.length === 0 ? 'noTasks' : 'welcome');
+        };
+
+        if (!selectedMode) {
+            if (timeStepHint) timeStepHint.classList.add('hidden');
+            showStepGuidance('Pick Work or Personal to tailor your suggestions.', modeStepHint);
+            return;
+        }
+        if (modeStepHint) modeStepHint.classList.add('hidden');
+
+        if (!selectedTimeFilter) {
+            showStepGuidance('Great! Now choose how much time you have.', timeStepHint);
+            return;
+        }
+        if (timeStepHint) timeStepHint.classList.add('hidden');
+
         if (mode === 'surprise') {
             if (tasks.length === 0) {
                 filteredList.innerHTML = `<div class="text-center text-slate-500 p-4 bg-white rounded-xl border border-slate-200">Add some tasks to be surprised!</div>`;
+                setContentAreaMessage('noTasks');
                 return;
             }
             const taskToSuggest = tasks[Math.floor(Math.random() * tasks.length)];
             renderSuggestedTask(taskToSuggest, true);
+            hideContentArea();
         } else {
             const potentialTasks = tasks.filter(task => {
                 const timeMatches = () => {
@@ -5356,12 +6218,9 @@
                 scoredTasks
                     .sort((a, b) => b.score - a.score)
                     .forEach(({ task }) => renderSuggestedTask(task, false));
+                hideContentArea();
             } else {
-                filteredList.innerHTML = `<div class="text-center text-slate-400 p-4 bg-white rounded-xl border border-slate-200">
-                    ${emptyFilterSVG}
-                    <p class="mt-2 font-medium text-slate-500">No tasks found</p>
-                    <p>Try adjusting your filters.</p>
-                </div>`;
+                showNoMatchMessage();
             }
         }
     };
@@ -5865,9 +6724,10 @@
         });
 
         // Settings button event listeners
-        document.getElementById('settingsBtn').addEventListener('click', showSettingsModal);
-        document.getElementById('desktopSettingsBtn').addEventListener('click', showSettingsModal);
-        document.getElementById('closeSettingsBtn').addEventListener('click', closeSettingsModal);
+        const settingsBtnEl = document.getElementById('settingsBtn');
+        const desktopSettingsBtnEl = document.getElementById('desktopSettingsBtn');
+        if (settingsBtnEl) settingsBtnEl.addEventListener('click', openSettingsDrawer);
+        if (desktopSettingsBtnEl) desktopSettingsBtnEl.addEventListener('click', openSettingsDrawer);
         document.getElementById('saveSettingsBtn').addEventListener('click', saveSettings);
         document.getElementById('resetSettingsBtn').addEventListener('click', resetSettings);
         
@@ -5890,8 +6750,62 @@
         document.getElementById('googleLoginBtn').onclick = handleGoogleLogin;
         document.getElementById('signInBtn').onclick = handleEmailSignIn;
         document.getElementById('signUpBtn').onclick = handleEmailSignUp;
-            document.getElementById('guestLoginBtn').onclick = showGuestMode;
-            
+        document.getElementById('guestLoginBtn').onclick = showGuestMode;
+        const emailCreateAccountLink = document.getElementById('emailCreateAccountLink');
+        if (emailCreateAccountLink) {
+            emailCreateAccountLink.onclick = (event) => {
+                event.preventDefault();
+                showSignUpModal();
+            };
+        }
+
+        const commandHelpBtn = document.getElementById('commandHelpBtn');
+        const commandHelpCard = document.getElementById('commandHelpCard');
+        const closeCommandHelpBtn = document.getElementById('closeCommandHelpBtn');
+        const commandInput = document.getElementById('unifiedCommandInput');
+
+        let commandHelpPinned = false;
+
+        const toggleCommandHelp = (show) => {
+            if (!commandHelpCard) return;
+            commandHelpCard.classList.toggle('hidden', !show);
+        };
+
+        if (commandHelpBtn && commandHelpCard && closeCommandHelpBtn) {
+            commandHelpBtn.addEventListener('click', (event) => {
+                event.preventDefault();
+                const willShow = commandHelpCard.classList.contains('hidden');
+                toggleCommandHelp(willShow);
+                commandHelpPinned = willShow;
+            });
+            closeCommandHelpBtn.addEventListener('click', (event) => {
+                event.preventDefault();
+                toggleCommandHelp(false);
+                commandHelpPinned = false;
+                if (commandInput) {
+                    commandInput.focus();
+                }
+            });
+        }
+
+        if (commandInput) {
+            commandInput.addEventListener('focus', () => {
+                if (!commandHelpPinned) {
+                    toggleCommandHelp(true);
+                }
+            });
+            commandInput.addEventListener('input', () => {
+                if (commandHelpCard && !commandHelpPinned) {
+                    toggleCommandHelp(commandInput.value.length === 0);
+                }
+            });
+            commandInput.addEventListener('blur', () => {
+                if (commandHelpPinned) return;
+                // Delay hiding to allow click interactions inside the card
+                setTimeout(() => toggleCommandHelp(false), 150);
+            });
+        }
+
 
             console.log('✅ Login button handlers set up successfully');
         } catch (error) {
@@ -6514,6 +7428,16 @@
             if (e.target.id === 'tagManagerModalOverlay') closeTagManagerModal();
         });
         
+        if (openTaskReviewDrawerIconBtn) openTaskReviewDrawerIconBtn.addEventListener('click', openTaskReviewDrawer);
+        if (closeTaskReviewDrawerBtn) {
+            closeTaskReviewDrawerBtn.addEventListener('click', closeTaskReviewDrawer);
+        }
+        if (taskReviewDrawerOverlay) {
+            taskReviewDrawerOverlay.addEventListener('click', (e) => {
+                if (e.target === taskReviewDrawerOverlay) closeTaskReviewDrawer();
+            });
+        }
+        
         // Inactive Tasks Modal event listeners
         document.addEventListener('click', (e) => {
             if (e.target.id === 'reviewInactiveBtn') {
@@ -6540,9 +7464,12 @@
         });
 
         // Settings Modal event listeners
-        document.getElementById('settingsModalOverlay').addEventListener('click', (e) => {
-            if (e.target.id === 'settingsModalOverlay') closeSettingsModal();
-        });
+        if (settingsDrawerOverlay) {
+            settingsDrawerOverlay.addEventListener('click', (e) => {
+                if (e.target === settingsDrawerOverlay) closeSettingsModal();
+            });
+        }
+        if (closeSettingsBtn) closeSettingsBtn.addEventListener('click', closeSettingsModal);
 
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
@@ -6551,6 +7478,7 @@
                 else if (document.getElementById('signInModalOverlay').getAttribute('aria-hidden') === 'false') closeSignInModal();
                 else if (document.getElementById('projectManagementModalOverlay').getAttribute('aria-hidden') === 'false') closeProjectManagementModal();
                 else if (document.getElementById('tagManagerModalOverlay').getAttribute('aria-hidden') === 'false') closeTagManagerModal();
+                else if (taskReviewDrawerOverlay && !taskReviewDrawerOverlay.classList.contains('hidden')) closeTaskReviewDrawer();
                 else if (inactiveTasksModalOverlay.getAttribute('aria-hidden') === 'false') closeInactiveTasksModal();
                 else if (stopFocusModalOverlay.getAttribute('aria-hidden') === 'false') closeStopFocusModal();
                 else if (startTaskModalOverlay.getAttribute('aria-hidden') === 'false') closeStartTaskModal();
@@ -6562,7 +7490,7 @@
                     document.body.classList.remove('overflow-hidden');
                     hideModal(document.getElementById('dailyPlannerModalOverlay'));
                 }
-                else if (document.getElementById('settingsModalOverlay').getAttribute('aria-hidden') === 'false') closeSettingsModal();
+                else if (settingsDrawerOverlay && !settingsDrawerOverlay.classList.contains('hidden')) closeSettingsModal();
                 else if (sidebar.classList.contains('flex') && window.innerWidth < 768) closeMenuBtn.click();
             }
         });
@@ -6588,12 +7516,10 @@
                 deleteTag(tagName);
             }
 
-            const startButton = e.target.closest('.start-btn');
-            if (startButton) {
-                // Get the current value of selectedTimeFilter at click time
+            const startCard = e.target.closest('.start-task-card');
+            if (startCard) {
                 const currentTimeFilter = selectedTimeFilter;
-                console.log('🔧 Start button clicked, selectedTimeFilter:', currentTimeFilter);
-                startFocusSession(startButton.dataset.taskId, currentTimeFilter);
+                startFocusSession(startCard.dataset.taskId, currentTimeFilter);
             }
             
             const startTaskButton = e.target.closest('.start-task-btn');
@@ -6657,16 +7583,6 @@
                 return;
             }
             
-            // Handle task review section toggle
-            if (e.target.closest('#taskReviewHeader')) {
-                console.log('Task review section clicked, current state:', taskReviewCollapsed);
-                taskReviewCollapsed = !taskReviewCollapsed;
-                console.log('New state:', taskReviewCollapsed);
-                renderCompletedTasks();
-                renderWeeklyReview();
-                return;
-            }
-            
             // Handle project collapse/expand
             const projectHeader = e.target.closest('[data-project-id]');
             if (projectHeader) {
@@ -6714,6 +7630,15 @@
                 allProjectsCollapsed = projects.every(project => collapsedProjects.has(project.id));
                 saveDataToFirestore();
             }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            const card = e.target.closest('.start-task-card');
+            if (!card) return;
+            e.preventDefault();
+            const currentTimeFilter = selectedTimeFilter;
+            startFocusSession(card.dataset.taskId, currentTimeFilter);
         });
         
         // Handle quick edit (double click on task name)
@@ -7235,6 +8160,7 @@
             loginScreen.classList.add('hidden');
             mainApp.classList.remove('hidden');
             mainApp.classList.add('flex');
+            if (utilityBar) utilityBar.classList.remove('hidden');
             
             // Show sidebar on desktop after login
             console.log('🖥️ Screen width:', window.innerWidth);
@@ -7262,18 +8188,23 @@
             const photoURL = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=3b82f6&color=ffffff&size=32`;
             
             document.getElementById('userDisplay').innerHTML = `
-                <div class="flex items-center">
-                    <img src="${photoURL}" alt="User Photo" class="w-8 h-8 rounded-full mr-3">
-                <div class="flex-grow">
-                        <div class="font-semibold text-sm">${displayName}</div>
-                    <div class="text-xs text-slate-500">${user.email}</div>
-                </div>
-                    <button id="logoutBtn" class="text-slate-400 hover:text-red-500 p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors" title="Sign out">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
-                </button>
+                <div class="flex items-center gap-3">
+                    <img src="${photoURL}" alt="User Photo" class="w-10 h-10 rounded-full">
+                    <div>
+                        <div class="font-semibold text-sm text-slate-800">${displayName}</div>
+                        <div class="text-xs text-slate-500">${user.email}</div>
+                    </div>
                 </div>
             `;
-            document.getElementById('logoutBtn').onclick = handleLogout;
+        if (logoutBtnDrawer) {
+            logoutBtnDrawer.textContent = 'Sign out';
+            logoutBtnDrawer.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+            logoutBtnDrawer.classList.add('bg-red-500', 'hover:bg-red-600');
+            logoutBtnDrawer.onclick = () => {
+                closeSettingsModal();
+                handleLogout();
+            };
+        }
             loadDataFromFirestore(user.uid);
             triggerDailyPlanner(); // Add this line
             applySmartDefaults();
@@ -7291,6 +8222,13 @@
             loginScreen.classList.remove('hidden');
             mainApp.classList.add('hidden');
             mainApp.classList.remove('flex');
+            if (utilityBar) utilityBar.classList.add('hidden');
+            if (logoutBtnDrawer) {
+                logoutBtnDrawer.textContent = 'Sign in';
+                logoutBtnDrawer.classList.remove('bg-red-500', 'hover:bg-red-600');
+                logoutBtnDrawer.classList.add('bg-blue-500', 'hover:bg-blue-600');
+                logoutBtnDrawer.onclick = () => showSignInModal();
+            }
         }
     };
 
@@ -7313,14 +8251,21 @@
     } catch (error) {
       console.error('❌ initializeEventListeners failed:', error);
     }
-    
+
     try {
               window.onAuthStateChanged(auth, handleAuthStateChange);
       console.log('✅ onAuthStateChanged completed');
     } catch (error) {
       console.error('❌ onAuthStateChanged failed:', error);
     }
-    
+
+    try {
+      applyFiltersAndSuggest();
+      console.log('✅ Initial filter guidance rendered');
+    } catch (error) {
+      console.error('❌ Initial applyFiltersAndSuggest failed:', error);
+    }
+
     console.log('🎉 App initialization completed!');
     }
     
@@ -7345,86 +8290,95 @@
     }
   </script>
 
-  <!-- Settings Modal -->
-  <div id="settingsModalOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-[80] p-4" inert aria-hidden="true">
-    <div class="bg-white rounded-xl shadow-lg w-full max-w-md relative max-h-[90vh] overflow-y-auto">
-      <div class="p-6">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-bold text-slate-900">⚙️ Settings</h2>
-          <button id="closeSettingsBtn" class="text-slate-400 hover:text-slate-600 p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-          </button>
-        </div>
+  <!-- Settings Drawer -->
+  <div id="settingsDrawerOverlay" class="fixed inset-0 bg-transparent hidden z-[95] flex justify-end" inert aria-hidden="true">
+    <div id="settingsDrawerPanel" class="ml-auto h-full w-full sm:w-[26rem] bg-white shadow-2xl flex flex-col pointer-events-auto">
+      <button id="closeSettingsBtn" class="flex items-center justify-between w-full p-4 border-b border-slate-200 text-left hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+        <span class="font-semibold text-slate-900 text-base">Settings</span>
+        <svg class="icon-20 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+      <div class="flex-1 overflow-y-auto p-4 space-y-6">
+        <section class="space-y-3">
+          <header class="text-xs uppercase tracking-wide text-slate-500 font-semibold">Account</header>
+          <div id="userDisplay" class="bg-slate-100 border border-slate-200 rounded-lg p-3 text-sm">
+          </div>
+        </section>
 
-        <!-- Theme Settings -->
-        <div class="mb-6">
-          <h3 class="text-lg font-semibold text-slate-800 mb-3">Theme</h3>
+        <section class="space-y-3">
+          <header class="text-xs uppercase tracking-wide text-slate-500 font-semibold">Theme</header>
           <div class="space-y-2">
-            <label class="flex items-center p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-              <input type="radio" name="theme" value="light" class="mr-3 text-blue-600 focus:ring-blue-500">
-              <div class="flex items-center">
-                <div class="w-4 h-4 bg-white border border-slate-300 rounded mr-2"></div>
+            <label class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 bg-white border border-slate-300 rounded"></div>
                 <span class="text-slate-700">Light</span>
               </div>
+              <input type="radio" name="theme" value="light" class="text-blue-600 focus:ring-blue-500">
             </label>
-            <label class="flex items-center p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-              <input type="radio" name="theme" value="dark" class="mr-3 text-blue-600 focus:ring-blue-500">
-              <div class="flex items-center">
-                <div class="w-4 h-4 bg-slate-800 border border-slate-300 rounded mr-2"></div>
+            <label class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 bg-slate-800 border border-slate-300 rounded"></div>
                 <span class="text-slate-700">Dark</span>
               </div>
+              <input type="radio" name="theme" value="dark" class="text-blue-600 focus:ring-blue-500">
             </label>
-            <label class="flex items-center p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-              <input type="radio" name="theme" value="system" class="mr-3 text-blue-600 focus:ring-blue-500">
-              <div class="flex items-center">
-                <div class="w-4 h-4 bg-gradient-to-r from-white to-slate-800 border border-slate-300 rounded mr-2"></div>
+            <label class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 bg-gradient-to-r from-white to-slate-800 border border-slate-300 rounded"></div>
                 <span class="text-slate-700">System</span>
               </div>
+              <input type="radio" name="theme" value="system" class="text-blue-600 focus:ring-blue-500">
             </label>
           </div>
-        </div>
+        </section>
 
-        <!-- Font Size Settings -->
-        <div class="mb-6">
-          <h3 class="text-lg font-semibold text-slate-800 mb-3">Font Size</h3>
-          <div class="space-y-2">
-            <label class="flex items-center p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-              <input type="radio" name="fontSize" value="small" class="mr-3 text-blue-600 focus:ring-blue-500">
-              <span class="text-slate-700 text-sm">Small</span>
+        <section class="space-y-3">
+          <header class="text-xs uppercase tracking-wide text-slate-500 font-semibold">Font Size</header>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+              <span class="text-slate-600 text-xs">Small</span>
+              <input type="radio" name="fontSize" value="small" class="text-blue-600 focus:ring-blue-500">
             </label>
-            <label class="flex items-center p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-              <input type="radio" name="fontSize" value="medium" class="mr-3 text-blue-600 focus:ring-blue-500">
-              <span class="text-slate-700">Medium</span>
+            <label class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+              <span class="text-slate-600 text-sm">Medium</span>
+              <input type="radio" name="fontSize" value="medium" class="text-blue-600 focus:ring-blue-500">
             </label>
-            <label class="flex items-center p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-              <input type="radio" name="fontSize" value="large" class="mr-3 text-blue-600 focus:ring-blue-500">
-              <span class="text-slate-700 text-lg">Large</span>
+            <label class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+              <span class="text-slate-600 text-base">Large</span>
+              <input type="radio" name="fontSize" value="large" class="text-blue-600 focus:ring-blue-500">
             </label>
-            <label class="flex items-center p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-              <input type="radio" name="fontSize" value="extra-large" class="mr-3 text-blue-600 focus:ring-blue-500">
-              <span class="text-slate-700 text-xl">Extra Large</span>
+            <label class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+              <span class="text-slate-600 text-lg">Extra Large</span>
+              <input type="radio" name="fontSize" value="extra-large" class="text-blue-600 focus:ring-blue-500">
             </label>
           </div>
-        </div>
+        </section>
 
-        <!-- Accessibility Settings -->
-        <div class="mb-6">
-          <h3 class="text-lg font-semibold text-slate-800 mb-3">Accessibility</h3>
-          <label class="flex items-center p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-            <input type="checkbox" id="reducedMotion" class="mr-3 text-blue-600 focus:ring-blue-500 rounded">
+        <section class="space-y-3">
+          <header class="text-xs uppercase tracking-wide text-slate-500 font-semibold">Accessibility</header>
+          <label class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
             <span class="text-slate-700">Reduce motion</span>
+            <input type="checkbox" id="reducedMotion" class="text-blue-600 focus:ring-blue-500 rounded">
           </label>
-        </div>
+        </section>
 
-        <!-- Quick Actions -->
-        <div class="flex gap-3">
-          <button id="resetSettingsBtn" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg transition-colors font-medium text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-            Reset
-          </button>
-          <button id="saveSettingsBtn" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors font-medium text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-            Save
-          </button>
-        </div>
+        <section class="space-y-3">
+          <header class="text-xs uppercase tracking-wide text-slate-500 font-semibold">Actions</header>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="resetSettingsBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg transition-colors font-medium text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+              Reset
+            </button>
+            <button id="saveSettingsBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors font-medium text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+              Save
+            </button>
+          </div>
+        </section>
+
+        <section class="space-y-3">
+          <header class="text-xs uppercase tracking-wide text-slate-500 font-semibold">Signed In</header>
+          <button id="logoutBtnDrawer" class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Sign in</button>
+        </section>
       </div>
     </div>
   </div>
