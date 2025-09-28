@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 @main
 struct SelectDoApp: App {
@@ -8,6 +9,10 @@ struct SelectDoApp: App {
         WindowGroup {
             RootView()
                 .environmentObject(store)
+                .onReceive(NotificationCenter.default.publisher(for: .focusTick)) { _ in
+                    store.tickFocus()
+                }
         }
+        .modelContainer(for: TaskModel.self) // SwiftData persistence
     }
 }

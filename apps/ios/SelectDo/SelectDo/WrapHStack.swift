@@ -1,42 +1,54 @@
 import SwiftUI
 
-struct WrapHStack<Content: View>: View {
-    let spacing: CGFloat
-    let rowSpacing: CGFloat
-    @ViewBuilder let content: Content
+/// A reliable wrapping layout for variable-width items (chips).
+/// Works inside ScrollView; measures its own height so later content doesn't overlap.
+struct WrappingHStack<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
+    var items: Data
+    var spacing: CGFloat = 8
+    var rowSpacing: CGFloat = 8
+    @ViewBuilder var content: (Data.Element) -> Content
 
-    init(spacing: CGFloat = 8, rowSpacing: CGFloat = 8, @ViewBuilder content: () -> Content) {
-        self.spacing = spacing
-        self.rowSpacing = rowSpacing
-        self.content = content()
-    }
-
-    var body: some View {
-        FlowLayout(spacing: spacing, rowSpacing: rowSpacing) { content }
-    }
-}
-
-struct FlowLayout<Content: View>: View {
-    let spacing: CGFloat
-    let rowSpacing: CGFloat
-    @ViewBuilder let content: Content
+    @State private var totalHeight: CGFloat = .zero
 
     var body: some View {
-        var width: CGFloat = 0, height: CGFloat = 0
-        return GeometryReader { geo in
-            ZStack(alignment: .topLeading) {
-                content
+        GeometryReader { geo in
+            self.generateContent(in: geo)
+        }
+        .frame(height: totalHeight) // <-- reserve the space we actually need
+    }
+
+    private func generateContent(in geo: GeometryProxy) -> some View {
+        var currentX: CGFloat = 0
+        var currentY: CGFloat = 0
+        var rowHeight: CGFloat = 0
+
+        return ZStack(alignment: .topLeading) {
+            ForEach(Array(items), id: \.self) { item in
+                content(item)
+                    .fixedSize() // measure intrinsic size
                     .alignmentGuide(.leading) { d in
-                        if (abs(width - d.width) > geo.size.width) {
-                            width = 0; height -= d.height + rowSpacing
+                        if currentX + d.width > geo.size.width {
+                            currentX = 0
+                            currentY += rowHeight + rowSpacing
+                            rowHeight = 0
                         }
-                        let result = width
-                        width -= d.width + spacing
-                        return result
+                        let result = currentX
+                        currentX += d.width + spacing
+                        rowHeight = max(rowHeight, d.height)
+                        return -result
                     }
-                    .alignmentGuide(.top) { _ in height }
+                    .alignmentGuide(.top) { _ in
+                        return -currentY
+                    }
             }
         }
-        .frame(minHeight: 0)
+        .background(
+            GeometryReader { g in
+                Color.clear.onAppear { totalHeight = g.size.height }
+                    .onChange(of: g.size.height) { _, newValue in
+                        totalHeight = newValue
+                    }
+            }
+        )
     }
 }

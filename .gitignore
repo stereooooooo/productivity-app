@@ -1,0 +1,19 @@
+# Xcode user data
+*.xcuserdatad
+*.xcuserdata
+
+# Build products
+DerivedData/
+build/
+
+# Swift Package Manager
+.build/
+
+# Xcode workspace settings
+*.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
+
+# Logs
+*.log
+
+# macOS system files
+.DS_Store

@@ -6,6 +6,7 @@ struct RootView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
+                // Segmented control for Add | Find | Review
                 SegmentedModeBar(selected: $store.mode)
                     .padding(.horizontal)
                     .padding(.top, 8)
@@ -14,6 +15,7 @@ struct RootView: View {
 
                 Divider()
 
+                // Main content switches by mode
                 Group {
                     switch store.mode {
                     case .add: AddTaskView()
@@ -24,8 +26,17 @@ struct RootView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color(.systemGroupedBackground))
             }
-            .navigationTitle("Select + Do")
+            // Replace text title with logo in the nav bar
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Image("AppLogo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 70) // tweak to fit your asset nicely (20–32 works well)
+                        .accessibilityLabel("Select + Do")
+                }
+            }
         }
     }
 }
@@ -48,7 +59,8 @@ struct SegmentedModeBar: View {
                         .foregroundStyle(selected == mode ? Color.white : Color.primary)
                         .clipShape(Capsule())
                         .overlay(
-                            Capsule().strokeBorder(Color.secondary.opacity(selected == mode ? 0 : 0.25))
+                            Capsule()
+                                .strokeBorder(Color.secondary.opacity(selected == mode ? 0 : 0.25))
                         )
                 }
             }

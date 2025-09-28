@@ -2,133 +2,177 @@ import SwiftUI
 
 struct FindTaskView: View {
     @EnvironmentObject private var store: AppStore
-    private let contexts = ["Work","Personal","Home","Capital ENT"]
+
+    // Only the two modes you want
+    private let contexts = ["Work","Personal"]
     private let times = [5,10,15,20,25,30,45,60]
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: AppTheme.blockSpacing) {
 
-                SectionHeader("What Mode Are You In?")
-                FlowChips(selection: $store.activeContext, options: contexts)
+                // 1) Mode
+                VStack(alignment: .leading, spacing: 12) {
+                    SectionHeaderView(title: "What Mode Are You In?")
+                    FlowLayout(spacing: 8, rowSpacing: 8) {
+                        ForEach(contexts, id: \.self) { ctx in
+                            Button {
+                                store.activeContext = ctx
+                                Haptics.light()
+                            } label: {
+                                Chip(text: ctx, selected: store.activeContext == ctx)
+                            }
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
 
-                SectionHeader("How Much Time Do You Have?")
-                TimeChips(selected: $store.selectedMinutes, options: times)
+                // 2) Time
+                VStack(alignment: .leading, spacing: 12) {
+                    SectionHeaderView(title: "How Much Time Do You Have?")
+                    FlowLayout(spacing: 12, rowSpacing: 10) {
+                        ForEach(times, id: \.self) { m in
+                            Button {
+                                store.selectedMinutes = m
+                                Haptics.light()
+                            } label: {
+                                Chip(text: "\(m) min", selected: store.selectedMinutes == m)
+                            }
+                        }
+                        // Custom lives in the same flow to avoid overlap
+                        Button {
+                            store.selectedMinutes = nil
+                        } label: {
+                            Text("Custom")
+                                .font(.subheadline)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .overlay(Capsule().stroke(Color.secondary.opacity(0.35)))
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
-                SectionHeader("Pick a Task")
-                LazyVStack(spacing: 12) {
-                    ForEach(filteredTasks) { task in
-                        TaskCard(task: task) { store.complete(task) }
+                    // Small filter bar under time
+                    HStack(spacing: 12) {
+                        Toggle(
+                            "Priority Only",
+                            isOn: Binding(get: { store.priorityOnly },
+                                          set: { store.priorityOnly = $0 })
+                        )
+                        .toggleStyle(.switch)
+
+                        Spacer()
+
+                        Button("Reset") {
+                            store.activeContext = "Personal"
+                            store.selectedMinutes = 15
+                            store.priorityOnly = false
+                        }
+
+                        Button {
+                            store.reshuffleID = UUID()
+                        } label: {
+                            Label("Reshuffle", systemImage: "shuffle")
+                        }
+                    }
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                }
+
+                // 3) Tasks
+                VStack(alignment: .leading, spacing: 12) {
+                    SectionHeaderView(title: "Pick a Task")
+
+                    if filteredTasks.isEmpty {
+                        Text("No tasks match. Try a different time or context.")
+                            .foregroundStyle(.secondary)
+                            .padding(.vertical, 4)
+                    } else {
+                        LazyVStack(spacing: 12) {
+                            ForEach(filteredTasks) { task in
+                                TaskCard(task: task) { store.startFocus(task) }
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                        Button(role: .destructive) { store.delete(task) } label: {
+                                            Label("Delete", systemImage: "trash")
+                                        }
+                                        Button { store.togglePriority(task) } label: {
+                                            Label("Priority", systemImage: "star.fill")
+                                        }
+                                        .tint(.orange)
+                                    }
+                            }
+                        }
                     }
                 }
-
             }
             .padding(.horizontal)
-            .padding(.vertical, 16)
+            .padding(.bottom, 32)
         }
+        // Focus timer sheet
+        .sheet(
+            item: Binding(get: { store.activeSession }, set: { store.activeSession = $0 })
+        ) { session in
+            FocusSheet(session: session) { store.finishFocus() }
+                .presentationDetents([.height(320), .medium, .large])
+        }
+        .background(Color(.systemGroupedBackground))
     }
 
+    // MARK: - Filtering (in-memory for now)
     private var filteredTasks: [TaskItem] {
-        store.tasks.filter { t in
-            (store.selectedMinutes == nil || t.minutes <= store.selectedMinutes!) &&
-            (t.context == store.activeContext)
+        var list = store.tasks.filter { t in
+            (store.selectedMinutes == nil || t.minutes <= (store.selectedMinutes ?? t.minutes)) &&
+            t.context == store.activeContext &&
+            (!store.priorityOnly || t.isPriority)
         }
+        _ = store.reshuffleID
+        list.shuffle()
+        return list
     }
 }
 
-struct SectionHeader: View {
-    var title: String
-    init(_ title: String) { self.title = title }
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title).font(.title3.bold())
-            Divider().opacity(0.4)
-        }
-    }
-}
+// MARK: - Card
 
-struct FlowChips: View {
-    @Binding var selection: String
-    var options: [String]
-    var body: some View {
-        WrapHStack(spacing: 8, rowSpacing: 8) {
-            ForEach(options, id:\.self) { opt in
-                let selected = selection == opt
-                Button {
-                    selection = opt; Haptics.light()
-                } label: {
-                    Text(opt).font(.subheadline)
-                        .padding(.horizontal, 12).padding(.vertical, 8)
-                        .background(selected ? Color.accentColor.opacity(0.12) : Color(.secondarySystemBackground))
-                        .foregroundStyle(selected ? Color.accentColor : .primary)
-                        .clipShape(Capsule())
-                }
-            }
-        }
-    }
-}
-
-struct TimeChips: View {
-    @Binding var selected: Int?
-    var options: [Int]
-    var body: some View {
-        WrapHStack(spacing: 8, rowSpacing: 8) {
-            ForEach(options, id:\.self) { m in
-                let isSel = selected == m
-                Button {
-                    selected = m; Haptics.light()
-                } label: {
-                    Text("\(m) min").font(.subheadline)
-                        .padding(.horizontal, 12).padding(.vertical, 8)
-                        .background(isSel ? Color.accentColor : Color(.secondarySystemBackground))
-                        .foregroundStyle(isSel ? .white : .primary)
-                        .clipShape(Capsule())
-                }
-            }
-            Button { selected = nil } label: {
-                Text("Custom").font(.subheadline)
-                    .padding(.horizontal, 12).padding(.vertical, 8)
-                    .overlay(Capsule().stroke(Color.secondary.opacity(0.4)))
-            }
-        }
-    }
-}
-
-struct TaskCard: View {
+private struct TaskCard: View {
     var task: TaskItem
     var onStart: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(task.title).font(.headline)
-            HStack(spacing: 8) {
-                Tag(task.kind)
-                Tag(task.context)
-                Tag("\(task.minutes) min")
-                if task.isPriority { Tag("Priority", color: .orange) }
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text(task.title)
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+                if task.isPriority {
+                    Image(systemName: "star.fill")
+                        .foregroundStyle(.orange)
+                        .imageScale(.small)
+                }
+                Spacer(minLength: 8)
             }
+
+            HStack(spacing: 8) {
+                TagPill(text: task.kind)
+                TagPill(text: task.context)
+                TagPill(text: "\(task.minutes) min")
+            }
+
             Button(action: onStart) {
                 Label("Start", systemImage: "play.fill")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         }
-        .padding(12)
-        .background(.background)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(.quaternary))
-        .shadow(color: .black.opacity(0.04), radius: 6, x: 0, y: 3)
-    }
-}
-
-struct Tag: View {
-    var text: String
-    var color: Color = .blue.opacity(0.15)
-    init(_ text: String, color: Color = .blue.opacity(0.15)) {
-        self.text = text; self.color = color
-    }
-    var body: some View {
-        Text(text).font(.caption).padding(.horizontal, 8).padding(.vertical, 4)
-            .background(color).clipShape(Capsule())
+        .padding(14)
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardRadius, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.cardRadius)
+                .stroke(.quaternary, lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 4)
     }
 }
