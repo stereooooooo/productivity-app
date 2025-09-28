@@ -24,7 +24,8 @@ Known paths
 - apps/ios/SelectDo/SelectDo/FlowLayout.swift
 
 See also:
-- codex/WEB_REFERENCE.md  (authoritative UI/behavior spec)
-- codex/MAPPING.md        (web → SwiftUI mapping)
+- codex/WEB_REFERENCE.md       (authoritative UI/behavior spec)
+- codex/MAPPING.md             (web → SwiftUI mapping)
 - codex/PARITY_CHECKLIST.md
-- codex/web_ref/images/*  (visual references)
+- codex/web_ref/index.html     (entire working web app reference; single file includes all HTML, CSS, and JS)
+- codex/web_ref/images/*       (visual references / screenshots)

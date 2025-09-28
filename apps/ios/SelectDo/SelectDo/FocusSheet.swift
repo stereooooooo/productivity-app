@@ -1,9 +1,14 @@
+import SwiftData
 import SwiftUI
 
 struct FocusSheet: View {
     var session: FocusSession
+    var model: TaskModel // <-- SwiftData task to persist
     var onDone: () -> Void
+
     @EnvironmentObject private var store: AppStore
+    @Environment(\.modelContext) private var ctx
+
     @State private var isPaused = false
 
     var body: some View {
@@ -33,12 +38,18 @@ struct FocusSheet: View {
                 Button(isPaused ? "Resume" : "Pause") { isPaused.toggle() }
                     .buttonStyle(.bordered)
                 Button("Stop & Discard", role: .destructive) {
-                    store.activeSession = nil
+                    store.finishFocus()
                 }
                 .buttonStyle(.borderedProminent)
             }
 
             Button {
+                // ✅ Persist completion to SwiftData
+                model.completedAt = Date()
+                model.updatedAt = Date()
+                try? ctx.save()
+
+                // clear session + notify store
                 store.finishFocus()
                 onDone()
             } label: {

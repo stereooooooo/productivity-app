@@ -1,7 +1,9 @@
+import SwiftData
 import SwiftUI
 
 struct ReviewView: View {
-    @EnvironmentObject private var store: AppStore
+    @Query(sort: \TaskModel.updatedAt, order: .reverse, animation: .default)
+    private var allTasks: [TaskModel]
 
     var body: some View {
         ScrollView {
@@ -9,25 +11,25 @@ struct ReviewView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     SectionHeaderView(title: "Completed Today")
                     VStack(spacing: 8) {
-                        ForEach(store.completedToday) { t in
+                        ForEach(completedToday) { m in
                             HStack {
-                                Text(t.title).lineLimit(1)
+                                Text(m.title).lineLimit(1)
                                 Spacer()
-                                Text("\(t.minutes) min").foregroundStyle(.secondary)
+                                Text("\(m.minutes) min").foregroundStyle(.secondary)
                             }
                             .padding(12)
                             .background(AppTheme.surfaceCard)
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(AppTheme.border, lineWidth: 1))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(AppTheme.border))
                         }
-                        if store.completedToday.isEmpty {
+                        if completedToday.isEmpty {
                             Text("No tasks completed yet. Start a task to see progress here.")
                                 .foregroundStyle(.secondary)
                                 .padding(12)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .background(AppTheme.surfaceCard)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
-                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(AppTheme.border, lineWidth: 1))
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(AppTheme.border))
                         }
                     }
                 }
@@ -44,16 +46,20 @@ struct ReviewView: View {
         }
     }
 
+    private var completedToday: [TaskModel] {
+        let cal = Calendar.current
+        return allTasks.filter { $0.completedAt.map { cal.isDateInToday($0) } ?? false }
+    }
+
     private var mostProductiveContext: String {
-        // naive example (today only). You can expand to last 7 days.
-        let personal = store.completedToday.filter { $0.context == "Personal" }.count
-        let work = store.completedToday.filter { $0.context == "Work" }.count
+        let personal = completedToday.filter { $0.context == "Personal" }.count
+        let work = completedToday.filter { $0.context == "Work" }.count
         if personal == 0, work == 0 { return "—" }
         return work >= personal ? "Work" : "Personal"
     }
 
     private var preferredTimeBracket: String {
-        let mins = store.completedToday.map(\.minutes)
+        let mins = completedToday.map(\.minutes)
         guard !mins.isEmpty else { return "—" }
         let avg = mins.reduce(0,+) / mins.count
         switch avg {
@@ -72,13 +78,12 @@ private struct Card: View {
             Label { Text(title) } icon: { Image(systemName: "chart.bar") }
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
-            Text(value)
-                .font(.headline)
+            Text(value).font(.headline)
         }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(AppTheme.surfaceCard)
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardRadius))
-        .overlay(RoundedRectangle(cornerRadius: AppTheme.cardRadius).stroke(AppTheme.border, lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: AppTheme.cardRadius).stroke(AppTheme.border))
     }
 }

@@ -1,0 +1,15 @@
+{
+    "editor.formatOnSave": true,
+    // Hide junk
+    "files.exclude": {
+        "**/DerivedData": true,
+        "**/.DS_Store": true
+    },
+    // SwiftLint
+    "swiftlint.enable": true,
+    // Run SwiftFormat when saving Swift files
+    "[swift]": {
+        "editor.defaultFormatter": "vknabel.vscode-swiftformat",
+        "editor.formatOnSave": true
+    }
+}

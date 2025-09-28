@@ -1,0 +1,5 @@
+--indent 4
+--allman false
+--semicolons never
+--stripunusedargs closure-only
+--swiftversion 5.9

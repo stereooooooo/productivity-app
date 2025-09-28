@@ -1,0 +1,36 @@
+<body class="bg-slate-50 text-slate-800 font-sans overflow-x-hidden">
+
+    <div id="mainApp" class="min-h-screen flex flex-col">
+        <!-- Top utility bar -->
+        <header id="utilityBar" class="flex items-center justify-between bg-white border-b px-4 py-2 sticky top-0 z-20">
+            <button id="menuBtn" class="lg:hidden">☰</button>
+            <input id="unifiedCommandInput" placeholder="Search or type a command…"
+                class="flex-1 mx-4 px-3 py-2 border rounded-lg focus:ring focus:ring-blue-300" />
+            <button id="logoutBtn" class="ml-4 text-sm text-red-500">Logout</button>
+        </header>
+
+        <div class="flex flex-1">
+            <!-- Sidebar (projects) -->
+            <aside id="sidebar" class="hidden lg:flex lg:flex-col w-64 bg-white border-r p-4 space-y-4 overflow-y-auto">
+                <div class="flex justify-between items-center">
+                    <h2 class="font-semibold">Projects</h2>
+                    <button id="addProjectBtn" class="text-sm text-blue-500">+ New</button>
+                </div>
+                <div id="projectsContainer" class="space-y-2"></div>
+            </aside>
+
+            <!-- Main content area -->
+            <main class="flex-1 p-4 overflow-y-auto">
+                <div id="contentArea"></div>
+                <div id="contentEmptyState" class="hidden text-center text-gray-500">
+                    <h3 id="contentEmptyStateTitle" class="text-lg font-semibold"></h3>
+                    <p id="contentEmptyStateBody" class="text-sm"></p>
+                </div>
+                <section id="taskSuggestionsSection" class="hidden"></section>
+                <section id="completedTaskList" class="mt-8"></section>
+            </main>
+        </div>
+    </div>
+
+    <script type="module" src="./js/main.js"></script>
+</body>

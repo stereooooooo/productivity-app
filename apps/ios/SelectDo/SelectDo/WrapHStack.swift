@@ -12,7 +12,7 @@ struct WrappingHStack<Data: RandomAccessCollection, Content: View>: View where D
 
     var body: some View {
         GeometryReader { geo in
-            self.generateContent(in: geo)
+            generateContent(in: geo)
         }
         .frame(height: totalHeight) // <-- reserve the space we actually need
     }
@@ -38,7 +38,7 @@ struct WrappingHStack<Data: RandomAccessCollection, Content: View>: View where D
                         return -result
                     }
                     .alignmentGuide(.top) { _ in
-                        return -currentY
+                        -currentY
                     }
             }
         }

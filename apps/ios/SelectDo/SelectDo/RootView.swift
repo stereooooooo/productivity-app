@@ -2,68 +2,78 @@ import SwiftUI
 
 struct RootView: View {
     @EnvironmentObject private var store: AppStore
+    @State private var showSettings = false
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                // Segmented control for Add | Find | Review
-                SegmentedModeBar(selected: $store.mode)
-                    .padding(.horizontal)
-                    .padding(.top, 8)
-                    .padding(.bottom, 12)
-                    .background(.ultraThinMaterial)
+            ZStack {
+                switch store.mode {
+                case .add:
+                    // ⚠️ Do NOT wrap a Form in a ScrollView.
+                    AddTaskView()
+                        .padding(.bottom, 90) // keep content above the floating bar
+                        .background(Color(.systemGroupedBackground))
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .trailing).combined(with: .opacity),
+                            removal: .move(edge: .leading).combined(with: .opacity)
+                        ))
 
-                Divider()
+                case .find:
+                    wrapScrollable(FindTaskView())
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .trailing).combined(with: .opacity),
+                            removal: .move(edge: .leading).combined(with: .opacity)
+                        ))
 
-                // Main content switches by mode
-                Group {
-                    switch store.mode {
-                    case .add: AddTaskView()
-                    case .find: FindTaskView()
-                    case .review: ReviewView()
-                    }
+                case .review:
+                    wrapScrollable(ReviewView())
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .trailing).combined(with: .opacity),
+                            removal: .move(edge: .leading).combined(with: .opacity)
+                        ))
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color(.systemGroupedBackground))
             }
-            // Replace text title with logo in the nav bar
-            .navigationBarTitleDisplayMode(.inline)
+            .animation(.spring(response: 0.35, dampingFraction: 0.85), value: store.mode)
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Image("AppLogo")
                         .resizable()
                         .scaledToFit()
-                        .frame(height: 70) // tweak to fit your asset nicely (20–32 works well)
+                        .frame(height: 40)
                         .accessibilityLabel("Select + Do")
                 }
-            }
-        }
-    }
-}
-
-struct SegmentedModeBar: View {
-    @Binding var selected: Mode
-
-    var body: some View {
-        HStack(spacing: 6) {
-            ForEach(Mode.allCases, id: \.self) { mode in
-                Button {
-                    selected = mode
-                    Haptics.light()
-                } label: {
-                    Text(mode.rawValue)
-                        .font(.subheadline.weight(.semibold))
-                        .padding(.vertical, 8)
-                        .frame(maxWidth: .infinity)
-                        .background(selected == mode ? Color.accentColor : .clear)
-                        .foregroundStyle(selected == mode ? Color.white : Color.primary)
-                        .clipShape(Capsule())
-                        .overlay(
-                            Capsule()
-                                .strokeBorder(Color.secondary.opacity(selected == mode ? 0 : 0.25))
-                        )
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button { showSettings = true } label: {
+                        Image(systemName: "gearshape")
+                    }
+                    .accessibilityLabel("Settings")
                 }
             }
+            .toolbarBackground(.thinMaterial, for: .navigationBar)
+            .toolbarBackgroundVisibility(.visible, for: .navigationBar)
+            .safeAreaInset(edge: .bottom) {
+                BottomModeBar(selected: $store.mode)
+                    .background(.clear)
+            }
+            .background(Color(.systemGroupedBackground))
         }
+        .sheet(isPresented: $showSettings) {
+            SettingsView().environmentObject(store)
+        }
+        .preferredColorScheme(store.preferredColorScheme)
+    }
+
+    // Wrap only non-Form screens so content can underlap the glass bar
+    @ViewBuilder
+    private func wrapScrollable(_ content: some View) -> some View {
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 0) {
+                content
+                    .frame(maxWidth: .infinity, alignment: .topLeading)
+                    .background(Color(.systemGroupedBackground))
+                Color.clear.frame(height: 90) // spacer above floating bar
+            }
+        }
+        .background(Color(.systemGroupedBackground))
     }
 }

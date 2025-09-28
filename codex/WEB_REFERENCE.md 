@@ -1,0 +1,57 @@
+# Select + Do — Web App Reference (Authoritative Parity Spec)
+
+## Product pillars
+- Single loop: **Add → Find → Focus → Review**.
+- **Modes**: Work | Personal (exact labels).
+- Time brackets: 5, 10, 15, 20, 25, 30, 45, 60 + Custom.
+- Tasks: Atomic | Standard | Progress. Optional Priority.
+
+## Global UI tokens
+- Section rhythm: **32 px** between blocks; internal spacing 12 px.
+- Card: radius 16; 1 px border (neutral/12%); soft shadow.
+- Chip: pill, med font, 8/12 padding; selected = filled accent.
+- Palette (semantic):
+  - Accent = Blue (buttons, selected chips)
+  - Surface = Background (grouped)
+  - Border = Quaternary
+  - Positive = Green; Warning = Orange
+- Icons: SF Symbol analogs on iOS.
+
+## Primary flows (acceptance criteria)
+### Find
+1) “What Mode Are You In?” → chips: **Work, Personal**.
+2) “How Much Time Do You Have?” → chips: 5–60 + **Custom**.
+3) “Pick a Task” → task cards (title, kind, context, minutes, optional star).
+4) Row actions under time:
+   - Priority Only (toggle)
+   - Reset (context=Personal, time=15, priority=false)
+   - Reshuffle (randomize list)
+5) Advanced Filters (collapsed by default) includes: Energy, Projects, Tags (not required for first iOS cut).
+
+### Add
+- Fields: Title, Context (Work/Personal), Type (Atomic/Standard/Progress), Minutes list, Priority toggle.
+- Full-width **Add Task** primary button.
+
+### Focus
+- Modal/sheet timer with task title + selected time; Pause, Stop/Discard, Mark Complete.
+
+### Review
+- Completed Today list (title + minutes).
+- Weekly Insights:
+  - Most productive context (mode)
+  - Preferred time bracket (Quick 5–15, Standard 20–30, Long 45–60)
+  - “Haven’t touched” suggestions (optional later)
+  - “Most time spent on Progress” (optional later)
+
+## Data model (web)
+```json
+{
+  "id": "uuid",
+  "title": "string",
+  "context": "Work|Personal",
+  "kind": "Atomic|Standard|Progress",
+  "minutes": 5|10|15|20|25|30|45|60,
+  "isPriority": true|false,
+  "completedAt": "timestamp|null",
+  "updatedAt": "timestamp"
+}

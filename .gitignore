@@ -17,3 +17,7 @@ build/
 
 # macOS system files
 .DS_Store
+
+# Ignore SwiftLint/SwiftFormat caches, but not configs
+.swiftlint.tmp
+.swiftformat.tmp

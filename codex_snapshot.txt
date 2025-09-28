@@ -1,0 +1,2471 @@
+codex/web_ref/index.html
+
+===== codex/web_ref/index.html =====
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Select + Do (Web Reference)</title>
+
+    <!-- Tailwind and fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+
+    <!-- All original inline CSS is now in styles.css -->
+    <link rel="stylesheet" href="./styles.css" />
+</head>
+
+<body class="bg-slate-50 text-slate-800 font-sans overflow-x-hidden">
+
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" class="min-h-screen flex flex-col justify-center items-center p-6 hidden">
+        <div class="bg-white shadow-md rounded-lg w-full max-w-sm p-6 space-y-6">
+            <h1 class="text-xl font-semibold text-center">Select + Do</h1>
+            <button id="googleLoginBtn"
+                class="w-full flex items-center justify-center gap-2 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+                <span>Continue with Google</span>
+            </button>
+            <div class="relative text-center">
+                <span class="bg-white px-2 text-gray-500 text-sm">or</span>
+            </div>
+            <input id="emailInput" type="email" placeholder="Email" class="w-full border rounded px-3 py-2" />
+            <input id="passwordInput" type="password" placeholder="Password" class="w-full border rounded px-3 py-2" />
+            <div class="flex gap-2">
+                <button id="signInBtn" class="flex-1 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Sign
+                    In</button>
+                <button id="signUpBtn" class="flex-1 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Sign
+                    Up</button>
+            </div>
+            <button id="guestModeBtn" class="w-full text-sm text-gray-500 underline">Try Guest Mode</button>
+            <div id="authError" class="text-red-500 text-sm hidden"></div>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="mainApp" class="hidden min-h-screen flex flex-col">
+        <!-- Top utility bar -->
+        <header id="utilityBar" class="flex items-center justify-between bg-white border-b px-4 py-2 sticky top-0 z-20">
+            <button id="menuBtn" class="lg:hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            <input id="unifiedCommandInput" placeholder="Search or type a command…"
+                class="flex-1 mx-4 px-3 py-2 border rounded-lg focus:ring focus:ring-blue-300" />
+            <button id="openTaskReviewDrawerIconBtn"
+                class="hidden md:inline-flex items-center text-gray-500 hover:text-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
+            <button id="logoutBtn" class="ml-4 text-sm text-red-500">Logout</button>
+        </header>
+
+        <div class="flex flex-1">
+            <!-- Sidebar -->
+            <aside id="sidebar" class="hidden lg:flex lg:flex-col w-64 bg-white border-r p-4 space-y-4 overflow-y-auto">
+                <div class="flex justify-between items-center">
+                    <h2 class="font-semibold">Projects</h2>
+                    <button id="addProjectBtn" class="text-sm text-blue-500">+ New</button>
+                </div>
+                <div id="projectsContainer" class="space-y-2"></div>
+            </aside>
+
+            <!-- Main content -->
+            <main class="flex-1 p-4 overflow-y-auto">
+                <div id="contentArea"></div>
+                <div id="contentEmptyState" class="hidden text-center text-gray-500">
+                    <h3 id="contentEmptyStateTitle" class="text-lg font-semibold"></h3>
+                    <p id="contentEmptyStateBody" class="text-sm"></p>
+                </div>
+                <section id="taskSuggestionsSection" class="hidden"></section>
+                <section id="completedTaskList" class="mt-8"></section>
+            </main>
+        </div>
+    </div>
+
+    <!-- TASK REVIEW DRAWER -->
+    <div id="taskReviewDrawerOverlay" class="fixed inset-0 hidden z-40 bg-black/40 backdrop-blur-sm transition-opacity">
+        <aside id="taskReviewDrawerPanel"
+            class="absolute right-0 top-0 h-full w-full sm:w-96 bg-white shadow-xl transform translate-x-full transition-transform">
+            <div class="p-4 border-b flex justify-between items-center">
+                <h3 class="font-semibold">Task Review</h3>
+                <button id="closeTaskReviewDrawerBtn" class="text-gray-500 hover:text-gray-700">✕</button>
+            </div>
+            <div class="p-4">
+                <div id="weeklyReviewSection"></div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- SETTINGS DRAWER -->
+    <div id="settingsDrawerOverlay" class="fixed inset-0 hidden z-40 bg-black/40 backdrop-blur-sm transition-opacity">
+        <aside id="settingsDrawerPanel"
+            class="absolute right-0 top-0 h-full w-full sm:w-80 bg-white shadow-xl transform translate-x-full transition-transform">
+            <div class="p-4 border-b flex justify-between items-center">
+                <h3 class="font-semibold">Settings</h3>
+                <button id="closeSettingsDrawerBtn" class="text-gray-500 hover:text-gray-700">✕</button>
+            </div>
+            <div class="p-4 space-y-4">
+                <label class="flex items-center gap-2">
+                    <input type="checkbox" id="showDailyPlannerToggle" class="form-checkbox" />
+                    Show daily planner
+                </label>
+            </div>
+        </aside>
+    </div>
+
+    <!-- FOCUS OVERLAY -->
+    <div id="focusOverlay"
+        class="fixed inset-0 hidden z-50 flex flex-col items-center justify-center bg-black/70 backdrop-blur-sm p-6">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 text-center">
+            <h2 id="focusTaskName" class="text-lg font-semibold mb-4"></h2>
+            <div class="relative w-56 h-56 mx-auto mb-4">
+                <svg class="w-full h-full transform -rotate-90">
+                    <circle id="focusProgressCircle" cx="112" cy="112" r="102" stroke="currentColor" stroke-width="10"
+                        class="text-gray-200 fill-none" />
+                    <circle cx="112" cy="112" r="102" stroke="currentColor" stroke-width="10"
+                        class="text-blue-500 fill-none stroke-dasharray-[641] stroke-dashoffset-[641] transition-all duration-1000 ease-linear" />
+                </svg>
+                <span id="focusTimerDisplay"
+                    class="absolute inset-0 flex items-center justify-center text-3xl font-bold">25:00</span>
+            </div>
+            <div class="flex gap-2 justify-center">
+                <button id="focusPauseBtn" class="bg-gray-200 rounded px-3 py-2">Pause</button>
+                <button id="focusStopBtn" class="bg-red-500 text-white rounded px-3 py-2">Stop</button>
+                <button id="focusCompleteBtn" class="bg-green-500 text-white rounded px-3 py-2">Complete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMMAND SUGGESTIONS -->
+    <div id="commandSuggestions" class="absolute bg-white shadow-md rounded-md mt-1 hidden"></div>
+
+    <!-- SCRIPT MODULES -->
+    <script type="module" src="./js/firebase.js"></script>
+    <script type="module" src="./js/state.js"></script>
+    <script type="module" src="./js/dom.js"></script>
+    <script type="module" src="./js/ui-render.js"></script>
+    <script type="module" src="./js/auth.js"></script>
+    <script type="module" src="./js/drawers-modals.js"></script>
+    <script type="module" src="./js/focus.js"></script>
+    <script type="module" src="./js/main.js"></script>
+</body>
+
+</html>codex/web_ref/styles.css
+
+===== codex/web_ref/styles.css =====
+/* styles.css
+   Extracted from original index.html for Codex SwiftUI reference
+*/
+
+/* Reset & Base */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Helvetica, Arial, sans-serif;
+    background: #f9fafb;
+    color: #111827;
+    line-height: 1.5;
+}
+
+button {
+    cursor: pointer;
+    font: inherit;
+    border: none;
+    background: none;
+}
+
+input,
+select,
+textarea {
+    font: inherit;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    padding: 0.5rem;
+}
+
+/* Layout */
+.app-container {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    height: 100vh;
+}
+
+.sidebar {
+    background: #fff;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+}
+
+.content-area {
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+/* Utility bar / segmented controls */
+.utility-bar {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border-bottom: 1px solid #e5e7eb;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+}
+
+.utility-bar button {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #374151;
+}
+
+.utility-bar button.active {
+    background: #2563eb;
+    color: #fff;
+}
+
+/* Task cards */
+.task-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: start;
+    gap: 0.75rem;
+    transition: background 0.15s ease;
+}
+
+.task-card:hover {
+    background: #f9fafb;
+}
+
+.task-card h4 {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 500;
+}
+
+.task-card .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-top: 0.25rem;
+}
+
+.task-card .chip {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.task-card .chip.priority {
+    background: #fde68a;
+    color: #92400e;
+}
+
+/* Sections */
+.section {
+    margin-top: 1.5rem;
+}
+
+.section h3 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+    color: #374151;
+}
+
+.section .card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+/* Completed tasks */
+.completed-list {
+    margin-top: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background: #fff;
+}
+
+.completed-list h3 {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.completed-list ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.completed-list li {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid #f3f4f6;
+    font-size: 0.875rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.completed-list li:first-child {
+    border-top: none;
+}
+
+/* Drawers & Modals */
+.drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: none;
+    z-index: 50;
+}
+
+.drawer-overlay.active {
+    display: block;
+}
+
+.drawer-panel {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 320px;
+    max-width: 100%;
+    background: #fff;
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.drawer-panel:not(.translate-x-full) {
+    transform: translateX(0);
+}
+
+/* Focus overlay */
+.focus-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(17, 24, 39, 0.9);
+    color: #fff;
+    display: none;
+    z-index: 60;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.focus-overlay.active {
+    display: flex;
+}
+
+.focus-overlay h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.focus-time {
+    font-size: 2.25rem;
+    font-weight: bold;
+}
+
+.focus-controls {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 0.75rem;
+}
+
+.focus-controls button {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    background: #2563eb;
+    color: #fff;
+}
+
+.focus-controls button.secondary {
+    background: #4b5563;
+}
+
+/* Settings */
+.settings-section {
+    padding: 1rem;
+}
+
+.settings-section h4 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.settings-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Utilities */
+.hidden {
+    display: none !important;
+}
+
+.mt-1 {
+    margin-top: 0.25rem;
+}
+
+.mt-2 {
+    margin-top: 0.5rem;
+}
+
+.mt-3 {
+    margin-top: 0.75rem;
+}
+
+.mt-4 {
+    margin-top: 1rem;
+}
+
+.mt-6 {
+    margin-top: 1.5rem;
+}
+
+.space-y-2>*+* {
+    margin-top: 0.5rem;
+}
+
+.space-y-3>*+* {
+    margin-top: 0.75rem;
+}
+
+.space-y-6>*+* {
+    margin-top: 1.5rem;
+}codex/web_ref/js/drawers-modals.js
+
+===== codex/web_ref/js/drawers-modals.js =====
+// drawers-modals.js
+// Task Review + Settings drawers and lightweight modal helpers.
+// Relies on DOM ids defined in codex/web-reference/index.html
+
+import * as S from "./state.js";
+import * as D from "./dom.js";
+import { renderCompletedTasks, renderWeeklyReview } from "./ui-render.js";
+
+/* ============================================================
+   Drawer: Task Review
+============================================================ */
+export function openTaskReviewDrawer() {
+    if (!D.taskReviewDrawerOverlay || !D.taskReviewDrawerPanel) return;
+
+    // (Re)render contents on open
+    renderCompletedTasks();
+    renderWeeklyReview();
+
+    // Show overlay first
+    D.taskReviewDrawerOverlay.classList.remove("hidden");
+    // Let CSS take effect before sliding panel in
+    requestAnimationFrame(() => {
+        D.taskReviewDrawerOverlay.classList.add("active");  // if you style fade on .active
+        D.taskReviewDrawerPanel.classList.remove("translate-x-full");
+    });
+
+    document.body.classList.add("overflow-hidden");
+
+    // Close handlers
+    addDrawerCloseHandlers(D.taskReviewDrawerOverlay, D.taskReviewDrawerPanel, closeTaskReviewDrawer);
+}
+
+export function closeTaskReviewDrawer() {
+    if (!D.taskReviewDrawerOverlay || !D.taskReviewDrawerPanel) return;
+
+    // Slide out
+    D.taskReviewDrawerPanel.classList.add("translate-x-full");
+    D.taskReviewDrawerOverlay.classList.remove("active");
+
+    // Hide overlay after transition (duration ~250–300ms in Tailwind)
+    setTimeout(() => {
+        if (!D.taskReviewDrawerOverlay.classList.contains("active")) {
+            D.taskReviewDrawerOverlay.classList.add("hidden");
+        }
+    }, 260);
+
+    document.body.classList.remove("overflow-hidden");
+    removeDrawerCloseHandlers(D.taskReviewDrawerOverlay);
+}
+
+/* ============================================================
+   Drawer: Settings
+============================================================ */
+export function openSettingsDrawer() {
+    if (!D.settingsDrawerOverlay || !D.settingsDrawerPanel) return;
+
+    D.settingsDrawerOverlay.classList.remove("hidden");
+    requestAnimationFrame(() => {
+        D.settingsDrawerOverlay.classList.add("active");
+        D.settingsDrawerPanel.classList.remove("translate-x-full");
+    });
+
+    document.body.classList.add("overflow-hidden");
+
+    // Initialize toggles from state
+    if (D.showDailyPlannerToggle) {
+        D.showDailyPlannerToggle.checked = !!S.userSettings.showDailyPlanner;
+    }
+
+    addDrawerCloseHandlers(D.settingsDrawerOverlay, D.settingsDrawerPanel, closeSettingsDrawer);
+}
+
+export function closeSettingsDrawer() {
+    if (!D.settingsDrawerOverlay || !D.settingsDrawerPanel) return;
+
+    D.settingsDrawerPanel.classList.add("translate-x-full");
+    D.settingsDrawerOverlay.classList.remove("active");
+
+    setTimeout(() => {
+        if (!D.settingsDrawerOverlay.classList.contains("active")) {
+            D.settingsDrawerOverlay.classList.add("hidden");
+        }
+    }, 260);
+
+    document.body.classList.remove("overflow-hidden");
+    removeDrawerCloseHandlers(D.settingsDrawerOverlay);
+
+    // Persist simple settings snapshot (for reference parity)
+    S.userSettings.showDailyPlanner = !!D.showDailyPlannerToggle?.checked;
+}
+
+/* ============================================================
+   Lightweight modals (generic)
+   - These helpers let you spawn simple alert/confirm modals
+   - Self-contained; no external CSS beyond Tailwind utilities
+============================================================ */
+export function showAlert({ title = "Notice", message = "", okText = "OK" } = {}) {
+    return new Promise((resolve) => {
+        const { overlay, panel } = spawnModalShell();
+
+        panel.innerHTML = `
+      <div class="p-4 border-b">
+        <h3 class="font-semibold">${escapeHTML(title)}</h3>
+      </div>
+      <div class="p-4 text-sm text-slate-700">${escapeHTML(message)}</div>
+      <div class="p-3 border-t flex justify-end">
+        <button class="px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700" data-role="ok">${escapeHTML(okText)}</button>
+      </div>
+    `;
+
+        const onClose = () => {
+            cleanupModal(overlay);
+            resolve();
+        };
+
+        overlay.addEventListener("click", (e) => {
+            if (e.target === overlay) onClose();
+        });
+
+        panel.querySelector("[data-role='ok']")?.addEventListener("click", onClose);
+        attachEscapeToClose(overlay, onClose);
+    });
+}
+
+export function showConfirm({
+    title = "Confirm",
+    message = "",
+    okText = "Confirm",
+    cancelText = "Cancel",
+} = {}) {
+    return new Promise((resolve) => {
+        const { overlay, panel } = spawnModalShell();
+
+        panel.innerHTML = `
+      <div class="p-4 border-b">
+        <h3 class="font-semibold">${escapeHTML(title)}</h3>
+      </div>
+      <div class="p-4 text-sm text-slate-700">${escapeHTML(message)}</div>
+      <div class="p-3 border-t flex justify-end gap-2">
+        <button class="px-3 py-1.5 rounded bg-slate-100 text-slate-700 hover:bg-slate-200" data-role="cancel">${escapeHTML(cancelText)}</button>
+        <button class="px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700" data-role="ok">${escapeHTML(okText)}</button>
+      </div>
+    `;
+
+        const onCancel = () => {
+            cleanupModal(overlay);
+            resolve(false);
+        };
+        const onOk = () => {
+            cleanupModal(overlay);
+            resolve(true);
+        };
+
+        overlay.addEventListener("click", (e) => {
+            if (e.target === overlay) onCancel();
+        });
+
+        panel.querySelector("[data-role='cancel']")?.addEventListener("click", onCancel);
+        panel.querySelector("[data-role='ok']")?.addEventListener("click", onOk);
+        attachEscapeToClose(overlay, onCancel);
+    });
+}
+
+/* ============================================================
+   Internal: Drawer wiring utilities
+============================================================ */
+function addDrawerCloseHandlers(overlayEl, panelEl, closeFn) {
+    if (!overlayEl || !panelEl) return;
+
+    // Click outside panel closes
+    const overlayClick = (e) => {
+        if (e.target === overlayEl) closeFn();
+    };
+    overlayEl.addEventListener("click", overlayClick);
+
+    // ESC to close
+    const escKey = (e) => {
+        if (e.key === "Escape") closeFn();
+    };
+    window.addEventListener("keydown", escKey);
+
+    // Save handlers so we can remove them later
+    overlayEl._sd_handlers = { overlayClick, escKey };
+
+    // Dedicated close buttons
+    if (overlayEl === D.taskReviewDrawerOverlay && D.closeTaskReviewDrawerBtn) {
+        D.closeTaskReviewDrawerBtn.addEventListener("click", closeFn);
+        overlayEl._sd_handlers.btn = D.closeTaskReviewDrawerBtn;
+    }
+    if (overlayEl === D.settingsDrawerOverlay && D.closeSettingsDrawerBtn) {
+        D.closeSettingsDrawerBtn.addEventListener("click", closeFn);
+        overlayEl._sd_handlers.btn = D.closeSettingsDrawerBtn;
+    }
+}
+
+function removeDrawerCloseHandlers(overlayEl) {
+    if (!overlayEl || !overlayEl._sd_handlers) return;
+    const { overlayClick, escKey, btn } = overlayEl._sd_handlers;
+
+    overlayEl.removeEventListener("click", overlayClick);
+    window.removeEventListener("keydown", escKey);
+    if (btn) btn.removeEventListener("click", noop);
+
+    overlayEl._sd_handlers = null;
+}
+
+function noop() { }
+
+/* ============================================================
+   Internal: Modal creation utilities
+============================================================ */
+function spawnModalShell() {
+    const overlay = document.createElement("div");
+    overlay.className =
+        "fixed inset-0 z-[1000] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4";
+
+    const panel = document.createElement("div");
+    panel.className = "bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden";
+
+    overlay.appendChild(panel);
+    document.body.appendChild(overlay);
+    document.body.classList.add("overflow-hidden");
+
+    return { overlay, panel };
+}
+
+function cleanupModal(overlay) {
+    if (!overlay) return;
+    overlay.remove();
+    document.body.classList.remove("overflow-hidden");
+}
+
+function attachEscapeToClose(overlay, onClose) {
+    const handler = (e) => {
+        if (e.key === "Escape") {
+            window.removeEventListener("keydown", handler);
+            onClose?.();
+        }
+    };
+    window.addEventListener("keydown", handler);
+}
+
+/* ============================================================
+   Internal: tiny utils
+============================================================ */
+function escapeHTML(s) {
+    return String(s ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+}codex/web_ref/js/auth.js
+
+===== codex/web_ref/js/auth.js =====
+// auth.js
+// Authentication helpers split from the original inline <script>.
+// Uses Firebase Auth when available; otherwise falls back gracefully for Codex reference.
+
+import {
+    auth,
+    GoogleAuthProvider,
+    signInWithPopup,
+    signInWithRedirect,
+    getRedirectResult,
+    signOut,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+} from "./firebase.js";
+
+import * as S from "./state.js";
+import * as D from "./dom.js";
+import { renderAll } from "./ui-render.js";
+
+/* ============================================================
+   UI helpers (errors, loading)
+============================================================ */
+export function showAuthError(message) {
+    if (!D.authError) return;
+    D.authError.textContent = message ?? "Authentication error.";
+    D.authError.classList.remove("hidden");
+}
+
+export function clearAuthError() {
+    if (!D.authError) return;
+    D.authError.textContent = "";
+    D.authError.classList.add("hidden");
+}
+
+export function setEmailAuthLoading(isLoading, action = "signIn") {
+    const btn = action === "signUp" ? D.signUpBtn : D.signInBtn;
+    const label = action === "signUp" ? "Creating…" : "Signing in…";
+    D.setBusy(btn, isLoading, label);
+}
+
+/* ============================================================
+   Public: Auth flows
+============================================================ */
+export async function handleGoogleLogin() {
+    clearAuthError();
+    try {
+        requireFirebase("Google Sign-In");
+
+        // Prefer popup in desktop, redirect as a fallback (mobile/Safari)
+        const provider = new GoogleAuthProvider();
+        try {
+            await signInWithPopup(auth, provider);
+        } catch (popupErr) {
+            // Some platforms block popups — attempt redirect flow
+            await signInWithRedirect(auth, provider);
+            // After redirect, main.js should call getRedirectResult().
+        }
+    } catch (e) {
+        showAuthError(getAuthErrorMessage(e?.code) || e?.message || "Google sign-in failed.");
+    }
+}
+
+export async function handleRedirectResultOnce() {
+    // Optional helper you can call from main.js after page load
+    try {
+        if (!auth || !getRedirectResult) return;
+        const result = await getRedirectResult(auth);
+        if (!result) return;
+        // Signed in via redirect → UI will update via onAuthStateChanged in main.js
+    } catch (e) {
+        showAuthError(getAuthErrorMessage(e?.code) || e?.message || "Google redirect failed.");
+    }
+}
+
+export async function handleEmailSignUp() {
+    clearAuthError();
+    const email = D.emailInput?.value?.trim();
+    const password = D.passwordInput?.value ?? "";
+    if (!email || !password) {
+        showAuthError("Enter email and password.");
+        return;
+    }
+    setEmailAuthLoading(true, "signUp");
+    try {
+        requireFirebase("Email Sign-Up");
+        await createUserWithEmailAndPassword(auth, email, password);
+        // UI updates happen via onAuthStateChanged in main.js
+    } catch (e) {
+        showAuthError(getAuthErrorMessage(e?.code) || e?.message || "Sign-up failed.");
+    } finally {
+        setEmailAuthLoading(false, "signUp");
+    }
+}
+
+export async function handleEmailSignIn() {
+    clearAuthError();
+    const email = D.emailInput?.value?.trim();
+    const password = D.passwordInput?.value ?? "";
+    if (!email || !password) {
+        showAuthError("Enter email and password.");
+        return;
+    }
+    setEmailAuthLoading(true, "signIn");
+    try {
+        requireFirebase("Email Sign-In");
+        await signInWithEmailAndPassword(auth, email, password);
+        // UI updates happen via onAuthStateChanged in main.js
+    } catch (e) {
+        showAuthError(getAuthErrorMessage(e?.code) || e?.message || "Sign-in failed.");
+    } finally {
+        setEmailAuthLoading(false, "signIn");
+    }
+}
+
+export function handleLogout() {
+    try {
+        if (!auth || !signOut) {
+            // No Firebase (Codex reference mode)
+            S.currentUser = null;
+            D.showLogin();
+            return;
+        }
+        signOut(auth);
+    } catch (e) {
+        // Keep UI stable; optionally display error
+        console.warn("Logout error:", e);
+    }
+}
+
+/* ============================================================
+   Public: Mode without auth (Guest)
+============================================================ */
+export function showGuestMode() {
+    clearAuthError();
+    // Seed demo state and render UI
+    S.currentUser = { uid: "guest-mode", displayName: "Guest" };
+    S.loadExampleData();
+    D.showMainApp();
+    renderAll();
+}
+
+/* ============================================================
+   Public: Screen toggles
+============================================================ */
+export function showLoginScreen() {
+    // Reset inputs and show login UI
+    if (D.emailInput) D.emailInput.value = "";
+    if (D.passwordInput) D.passwordInput.value = "";
+    clearAuthError();
+    D.showLogin();
+}
+
+/* ============================================================
+   Errors
+============================================================ */
+export function getAuthErrorMessage(code) {
+    switch (code) {
+        case "auth/invalid-email":
+            return "That email address looks invalid.";
+        case "auth/user-disabled":
+            return "This account has been disabled.";
+        case "auth/user-not-found":
+            return "No account found for this email.";
+        case "auth/wrong-password":
+            return "Incorrect password. Try again.";
+        case "auth/email-already-in-use":
+            return "There’s already an account with this email.";
+        case "auth/weak-password":
+            return "Please use a stronger password.";
+        case "auth/popup-closed-by-user":
+            return "Sign-in was cancelled.";
+        case "auth/popup-blocked":
+            return "Your browser blocked the sign-in popup.";
+        case "auth/operation-not-allowed":
+            return "This sign-in method is not enabled.";
+        default:
+            return null;
+    }
+}
+
+/* ============================================================
+   Internal util
+============================================================ */
+function requireFirebase(feature = "This feature") {
+    if (!auth) throw new Error(`${feature} requires Firebase Auth to be loaded.`);
+}codex/web_ref/js/main.js
+
+===== codex/web_ref/js/main.js =====
+// main.js
+// Bootstraps the web reference: auth wiring, event listeners, and initial renders.
+
+import * as S from "./state.js";
+import * as D from "./dom.js";
+import {
+    handleGoogleLogin,
+    handleEmailSignUp,
+    handleEmailSignIn,
+    handleLogout,
+    handleRedirectResultOnce,
+    showGuestMode,
+    showLoginScreen,
+} from "./auth.js";
+
+import { openTaskReviewDrawer, closeTaskReviewDrawer, openSettingsDrawer, closeSettingsDrawer } from "./drawers-modals.js";
+import { renderAll, renderTasksAndProjects, renderCompletedTasks, renderProjectFilters, renderWeeklyReview } from "./ui-render.js";
+
+// Optional focus controls (if you implement them in focus.js)
+let startFocus, pauseFocus, stopFocus, completeFocus;
+(async () => {
+    try {
+        const f = await import("./focus.js");
+        startFocus = f.startFocus;
+        pauseFocus = f.pauseFocus;
+        stopFocus = f.stopFocus;
+        completeFocus = f.completeFocus;
+    } catch (e) {
+        // focus module is optional in the reference
+    }
+})();
+
+// Firebase auth observer (if Firebase is available)
+let onAuthStateChanged, auth;
+(async () => {
+    try {
+        const fb = await import("./firebase.js");
+        onAuthStateChanged = fb.onAuthStateChanged;
+        auth = fb.auth;
+    } catch {
+        // Running without Firebase (reference mode)
+    }
+
+    // Kick off app once DOM is ready
+    document.addEventListener("DOMContentLoaded", init);
+})();
+
+/* ============================================================
+   Init
+============================================================ */
+function init() {
+    // --- Auth buttons ---
+    D.googleLoginBtn?.addEventListener("click", handleGoogleLogin);
+    D.signUpBtn?.addEventListener("click", handleEmailSignUp);
+    D.signInBtn?.addEventListener("click", handleEmailSignIn);
+    D.guestModeBtn?.addEventListener("click", () => {
+        showGuestMode();
+    });
+    D.logoutBtn?.addEventListener("click", handleLogout);
+
+    // --- Utility bar ---
+    D.menuBtn?.addEventListener("click", () => D.toggleSidebarMobile());
+    D.openTaskReviewDrawerIconBtn?.addEventListener("click", openTaskReviewDrawer);
+
+    // If you add a settings trigger in your HTML later:
+    // document.getElementById("openSettingsBtn")?.addEventListener("click", openSettingsDrawer);
+
+    // --- Close buttons inside drawers (defensive; drawers-modals also binds internally) ---
+    D.closeTaskReviewDrawerBtn?.addEventListener("click", closeTaskReviewDrawer);
+    D.closeSettingsDrawerBtn?.addEventListener("click", closeSettingsDrawer);
+
+    // --- Search / Command input ---
+    if (D.unifiedCommandInput) {
+        const debounced = debounce((v) => {
+            renderTasksAndProjects(v, /* bypassSearchLogic: */ true);
+        }, 120);
+        D.unifiedCommandInput.addEventListener("input", (e) => {
+            debounced(e.target.value || "");
+        });
+    }
+
+    // --- Content area event delegation (task actions, filters, reshuffle, etc.) ---
+    if (D.contentArea) {
+        D.contentArea.addEventListener("click", onContentClick);
+        D.contentArea.addEventListener("change", onContentChange);
+    }
+
+    // --- Sidebar (projects) ---
+    D.projectsContainer?.addEventListener("click", onProjectsClick);
+
+    // --- Completed list actions ---
+    D.completedTaskList?.addEventListener("click", onCompletedClick);
+
+    // --- Auth state → swap screens ---
+    if (onAuthStateChanged && auth) {
+        handleRedirectResultOnce?.(); // resolves Google redirect if used
+        onAuthStateChanged(auth, (user) => {
+            S.currentUser = user || null;
+            if (user) {
+                // In your real app, you’d subscribe to Firestore + then render
+                D.showMainApp();
+                renderAll();
+            } else {
+                showLoginScreen();
+            }
+        });
+    } else {
+        // No Firebase loaded → fall back to guest mode so the reference is interactive
+        showGuestMode();
+    }
+}
+
+/* ============================================================
+   Event handlers
+============================================================ */
+function onContentClick(e) {
+    const btn = e.target.closest("[data-role]");
+    if (!btn) return;
+
+    const role = btn.getAttribute("data-role");
+    const taskId = btn.getAttribute("data-task-id");
+
+    switch (role) {
+        case "task-start": {
+            const t = S.tasks.find((x) => x.id === taskId);
+            if (!t) return;
+            if (typeof startFocus === "function") {
+                startFocus(t);
+            } else {
+                // Minimal fallback (no focus module): open overlay with task name
+                D.openFocusOverlay(t.name ?? t.title ?? "Focus");
+            }
+            break;
+        }
+
+        case "task-more": {
+            // Placeholder for a context menu; you can hook modal helpers here
+            // e.g., open a tiny action sheet with Edit / Delete / Toggle Priority
+            break;
+        }
+
+        case "reshuffle": {
+            S.reshuffleID = cryptoRandomID();
+            renderTasksAndProjects(getSearchValue());
+            break;
+        }
+
+        case "project-filter": {
+            const pid = btn.getAttribute("data-project-id");
+            if (!pid) break;
+            toggleSetLikeArray(S.selectedProjectFilters, pid);
+            renderProjectFilters();
+            renderTasksAndProjects(getSearchValue());
+            break;
+        }
+
+        default:
+            break;
+    }
+}
+
+function onContentChange(e) {
+    const el = e.target;
+    if (!(el instanceof HTMLInputElement)) return;
+    const role = el.getAttribute("data-role");
+    if (!role) return;
+
+    switch (role) {
+        case "priority-only": {
+            S.filterByPriorityOnly = !!el.checked;
+            renderTasksAndProjects(getSearchValue());
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+function onProjectsClick(e) {
+    const btn = e.target.closest("[data-role='project-filter']");
+    if (!btn) return;
+    const pid = btn.getAttribute("data-project-id");
+    if (!pid) return;
+    toggleSetLikeArray(S.selectedProjectFilters, pid);
+    renderProjectFilters();
+    renderTasksAndProjects(getSearchValue());
+}
+
+function onCompletedClick(e) {
+    const close = e.target.closest("[data-role='completed-remove']");
+    if (!close) return;
+
+    const id = close.getAttribute("data-id");
+    if (!id) return;
+
+    const idx = S.completedTasks.findIndex((x) => x.id === id);
+    if (idx >= 0) {
+        S.completedTasks.splice(idx, 1);
+        renderCompletedTasks();
+        renderWeeklyReview();
+    }
+}
+
+/* ============================================================
+   Helpers
+============================================================ */
+function getSearchValue() {
+    return D.unifiedCommandInput?.value?.trim() || "";
+}
+
+function debounce(fn, wait = 150) {
+    let t = null;
+    return (...args) => {
+        if (t) clearTimeout(t);
+        t = setTimeout(() => fn(...args), wait);
+    };
+}
+
+function toggleSetLikeArray(arr, val) {
+    const i = arr.indexOf(val);
+    if (i === -1) arr.push(val);
+    else arr.splice(i, 1);
+}
+
+function cryptoRandomID() {
+    try {
+        return crypto.randomUUID();
+    } catch {
+        return "id_" + Math.random().toString(36).slice(2);
+    }
+}
+
+/* ============================================================
+   Focus overlay fallback controls (if no focus.js)
+============================================================ */
+D.focusPauseBtn?.addEventListener("click", () => {
+    if (typeof pauseFocus === "function") return pauseFocus();
+    // simple UI-only feedback
+    D.setFocusTimeDisplay("Paused");
+});
+D.focusStopBtn?.addEventListener("click", () => {
+    if (typeof stopFocus === "function") return stopFocus();
+    D.closeFocusOverlay();
+});
+D.focusCompleteBtn?.addEventListener("click", () => {
+    if (typeof completeFocus === "function") return completeFocus();
+    D.closeFocusOverlay();
+});codex/web_ref/js/focus.js
+
+===== codex/web_ref/js/focus.js =====
+// focus.js
+// Focus session logic: start, tick, pause/resume, stop, complete.
+// Uses state.js for data and dom.js for UI updates.
+
+import * as S from "./state.js";
+import * as D from "./dom.js";
+
+/* ============================================================
+   Public API
+============================================================ */
+export function startFocus(task, opts = {}) {
+    if (!task) return;
+
+    // Set current task/session
+    S.currentTask = task;
+    S.targetTimeBracket = opts.timeBracket || task.sessionTimeBracket || task.timeBracket || "Quick";
+    S.sessionLength = S.getMinutesFromBracket(S.targetTimeBracket);
+    S.sessionTargetSeconds = S.sessionLength * 60;
+    S.elapsedSeconds = 0;
+    S.isPaused = false;
+
+    // UI
+    const title = task.name ?? task.title ?? "Focus";
+    D.openFocusOverlay(title);
+    D.setFocusTimeDisplay(formatMMSS(S.sessionTargetSeconds));
+    setProgress(0);
+
+    // Optional: show the time bracket chip if present in DOM
+    if (D.focusTimeBracketChip) {
+        D.focusTimeBracketChip.textContent = S.targetTimeBracket;
+    }
+
+    // Start ticking
+    clearTimer();
+    S.timerInterval = setInterval(tick, 1000);
+
+    // Update document title while focusing
+    try {
+        document.title = `⏱️ ${S.sessionLength}m • ${S.originalTitle}`;
+    } catch {
+        /* no-op */
+    }
+}
+
+export function pauseFocus() {
+    if (!S.timerInterval) return;
+    S.isPaused = !S.isPaused;
+
+    // Lightweight UI feedback
+    if (S.isPaused) {
+        try { document.title = `⏸️ Paused • ${S.originalTitle}`; } catch { /* no-op */ }
+        D.setFocusTimeDisplay(`${formatMMSS(S.sessionTargetSeconds - S.elapsedSeconds)} (Paused)`);
+    } else {
+        try { document.title = `⏱️ ${S.sessionLength}m • ${S.originalTitle}`; } catch { /* no-op */ }
+        D.setFocusTimeDisplay(formatMMSS(S.sessionTargetSeconds - S.elapsedSeconds));
+    }
+}
+
+export function stopFocus(saveProgress = false) {
+    // Optionally save partial progress into the task (demo behavior)
+    if (saveProgress && S.currentTask) {
+        const add = Math.max(0, Math.min(S.sessionTargetSeconds, S.elapsedSeconds));
+        S.currentTask.timeSpent = (S.currentTask.timeSpent || 0) + Math.round(add / 60);
+        S.currentTask.updatedAt = Date.now();
+    }
+    teardown();
+}
+
+export function completeFocus() {
+    // Mark as completed (append to history list)
+    if (S.currentTask) {
+        S.completedTasks.unshift({
+            id: safeID(),
+            name: S.currentTask.name ?? S.currentTask.title ?? "Task",
+            timeBracket: S.currentTask.timeBracket,
+            sessionTimeBracket: S.currentTask.sessionTimeBracket || S.targetTimeBracket,
+            completedAt: Date.now(),
+        });
+        // Optional: bump simple streak model (demo-friendly)
+        updateStreak();
+    }
+    teardown();
+}
+
+/* ============================================================
+   Internal ticking
+============================================================ */
+function tick() {
+    if (S.isPaused) return;
+
+    S.elapsedSeconds += 1;
+    const remaining = Math.max(0, S.sessionTargetSeconds - S.elapsedSeconds);
+
+    D.setFocusTimeDisplay(formatMMSS(remaining));
+    setProgress(S.elapsedSeconds / S.sessionTargetSeconds);
+
+    if (remaining <= 0) {
+        // Auto-complete when timer finishes
+        completeFocus();
+    }
+}
+
+/* ============================================================
+   Helpers
+============================================================ */
+function teardown() {
+    clearTimer();
+    resetTitle();
+    D.closeFocusOverlay();
+
+    // Reset focus state
+    S.currentTask = null;
+    S.sessionLength = null;
+    S.targetTimeBracket = null;
+    S.sessionTargetSeconds = 0;
+    S.elapsedSeconds = 0;
+    S.isPaused = false;
+
+    // Visual ring reset (optional)
+    setProgress(0);
+}
+
+function clearTimer() {
+    if (S.timerInterval) {
+        clearInterval(S.timerInterval);
+        S.timerInterval = null;
+    }
+}
+
+function setProgress(percent01) {
+    // clamps to [0,1] and updates the ring
+    const p = Math.max(0, Math.min(1, percent01 || 0));
+    D.setFocusProgress(p);
+}
+
+function resetTitle() {
+    try { document.title = S.originalTitle; } catch { /* no-op */ }
+}
+
+function formatMMSS(totalSeconds) {
+    const s = Math.max(0, Math.floor(totalSeconds));
+    const mPart = Math.floor(s / 60);
+    const sPart = s % 60;
+    return `${String(mPart).padStart(2, "0")}:${String(sPart).padStart(2, "0")}`;
+}
+
+function safeID() {
+    try { return crypto.randomUUID(); } catch { return "id_" + Math.random().toString(36).slice(2); }
+}
+
+function updateStreak() {
+    const todayKey = dayKey(new Date());
+    const lastKey = S.streakData?.lastCompletedDate ? dayKey(new Date(S.streakData.lastCompletedDate)) : null;
+
+    if (!S.streakData) S.streakData = { currentStreak: 0, lastCompletedDate: null };
+
+    if (!lastKey || todayKey === lastKey) {
+        // First completion today or duplicate day → ensure date set, keep streak
+        S.streakData.lastCompletedDate = new Date().toISOString();
+        if (!lastKey) S.streakData.currentStreak = 1;
+    } else {
+        // Check if consecutive day
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yKey = dayKey(yesterday);
+        if (lastKey === yKey) {
+            S.streakData.currentStreak = (S.streakData.currentStreak || 0) + 1;
+        } else {
+            S.streakData.currentStreak = 1; // reset streak
+        }
+        S.streakData.lastCompletedDate = new Date().toISOString();
+    }
+}
+
+function dayKey(d) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+        d.getDate()
+    ).padStart(2, "0")}`;
+}codex/web_ref/js/state.js
+
+===== codex/web_ref/js/state.js =====
+// state.js
+// Global UI/data state, constants, and helpers extracted from the original inline <script>.
+// This file is used for Codex reference (not live execution).
+
+//
+// 🔹 Core app state
+//
+export let projects = [];
+export let tasks = [];
+export let completedTasks = [];
+export let worklogs = [];
+export let streakData = { currentStreak: 0, lastCompletedDate: null };
+
+//
+// 🔹 Modal and filter state
+//
+export let modalTagList = [];
+export let modalSelectedTime = null;
+export let modalSelectedTotalTime = null;
+export let modalSelectedMinSessionTime = null;
+export let modalSelectedContexts = [];
+export let modalSelectedEnergy = null;
+
+export let editingTaskId = null;
+export let selectedTimeFilter = null;
+export let selectedContextFilters = [];
+export let selectedEnergyFilters = [];
+export let selectedProjectFilters = [];
+export let selectedTagFilters = [];
+export let filterByPriorityOnly = false;
+
+export let selectedMode = null; // "Work" | "Personal"
+export let advancedFiltersOpen = false;
+export let originalCollapsedProjects = new Set();
+export let collapsedProjects = new Set();
+export let taskReviewCollapsed = false;
+
+//
+// 🔹 Constants
+//
+export const energyLevels = ["Low 🧠", "Medium 💪", "High 🔥"];
+
+export const TIME_BRACKET_MINUTES = {
+    Quick: 15,
+    Standard: 30,
+    Long: 60
+};
+
+export const DEFAULT_SESSION_MINUTES = 25;
+
+export const FOCUS_PROGRESS_RADIUS = 102;
+export const FOCUS_PROGRESS_CIRCUMFERENCE =
+    2 * Math.PI * FOCUS_PROGRESS_RADIUS;
+
+//
+// 🔹 Focus session timer state
+//
+export let timerInterval = null;
+export let elapsedSeconds = 0;
+export let isPaused = false;
+export let currentFocusTaskId = null;
+export let currentTask = null;
+export let sessionLength = null;
+export let targetTimeBracket = null;
+export let sessionTargetSeconds = 0;
+
+//
+// 🔹 User/session state
+//
+export let currentUser = null;
+export let lastLoginDate = null;
+export let userSettings = { showDailyPlanner: true };
+export let unsubscribeFromData = null;
+
+export const originalTitle = "Select + Do";
+
+//
+// 🔹 Empty state SVGs
+//
+export const emptyCompletedSVG = `<svg class="w-16 h-16 mx-auto text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
+
+export const emptyFilterSVG = `<svg class="w-16 h-16 mx-auto text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>`;
+
+//
+// 🔹 Helpers
+//
+export const getMinutesFromBracket = (bracket) => {
+    if (!bracket) return DEFAULT_SESSION_MINUTES;
+    return TIME_BRACKET_MINUTES[bracket] || DEFAULT_SESSION_MINUTES;
+};
+
+//
+// 🔹 Example/guest data loader
+//
+export function loadExampleData() {
+    console.log("📚 Loading example data for guest mode");
+
+    // Example projects
+    projects = [
+        { id: "inbox", name: "Inbox" },
+        { id: "work", name: "Work Projects" },
+        { id: "personal", name: "Personal" },
+        { id: "learning", name: "Learning" }
+    ];
+
+    // Example tasks — mix of Atomic and Progress
+    tasks = [
+        // Atomic Tasks
+        {
+            id: "task_1",
+            name: "Send project update email",
+            timeBracket: "Quick",
+            isDivisible: false,
+            contexts: ["Work"],
+            energy: "Low 🧠",
+            tags: ["communication"],
+            projectId: "work",
+            isRecurring: false,
+            isActive: true,
+            isPriority: false
+        },
+        {
+            id: "task_2",
+            name: "Review meeting notes",
+            timeBracket: "Quick",
+            isDivisible: false,
+            contexts: ["Work"],
+            energy: "Medium 💪",
+            tags: ["review"],
+            projectId: "work",
+            isRecurring: false,
+            isActive: true,
+            isPriority: false
+        },
+        {
+            id: "task_3",
+            name: "Quick workout",
+            timeBracket: "Quick",
+            isDivisible: false,
+            contexts: ["Personal"],
+            energy: "High 🔥",
+            tags: ["fitness"],
+            projectId: "personal",
+            isRecurring: true,
+            isActive: true,
+            isPriority: false
+        },
+
+        // Progress Tasks
+        {
+            id: "task_4",
+            name: "Read industry article",
+            totalTimeBracket: "Quick",
+            sessionTimeBracket: "Quick",
+            timeSpent: 15,
+            isDivisible: true,
+            contexts: ["Work", "Personal"],
+            energy: "Low 🧠",
+            tags: ["learning", "research"],
+            projectId: "learning",
+            isRecurring: false,
+            isActive: true,
+            isPriority: false
+        },
+        {
+            id: "task_5",
+            name: "Draft project proposal",
+            totalTimeBracket: "Standard",
+            sessionTimeBracket: "Standard",
+            timeSpent: 0,
+            isDivisible: true,
+            contexts: ["Work"],
+            energy: "Medium 💪",
+            tags: ["writing", "planning"],
+            projectId: "work",
+            isRecurring: false,
+            isActive: true,
+            isPriority: false
+        },
+        {
+            id: "task_6",
+            name: "Learn new programming concept",
+            totalTimeBracket: "Standard",
+            sessionTimeBracket: "Standard",
+            timeSpent: 45,
+            isDivisible: true,
+            contexts: ["Personal"],
+            energy: "High 🔥",
+            tags: ["learning"],
+            projectId: "learning",
+            isRecurring: false,
+            isActive: true,
+            isPriority: false
+        }
+    ];
+
+    completedTasks = [];
+    worklogs = [];
+    streakData = {
+        currentStreak: 2,
+        lastCompletedDate: new Date().toISOString()
+    };
+}codex/web_ref/js/dom.js
+
+===== codex/web_ref/js/dom.js =====
+// dom.js
+// Centralized DOM lookups and small UI helpers.
+// This mirrors the ids/classes present in codex/web-reference/index.html.
+
+/* -------------------------
+   Element lookup helper
+------------------------- */
+export const $ = (id) => document.getElementById(id);
+
+/* -------------------------
+   Top-level screens
+------------------------- */
+export const loginScreen = $("loginScreen");
+export const mainApp = $("mainApp");
+
+/* -------------------------
+   Auth controls (login screen)
+------------------------- */
+export const googleLoginBtn = $("googleLoginBtn");
+export const emailInput = $("emailInput");
+export const passwordInput = $("passwordInput");
+export const signInBtn = $("signInBtn");
+export const signUpBtn = $("signUpBtn");
+export const guestModeBtn = $("guestModeBtn");
+export const authError = $("authError");
+
+/* -------------------------
+   Utility bar (top)
+------------------------- */
+export const utilityBar = $("utilityBar");
+export const menuBtn = $("menuBtn");
+export const unifiedCommandInput = $("unifiedCommandInput");
+export const openTaskReviewDrawerIconBtn = $("openTaskReviewDrawerIconBtn");
+export const logoutBtn = $("logoutBtn");
+
+/* -------------------------
+   Sidebar
+------------------------- */
+export const sidebar = $("sidebar");
+export const addProjectBtn = $("addProjectBtn");
+export const projectsContainer = $("projectsContainer");
+
+/* -------------------------
+   Main content area
+------------------------- */
+export const contentArea = $("contentArea");
+export const contentEmptyState = $("contentEmptyState");
+export const contentEmptyStateTitle = $("contentEmptyStateTitle");
+export const contentEmptyStateBody = $("contentEmptyStateBody");
+export const taskSuggestionsSection = $("taskSuggestionsSection");
+export const completedTaskList = $("completedTaskList");
+
+/* -------------------------
+   Task Review Drawer
+------------------------- */
+export const taskReviewDrawerOverlay = $("taskReviewDrawerOverlay");
+export const taskReviewDrawerPanel = $("taskReviewDrawerPanel");
+export const closeTaskReviewDrawerBtn = $("closeTaskReviewDrawerBtn");
+export const weeklyReviewSection = $("weeklyReviewSection");
+
+/* -------------------------
+   Settings Drawer
+------------------------- */
+export const settingsDrawerOverlay = $("settingsDrawerOverlay");
+export const settingsDrawerPanel = $("settingsDrawerPanel");
+export const closeSettingsDrawerBtn = $("closeSettingsDrawerBtn");
+export const showDailyPlannerToggle = $("showDailyPlannerToggle");
+
+/* -------------------------
+   Focus Overlay
+------------------------- */
+export const focusOverlay = $("focusOverlay");
+export const focusTaskName = $("focusTaskName");
+export const focusProgressCircle = $("focusProgressCircle");
+export const focusTimerDisplay = $("focusTimerDisplay");
+export const focusPauseBtn = $("focusPauseBtn");
+export const focusStopBtn = $("focusStopBtn");
+export const focusCompleteBtn = $("focusCompleteBtn");
+
+/* -------------------------
+   Command suggestions popover
+------------------------- */
+export const commandSuggestions = $("commandSuggestions");
+
+/* ============================================================
+   Tiny DOM helpers (pure, side-effect-limited)
+============================================================ */
+export function show(el) {
+    if (!el) return;
+    el.classList.remove("hidden");
+}
+export function hide(el) {
+    if (!el) return;
+    el.classList.add("hidden");
+}
+export function toggle(el, force) {
+    if (!el) return;
+    if (typeof force === "boolean") {
+        force ? show(el) : hide(el);
+    } else {
+        el.classList.toggle("hidden");
+    }
+}
+export function setText(el, text) {
+    if (!el) return;
+    el.textContent = text ?? "";
+}
+export function setHTML(el, html) {
+    if (!el) return;
+    el.innerHTML = html ?? "";
+}
+export function clear(el) {
+    if (!el) return;
+    el.textContent = "";
+}
+
+/* ============================================================
+   Empty state / content helpers
+============================================================ */
+export function showEmptyState(title = "", body = "") {
+    if (!contentEmptyState) return;
+    if (contentEmptyStateTitle) setText(contentEmptyStateTitle, title);
+    if (contentEmptyStateBody) setText(contentEmptyStateBody, body);
+    show(contentEmptyState);
+}
+export function hideEmptyState() {
+    hide(contentEmptyState);
+}
+export function updateContentArea(html) {
+    if (!contentArea) return;
+    setHTML(contentArea, html);
+    // If we wrote content, hide empty state; if content is blank, show it.
+    const hasContent = !!(html && String(html).trim().length);
+    toggle(contentEmptyState, !hasContent);
+}
+
+/* ============================================================
+   Drawers (Task Review / Settings)
+   (Uses overlay + panel translate animation from index.html)
+============================================================ */
+function openOverlay(overlayEl, panelEl) {
+    if (!overlayEl || !panelEl) return;
+    // show overlay
+    overlayEl.classList.remove("hidden");
+    // allow CSS to apply before translating panel
+    requestAnimationFrame(() => {
+        overlayEl.classList.add("active");                  // if you define a fade css for .active
+        panelEl.classList.remove("translate-x-full");       // slide-in
+    });
+    // prevent body scroll while drawer open
+    document.body.classList.add("overflow-hidden");
+}
+function closeOverlay(overlayEl, panelEl) {
+    if (!overlayEl || !panelEl) return;
+    // slide-out panel
+    panelEl.classList.add("translate-x-full");
+    overlayEl.classList.remove("active");
+    // after transition, hide overlay
+    setTimeout(() => {
+        if (!overlayEl.classList.contains("active")) {
+            overlayEl.classList.add("hidden");
+        }
+    }, 260); // matches the transition duration in your Tailwind classes
+    document.body.classList.remove("overflow-hidden");
+}
+
+/* Task Review Drawer */
+export function openTaskReviewDrawer() {
+    openOverlay(taskReviewDrawerOverlay, taskReviewDrawerPanel);
+}
+export function closeTaskReviewDrawer() {
+    closeOverlay(taskReviewDrawerOverlay, taskReviewDrawerPanel);
+}
+
+/* Settings Drawer */
+export function openSettingsDrawer() {
+    openOverlay(settingsDrawerOverlay, settingsDrawerPanel);
+}
+export function closeSettingsDrawer() {
+    closeOverlay(settingsDrawerOverlay, settingsDrawerPanel);
+}
+
+/* ============================================================
+   Command suggestions helper
+============================================================ */
+export function renderCommandSuggestions(items = []) {
+    if (!commandSuggestions) return;
+    if (!items.length) {
+        hide(commandSuggestions);
+        commandSuggestions.innerHTML = "";
+        return;
+    }
+    const html = items
+        .map(
+            (it) => `
+      <div class="px-3 py-2 hover:bg-slate-100 cursor-pointer text-sm" data-value="${encodeURIComponent(
+                it.value ?? it
+            )}">
+        ${it.label ?? it}
+      </div>`
+        )
+        .join("");
+    commandSuggestions.innerHTML = html;
+    show(commandSuggestions);
+}
+
+/* ============================================================
+   Sidebar helper (mobile)
+============================================================ */
+export function toggleSidebarMobile(open) {
+    if (!sidebar) return;
+    if (typeof open === "boolean") {
+        sidebar.classList.toggle("hidden", !open);
+    } else {
+        sidebar.classList.toggle("hidden");
+    }
+}
+
+/* ============================================================
+   Busy state on buttons (simple)
+============================================================ */
+export function setBusy(btnEl, isBusy, labelWhileBusy = "Working…") {
+    if (!btnEl) return;
+    if (isBusy) {
+        btnEl.dataset.originalLabel = btnEl.textContent || "";
+        btnEl.disabled = true;
+        btnEl.textContent = labelWhileBusy;
+        btnEl.classList.add("opacity-70", "pointer-events-none");
+    } else {
+        btnEl.disabled = false;
+        if (btnEl.dataset.originalLabel) {
+            btnEl.textContent = btnEl.dataset.originalLabel;
+            delete btnEl.dataset.originalLabel;
+        }
+        btnEl.classList.remove("opacity-70", "pointer-events-none");
+    }
+}
+
+/* ============================================================
+   Focus overlay helpers (non-timer UI only)
+============================================================ */
+export function openFocusOverlay(taskNameText = "") {
+    if (focusTaskName) setText(focusTaskName, taskNameText);
+    show(focusOverlay);
+    document.body.classList.add("overflow-hidden");
+}
+export function closeFocusOverlay() {
+    hide(focusOverlay);
+    document.body.classList.remove("overflow-hidden");
+}
+export function setFocusTimeDisplay(label) {
+    if (focusTimerDisplay) setText(focusTimerDisplay, label);
+}
+export function setFocusProgress(percent01 = 0) {
+    // expects 0..1
+    if (!focusProgressCircle) return;
+    const radius = 102;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference * (1 - Math.max(0, Math.min(1, percent01)));
+    focusProgressCircle.style.strokeDasharray = `${circumference}`;
+    focusProgressCircle.style.strokeDashoffset = `${offset}`;
+}
+
+/* ============================================================
+   Convenience: screen switching
+============================================================ */
+export function showMainApp() {
+    show(mainApp);
+    hide(loginScreen);
+}
+export function showLogin() {
+    hide(mainApp);
+    show(loginScreen);
+}codex/web_ref/js/ui-render.js
+
+===== codex/web_ref/js/ui-render.js =====
+// ui-render.js
+// Pure rendering functions: build HTML from state and push it to the DOM.
+// Events/behavior should be attached in main.js.
+
+import * as S from "./state.js";
+import * as D from "./dom.js";
+
+/* ============================================================
+   Public API
+============================================================ */
+export function renderAll() {
+    renderProjectFilters();
+    renderTasksAndProjects();
+    renderCompletedTasks();
+    renderWeeklyReview(); // if nothing to show, it renders a quiet empty state
+}
+
+/** Render task list + suggestions into the main content area. */
+export function renderTasksAndProjects(searchTerm = "", bypassSearchLogic = false) {
+    const { list, reason } = getFilteredTaskList({
+        search: searchTerm,
+        bypass: bypassSearchLogic,
+    });
+
+    if (!list.length) {
+        D.updateContentArea("");
+        D.showEmptyState(
+            reason?.title ?? "No tasks match",
+            reason?.body ?? "Try adjusting time, mode, or filters."
+        );
+        return;
+    }
+
+    const sections = groupTasksForDisplay(list);
+    const html = `
+    ${renderQuickHints()}
+    ${renderTimeFilterChips()}
+    ${renderContextChips()}
+    ${renderPriorityToggle()}
+    <div class="mt-4 space-y-6">
+      ${Object.keys(sections)
+            .map((group) => renderTaskSection(group, sections[group]))
+            .join("")}
+    </div>
+  `;
+
+    D.updateContentArea(html);
+    D.hideEmptyState();
+
+    // Suggestions section (optional)
+    renderSuggestions(list);
+}
+
+/** Render the "Completed Today" list. */
+export function renderCompletedTasks() {
+    if (!D.completedTaskList) return;
+    const today = dayKey(new Date());
+
+    const items = S.completedTasks
+        .filter((c) => dayKey(new Date(c.completedAt)) === today)
+        .sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0));
+
+    if (!items.length) {
+        D.completedTaskList.innerHTML = `
+      <div class="rounded-lg border bg-white p-6">
+        <div class="text-center">
+          ${S.emptyCompletedSVG}
+          <p class="mt-3 text-sm text-slate-500">Nothing completed yet today. You’ve got this.</p>
+        </div>
+      </div>`;
+        return;
+    }
+
+    D.completedTaskList.innerHTML = `
+    <div class="rounded-lg border bg-white">
+      <div class="px-4 py-3 border-b flex items-center justify-between">
+        <h3 class="font-semibold">Completed Today</h3>
+        <span class="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600">${items.length}</span>
+      </div>
+      <ul class="divide-y">
+        ${items.map(renderCompletedRow).join("")}
+      </ul>
+    </div>`;
+}
+
+/** Render a small “Today project” block (if you use daily planning). */
+export function renderTodayProject() {
+    // Optional hook; left minimal for reference parity
+    // You can call this from renderAll() if you add a Today panel in your HTML.
+}
+
+/** Render a weekly review snapshot (inside the Task Review drawer). */
+export function renderWeeklyReview() {
+    if (!D.weeklyReviewSection) return;
+
+    const byDay = bucketCompletedByDay(S.completedTasks);
+    const days = lastNDays(7);
+
+    const rows = days.map((d) => {
+        const key = dayKey(d);
+        const count = (byDay[key] || []).length;
+        return `
+      <div class="flex items-center justify-between py-2">
+        <span class="text-sm">${formatDayLabel(d)}</span>
+        <span class="text-sm font-medium">${count}</span>
+      </div>
+    `;
+    });
+
+    D.weeklyReviewSection.innerHTML = `
+    <div class="rounded-lg border bg-white p-4">
+      <div class="flex items-center justify-between mb-2">
+        <h4 class="font-semibold">Weekly Review</h4>
+        <span class="text-xs text-slate-500">${formatDateRange(days.at(-1), days[0])}</span>
+      </div>
+      <div class="divide-y">
+        ${rows.join("")}
+      </div>
+    </div>`;
+}
+
+/** Render project filters in the sidebar. */
+export function renderProjectFilters() {
+    if (!D.projectsContainer) return;
+
+    if (!S.projects.length) {
+        D.projectsContainer.innerHTML = `
+      <div class="text-sm text-slate-500">No projects yet.</div>
+    `;
+        return;
+    }
+
+    D.projectsContainer.innerHTML = S.projects
+        .map(
+            (p) => `
+      <button class="w-full text-left px-3 py-2 rounded hover:bg-slate-100 flex items-center justify-between"
+              data-role="project-filter" data-project-id="${escapeAttr(p.id)}">
+        <span class="truncate">${escapeHTML(p.name)}</span>
+        ${S.selectedProjectFilters.includes(p.id)
+                    ? `<span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700">On</span>`
+                    : ""
+                }
+      </button>`
+        )
+        .join("");
+}
+
+/** Render a tag cloud (optional—call where you show advanced filters). */
+export function renderTagCloud(tags = collectAllTags(S.tasks)) {
+    // Expose a simple HTML string for a tag cloud; your page can drop it in.
+    return `
+    <div class="flex flex-wrap gap-2">
+      ${tags
+            .map(
+                (t) => `
+        <span class="px-2 py-1 rounded-full bg-slate-100 text-slate-700 text-xs"
+              data-role="tag-filter" data-tag="${escapeAttr(t)}">${escapeHTML(t)}</span>`
+            )
+            .join("")}
+    </div>
+  `;
+}
+
+/* ============================================================
+   Internal: Sections & Cards
+============================================================ */
+function renderTaskSection(title, tasks) {
+    return `
+    <section class="rounded-lg border bg-white">
+      <div class="px-4 py-3 border-b flex items-center justify-between">
+        <h3 class="font-semibold">${escapeHTML(title)}</h3>
+        <span class="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600">${tasks.length}</span>
+      </div>
+      <div class="divide-y">
+        ${tasks.map(renderTaskRow).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderTaskRow(t) {
+    const chips = [
+        t.timeBracket && chip(t.timeBracket),
+        t.sessionTimeBracket && chip(`${t.sessionTimeBracket} sess`),
+        t.isPriority ? chip("Priority", "bg-amber-100 text-amber-700") : "",
+        ...(t.contexts || []).map((c) => chip(c)),
+        t.energy ? chip(t.energy) : "",
+    ]
+        .filter(Boolean)
+        .join("");
+
+    return `
+    <article class="px-4 py-3 hover:bg-slate-50 transition grid grid-cols-[1fr_auto] gap-3"
+             data-role="task" data-task-id="${escapeAttr(t.id)}">
+      <div>
+        <div class="flex items-start gap-2">
+          <h4 class="font-medium leading-5">${escapeHTML(t.name ?? t.title ?? "")}</h4>
+          ${t.isRecurring
+            ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-violet-100 text-violet-700">recurring</span>`
+            : ""
+        }
+        </div>
+        <div class="mt-1 flex flex-wrap gap-2">${chips}</div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="px-2 py-1 text-sm rounded bg-blue-600 text-white hover:bg-blue-700"
+                data-role="task-start" data-task-id="${escapeAttr(t.id)}">
+          Start
+        </button>
+        <button class="p-1 text-slate-500 hover:text-slate-700"
+                title="More" data-role="task-more" data-task-id="${escapeAttr(t.id)}">
+          ⋯
+        </button>
+      </div>
+    </article>`;
+}
+
+function renderCompletedRow(c) {
+    const when = c.completedAt ? new Date(c.completedAt) : null;
+    const subtitle = [
+        c.timeBracket ? c.timeBracket : null,
+        c.sessionTimeBracket ? `${c.sessionTimeBracket} sess` : null,
+        when ? formatTime(when) : null,
+    ]
+        .filter(Boolean)
+        .join(" • ");
+
+    return `
+    <li class="px-4 py-3 flex items-start justify-between">
+      <div>
+        <div class="font-medium">${escapeHTML(c.name ?? c.title ?? "")}</div>
+        ${subtitle
+            ? `<div class="text-xs text-slate-500 mt-0.5">${escapeHTML(subtitle)}</div>`
+            : ""
+        }
+      </div>
+      <button class="text-slate-400 hover:text-red-500"
+              title="Remove from history"
+              data-role="completed-remove" data-id="${escapeAttr(c.id)}">✕</button>
+    </li>
+  `;
+}
+
+/* ============================================================
+   Internal: Suggestions / Hints / Filters UI
+============================================================ */
+function renderSuggestions(list) {
+    if (!D.taskSuggestionsSection) return;
+
+    const top = list.slice(0, 3);
+    if (!top.length) {
+        D.hide(D.taskSuggestionsSection);
+        D.taskSuggestionsSection.innerHTML = "";
+        return;
+    }
+
+    D.taskSuggestionsSection.innerHTML = `
+    <div class="rounded-lg border bg-white p-4">
+      <div class="flex items-center justify-between mb-2">
+        <h4 class="font-semibold">Suggestions</h4>
+        <button class="text-xs text-slate-500 hover:text-slate-700" data-role="reshuffle">Reshuffle</button>
+      </div>
+      <div class="space-y-2">
+        ${top
+            .map(
+                (t) => `
+          <button class="w-full text-left px-3 py-2 rounded hover:bg-slate-100"
+                  data-role="task-start" data-task-id="${escapeAttr(t.id)}">
+            ${escapeHTML(t.name ?? t.title ?? "")}
+          </button>`
+            )
+            .join("")}
+      </div>
+    </div>`;
+    D.show(D.taskSuggestionsSection);
+}
+
+function renderQuickHints() {
+    const steps = [];
+    if (!S.selectedMode) steps.push("Pick Work or Personal");
+    if (!S.selectedTimeFilter) steps.push("Choose a time");
+    if (steps.length === 0) return "";
+
+    return `
+    <div class="rounded-lg border bg-white p-3 text-sm text-slate-600">
+      <span class="font-medium mr-2">Hint:</span>${steps.join(" • ")}
+    </div>`;
+}
+
+function renderTimeFilterChips() {
+    const keys = Object.keys(S.TIME_BRACKET_MINUTES);
+    return `
+    <div class="mt-3 flex flex-wrap gap-2">
+      ${keys
+            .map((k) =>
+                chip(
+                    k,
+                    isSelected(S.selectedTimeFilter === k)
+                )
+            )
+            .join("")}
+      ${chip("Custom", isSelected(S.selectedTimeFilter === "Custom"))}
+    </div>`;
+}
+
+function renderContextChips() {
+    const contexts = ["Work", "Personal"];
+    return `
+    <div class="mt-2 flex flex-wrap gap-2">
+      ${contexts
+            .map((c) => chip(c, isSelected(S.selectedMode === c)))
+            .join("")}
+    </div>`;
+}
+
+function renderPriorityToggle() {
+    return `
+    <div class="mt-3 flex items-center gap-3">
+      <label class="inline-flex items-center gap-2 text-sm">
+        <input type="checkbox" ${S.filterByPriorityOnly ? "checked" : ""} data-role="priority-only" />
+        Priority only
+      </label>
+      ${S.selectedTagFilters?.length
+            ? `<span class="text-xs text-slate-500">${S.selectedTagFilters.length} tag filter(s)</span>`
+            : ""
+        }
+    </div>`;
+}
+
+/* ============================================================
+   Internal: Filtering / Grouping
+============================================================ */
+function getFilteredTaskList({ search = "", bypass = false } = {}) {
+    const base = (S.tasks || []).filter((t) => t.isActive !== false);
+    const reason = { title: "", body: "" };
+
+    if (!bypass) {
+        // Mode (contexts)
+        if (S.selectedMode && S.selectedMode !== "All") {
+            // contexts is an array; include if contains the selected mode
+            base.splice(
+                0,
+                base.length,
+                ...base.filter((t) => (t.contexts || []).includes(S.selectedMode))
+            );
+        }
+
+        // Time
+        if (S.selectedTimeFilter && S.selectedTimeFilter !== "Custom") {
+            const mins = S.TIME_BRACKET_MINUTES[S.selectedTimeFilter] ?? null;
+            if (mins) {
+                base.splice(
+                    0,
+                    base.length,
+                    ...base.filter((t) => {
+                        const m =
+                            t.timeBracket
+                                ? S.TIME_BRACKET_MINUTES[t.timeBracket] ?? null
+                                : t.sessionTimeBracket
+                                    ? S.TIME_BRACKET_MINUTES[t.sessionTimeBracket] ?? null
+                                    : null;
+                        return m ? m <= mins : true;
+                    })
+                );
+            }
+        }
+
+        // Priority
+        if (S.filterByPriorityOnly) {
+            base.splice(0, base.length, ...base.filter((t) => !!t.isPriority));
+        }
+
+        // Projects
+        if (S.selectedProjectFilters?.length) {
+            const set = new Set(S.selectedProjectFilters);
+            base.splice(0, base.length, ...base.filter((t) => set.has(t.projectId)));
+        }
+
+        // Tags
+        if (S.selectedTagFilters?.length) {
+            const set = new Set(S.selectedTagFilters.map((x) => String(x).toLowerCase()));
+            base.splice(
+                0,
+                base.length,
+                ...base.filter((t) =>
+                    (t.tags || []).some((tag) => set.has(String(tag).toLowerCase()))
+                )
+            );
+        }
+
+        // Energy
+        if (S.selectedEnergyFilters?.length) {
+            const set = new Set(S.selectedEnergyFilters);
+            base.splice(0, base.length, ...base.filter((t) => set.has(t.energy)));
+        }
+    }
+
+    // Search
+    const query = (search || "").trim().toLowerCase();
+    const searched = !query
+        ? base
+        : base.filter((t) => {
+            const hay = [
+                t.name ?? "",
+                (t.tags || []).join(" "),
+                (t.contexts || []).join(" "),
+                t.projectId ?? "",
+            ]
+                .join(" ")
+                .toLowerCase();
+            return hay.includes(query);
+        });
+
+    // Sort by "updatedAt" if present; otherwise name
+    searched.sort((a, b) => {
+        const aU = a.updatedAt || 0;
+        const bU = b.updatedAt || 0;
+        if (bU !== aU) return bU - aU;
+        return String(a.name ?? "").localeCompare(String(b.name ?? ""));
+    });
+
+    // Reshuffle hook
+    if (S.reshuffleID) {
+        // If you have a reseedable PRNG, use it; otherwise simple shuffle:
+        searched.sort(() => Math.random() - 0.5);
+    }
+
+    if (!searched.length) {
+        reason.title = "No matching tasks";
+        reason.body = "Try changing filters or clearing search.";
+    }
+
+    return { list: searched, reason };
+}
+
+function groupTasksForDisplay(list) {
+    // Example grouping: Atomic vs Progress (based on divisibility flags)
+    const groups = {
+        Atomic: [],
+        Progress: [],
+    };
+    for (const t of list) {
+        const isProgress = t.isDivisible || t.totalTimeBracket || t.sessionTimeBracket;
+        (isProgress ? groups.Progress : groups.Atomic).push(t);
+    }
+    // Drop empty groups for cleaner UI
+    return Object.fromEntries(Object.entries(groups).filter(([, arr]) => arr.length));
+}
+
+/* ============================================================
+   Internal: Utils
+============================================================ */
+function chip(label, extraClass = "") {
+    return `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-slate-100 text-slate-700 ${extraClass}">${escapeHTML(
+        label
+    )}</span>`;
+}
+function isSelected(on) {
+    return on ? "bg-blue-600 text-white" : "";
+}
+
+function lastNDays(n) {
+    const out = [];
+    const today = new Date();
+    for (let i = 0; i < n; i++) {
+        const d = new Date(today);
+        d.setDate(today.getDate() - i);
+        out.push(d);
+    }
+    return out;
+}
+function bucketCompletedByDay(completed = []) {
+    const map = {};
+    for (const c of completed) {
+        if (!c.completedAt) continue;
+        const k = dayKey(new Date(c.completedAt));
+        (map[k] ||= []).push(c);
+    }
+    return map;
+}
+function dayKey(d) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+        d.getDate()
+    ).padStart(2, "0")}`;
+}
+function formatDayLabel(d) {
+    return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+}
+function formatDateRange(start, end) {
+    if (!start || !end) return "";
+    return `${start.toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+    })} – ${end.toLocaleDateString(undefined, { month: "short", day: "numeric" })}`;
+}
+function formatTime(d) {
+    return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+function escapeHTML(s) {
+    return String(s ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+}
+function escapeAttr(s) {
+    return escapeHTML(s).replaceAll('"', "&quot;");
+}
+function collectAllTags(list = []) {
+    const set = new Set();
+    for (const t of list) {
+        for (const tag of t.tags || []) set.add(String(tag));
+    }
+    return [...set].sort((a, b) => a.localeCompare(b));
+}codex/web_ref/js/config.example.js
+
+===== codex/web_ref/js/config.example.js =====
+// Rename to config.js (and gitignore it) for local runs.
+// DO NOT COMMIT real credentials.
+
+export const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_APP.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+};codex/web_ref/js/firebase.js
+
+===== codex/web_ref/js/firebase.js =====
+// firebase.js
+// Loads Firebase SDK modules and initializes the app.
+// NOTE: This file expects a sibling config.js with `export const firebaseConfig = {...}`
+// For the Codex context, you can temporarily copy config into config.example.js and import that.
+
+import { firebaseConfig } from './config.example.js';
+
+let initializeApp, getAuth, getFirestore;
+let GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut,
+    onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword;
+let doc, onSnapshot, setDoc;
+
+try {
+    [
+        { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"),
+        { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword } =
+        await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"),
+        { getFirestore, doc, onSnapshot, setDoc } =
+        await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js")
+    ] = await Promise.all([
+        import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"),
+        import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"),
+        import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js")
+    ]);
+} catch (e) {
+    console.error("❌ Firebase SDK load failure:", e);
+}
+
+export const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+
+// Re-export commonly-used members for other modules
+export {
+    GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut,
+    onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+    doc, onSnapshot, setDoc
+};codex/web_ref/README.md
+
+===== codex/web_ref/README.md =====
+# Select + Do — Web Reference (for SwiftUI Port)
+
+This folder mirrors the current web app in smaller, named modules so AI tools can map features 1:1 to SwiftUI.
+
+- `index.html` – HTML skeleton + IDs used by JS
+- `styles.css` – All CSS from `<style>` in the original
+- `js/firebase.js` – Loads Firebase SDKs and initializes
+- `js/config.example.js` – Placeholder for Firebase config (no secrets)
+- `js/state.js` – Global state, constants, and timers
+- `js/dom.js` – All DOM element lookups + small helpers
+- `js/ui-render.js` – Rendering functions (tasks, filters, weekly review)
+- `js/auth.js` – Sign-in, sign-up, logout flows
+- `js/drawers-modals.js` – Task Review drawer, Settings drawer, generic modal helpers
+- `js/focus.js` – Focus overlay logic (timer, progress ring)
+- `js/main.js` – Bootstraps listeners and calls initial renders
+
+> The content is copied from the original single-file app and regrouped by responsibility. Keep IDs and names stable for easy porting to SwiftUI views.codex/CONTEXT.md
+
+===== codex/CONTEXT.md =====
+# Select + Do (iOS – SwiftUI)
+Project: apps/ios/SelectDo/SelectDo.xcodeproj (scheme: SelectDo)
+
+Architecture
+- AppStore.swift: ObservableObject state (mode, filters, tasks, focus session).
+- Views: RootView (segmented mode bar), AddTaskView, FindTaskView, ReviewView.
+- Shared UI: Theme.swift (AppTheme, Chip, TagPill, SectionHeaderView), FlowLayout.swift.
+- Only two modes: Work, Personal.
+- Task properties: title, context, kind (Atomic/Standard/Progress), minutes, isPriority, completedAt.
+
+Conventions
+- iOS 17+, SwiftUI, Combine for @Published.
+- Use SectionHeaderView + Card for sections.
+- Keep RootView’s segmented mode bar.
+- Do not edit .xcodeproj manually (create/rename files in Xcode).
+
+Known paths
+- apps/ios/SelectDo/SelectDo/AppStore.swift
+- apps/ios/SelectDo/SelectDo/RootView.swift
+- apps/ios/SelectDo/SelectDo/AddTaskView.swift
+- apps/ios/SelectDo/SelectDo/FindTaskView.swift
+- apps/ios/SelectDo/SelectDo/ReviewView.swift
+- apps/ios/SelectDo/SelectDo/Theme.swift
+- apps/ios/SelectDo/SelectDo/FlowLayout.swift
+
+See also:
+- codex/WEB_REFERENCE.md  (authoritative UI/behavior spec)
+- codex/MAPPING.md        (web → SwiftUI mapping)
+- codex/PARITY_CHECKLIST.md
+- codex/web_ref/images/*  (visual references)codex/MAPPING.md
+
+===== codex/MAPPING.md =====
+# Web → SwiftUI mapping
+
+Web “Mode chips” → SwiftUI `FlowLayout + Chip`
+Web “Time chips + Custom” → `FlowLayout + Chip (+ Button)`
+Web “Task card” → `TaskCard` (RoundedRectangle 16, 1px border .quaternary, soft shadow)
+Web “Reset / Reshuffle / Priority Only row” → `HStack` (footnote)
+Web “Focus modal” → `.sheet` with `FocusSheet`
+Web “Review right drawer” → Full-screen `ReviewView` (or sheet) with stacked cards
+Web “Settings drawer” → iOS `SettingsView` (later)
+
+Storage:
+- Web local (mock) → iOS in-memory now; **SwiftData** next.
+- Later cloud sync optional.
+
+Theming:
+- CSS tokens → `AppTheme` constants (spacing, radii, colors).codex/PARITY_CHECKLIST.md
+
+===== codex/PARITY_CHECKLIST.md =====
+# Parity checklist
+- [ ] Find: Work/Personal mode chips
+- [ ] Find: time chips + Custom (wrapping)
+- [ ] Find: Priority Only, Reset, Reshuffle row
+- [ ] Find: task cards w/ kind, context, minutes, star; swipe actions
+- [ ] Add: full form + large primary button
+- [ ] Focus: timer sheet w/ pause, stop, complete
+- [ ] Review: Completed Today + Weekly Insights (context + time bracket)
+- [ ] Spacing rhythm: 32 px sections, 12 px internal
+- [ ] Card + Chip visuals match tokens

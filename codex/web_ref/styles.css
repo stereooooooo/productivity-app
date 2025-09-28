@@ -1,0 +1,86 @@
+/* Reset & utilities */
+.hidden {
+    display: none;
+}
+
+.block {
+    display: block;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.4);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 116, 139, 0.6);
+}
+
+/* Drawer base */
+.drawer-overlay {
+    transition: opacity 0.2s ease;
+}
+
+.drawer-panel {
+    transition: transform 0.3s ease;
+}
+
+.drawer-overlay.active {
+    opacity: 1;
+}
+
+.drawer-panel.active {
+    transform: translateX(0);
+}
+
+/* Focus overlay */
+#focusOverlay {
+    transition: opacity 0.3s ease;
+}
+
+/* Command suggestions dropdown */
+#commandSuggestions {
+    z-index: 60;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Utility bar tweaks */
+#utilityBar input {
+    max-width: 400px;
+}
+
+/* Task cards */
+.task-card {
+    transition: box-shadow 0.2s ease, transform 0.1s ease;
+}
+
+.task-card:hover {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+}
+
+/* Completed task list */
+#completedTaskList .task-card {
+    opacity: 0.8;
+}
+
+#completedTaskList .task-card:hover {
+    opacity: 1;
+}
+
+/* Drawer close button hover */
+#closeTaskReviewDrawerBtn:hover,
+#closeSettingsDrawerBtn:hover {
+    color: #1e293b;
+}
