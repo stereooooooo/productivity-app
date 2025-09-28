@@ -8,6 +8,8 @@ struct TasksView: View {
         ZStack(alignment: .bottomTrailing) {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: AppTheme.blockSpacing) {
+                    todaySection
+
                     ForEach(taskGroups, id: \.title) { group in
                         TaskGroupCard(title: group.title, tasks: group.tasks) { task in
                             togglePriority(task)
@@ -63,6 +65,34 @@ struct TasksView: View {
         withAnimation(.easeInOut) {
             store.delete(task)
             if store.hapticsEnabled { Haptics.light() }
+        }
+    }
+
+    private var todaySection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Today")
+                .font(.headline)
+                .foregroundStyle(.primary)
+
+            if store.tasks.isEmpty {
+                Text("No tasks planned for today")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .padding(16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(AppTheme.surfaceCard)
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardRadius, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: AppTheme.cardRadius, style: .continuous)
+                            .stroke(AppTheme.border, lineWidth: 1)
+                    )
+            } else {
+                VStack(alignment: .leading, spacing: 12) {
+                    ForEach(store.tasks) { task in
+                        TaskRow(task: task)
+                    }
+                }
+            }
         }
     }
 
