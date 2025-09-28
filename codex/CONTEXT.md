@@ -22,3 +22,9 @@ Known paths
 - apps/ios/SelectDo/SelectDo/ReviewView.swift
 - apps/ios/SelectDo/SelectDo/Theme.swift
 - apps/ios/SelectDo/SelectDo/FlowLayout.swift
+
+See also:
+- codex/WEB_REFERENCE.md  (authoritative UI/behavior spec)
+- codex/MAPPING.md        (web → SwiftUI mapping)
+- codex/PARITY_CHECKLIST.md
+- codex/web_ref/images/*  (visual references)
