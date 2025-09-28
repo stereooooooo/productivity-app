@@ -136,6 +136,18 @@ final class AppStore: ObservableObject {
         let cal = Calendar.current
         return tasks.filter { $0.completedAt.map { cal.isDateInToday($0) } ?? false }
     }
+
+    func groupedProjects() -> [(title: String, items: [TaskItem])] {
+        let work = tasks.filter { $0.context == "Work" }
+        let personal = tasks.filter { $0.context == "Personal" }
+        let learning = tasks.filter { $0.context == "Learning" }
+
+        var groups: [(String, [TaskItem])] = []
+        if !work.isEmpty { groups.append(("Work Projects", work)) }
+        if !personal.isEmpty { groups.append(("Personal", personal)) }
+        if !learning.isEmpty { groups.append(("Learning", learning)) }
+        return groups
+    }
 }
 
 // MARK: - Focus session helpers

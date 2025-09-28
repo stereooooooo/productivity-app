@@ -9,10 +9,7 @@ struct RootView: View {
             ZStack {
                 switch store.mode {
                 case .tasks:
-                    // ⚠️ Do NOT wrap a Form in a ScrollView.
-                    AddTaskView()
-                        .padding(.bottom, 90) // keep content above the floating bar
-                        .background(Color(.systemGroupedBackground))
+                    TasksView()
                         .transition(.asymmetric(
                             insertion: .move(edge: .trailing).combined(with: .opacity),
                             removal: .move(edge: .leading).combined(with: .opacity)
