@@ -8,7 +8,7 @@ struct RootView: View {
         NavigationStack {
             ZStack {
                 switch store.mode {
-                case .add:
+                case .tasks:
                     // ⚠️ Do NOT wrap a Form in a ScrollView.
                     AddTaskView()
                         .padding(.bottom, 90) // keep content above the floating bar

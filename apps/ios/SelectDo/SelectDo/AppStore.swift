@@ -5,7 +5,7 @@ import SwiftUI
 
 // MARK: - App Mode
 
-enum Mode: String, CaseIterable { case add = "Add", find = "Find", review = "Review" }
+enum Mode: String, CaseIterable { case tasks = "Tasks", find = "Find", review = "Review" }
 
 // MARK: - Core Types
 

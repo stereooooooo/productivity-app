@@ -6,7 +6,7 @@ struct BottomModeBar: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            Item(icon: "plus.circle.fill", label: "Add", mode: .add, selected: $selected, ns: ns)
+            Item(icon: "list.bullet", label: "Tasks", mode: .tasks, selected: $selected, ns: ns)
             Item(icon: "bolt.fill", label: "Find", mode: .find, selected: $selected, ns: ns)
             Item(icon: "chart.bar.fill", label: "Review", mode: .review, selected: $selected, ns: ns)
         }
