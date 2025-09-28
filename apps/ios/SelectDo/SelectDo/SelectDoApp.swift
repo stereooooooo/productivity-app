@@ -1,18 +1,19 @@
+import Combine
 import SwiftUI
-import SwiftData
 
 @main
 struct SelectDoApp: App {
     @StateObject private var store = AppStore()
+    // Drive focus ticking every second
+    @State private var tick = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some Scene {
         WindowGroup {
             RootView()
                 .environmentObject(store)
-                .onReceive(NotificationCenter.default.publisher(for: .focusTick)) { _ in
+                .onReceive(tick) { _ in
                     store.tickFocus()
                 }
         }
-        .modelContainer(for: TaskModel.self) // SwiftData persistence
     }
 }
