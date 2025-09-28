@@ -192,34 +192,27 @@ private struct TaskRow: View {
     var task: TaskItem
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(task.title)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.primary)
-                    .multilineTextAlignment(.leading)
+        VStack(alignment: .leading, spacing: 8) {
+            Text(task.title)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.primary)
+                .multilineTextAlignment(.leading)
 
-                FlowLayout(spacing: 8, rowSpacing: 8) {
-                    TagPill(text: task.kind)
-                    TagPill(text: task.context)
-                    TagPill(text: "\(task.minutes) min")
-                    if task.isPriority {
-                        TagPill(text: "⭐️ Priority")
-                    }
+            FlowLayout(spacing: 8, rowSpacing: 8) {
+                TagPill(text: task.kind)
+                TagPill(text: task.context)
+                TagPill(text: "\(task.minutes) min")
+                if task.isPriority {
+                    TagPill(text: "⭐️ Priority")
                 }
             }
-
-            Spacer(minLength: 12)
-
-            Button(action: startFocus) {
-                Chip(text: "Start", selected: true)
-            }
-            .buttonStyle(.plain)
         }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .contentShape(Rectangle())
+        .onTapGesture { startFocus() }
     }
 
     private func startFocus() {
