@@ -3,6 +3,8 @@ import SwiftUI
 struct TasksView: View {
     @EnvironmentObject private var store: AppStore
     @State private var showTaskCreator = false
+    @State private var expandedGroups: Set<String> = []
+    @State private var initializedGroups: Set<String> = []
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -11,10 +13,28 @@ struct TasksView: View {
                     todaySection
 
                     ForEach(taskGroups, id: \.title) { group in
-                        TaskGroupCard(title: group.title, tasks: group.tasks) { task in
-                            togglePriority(task)
-                        } onDelete: { task in
-                            delete(task)
+                        ProjectSection(
+                            title: group.title,
+                            tasks: group.tasks,
+                            isExpanded: Binding(
+                                get: { expandedGroups.contains(group.title) },
+                                set: { newValue in
+                                    if newValue {
+                                        expandedGroups.insert(group.title)
+                                    } else {
+                                        expandedGroups.remove(group.title)
+                                    }
+                                }
+                            ),
+                            onTogglePriority: { togglePriority($0) },
+                            onDelete: { delete($0) }
+                        )
+                        .onAppear {
+                            guard !initializedGroups.contains(group.title) else { return }
+                            if !group.tasks.isEmpty {
+                                expandedGroups.insert(group.title)
+                            }
+                            initializedGroups.insert(group.title)
                         }
                     }
                 }
@@ -119,47 +139,51 @@ struct TasksView: View {
     }
 }
 
-private struct TaskGroupCard: View {
+private struct ProjectSection: View {
     var title: String
     var tasks: [TaskItem]
+    @Binding var isExpanded: Bool
     var onTogglePriority: (TaskItem) -> Void
     var onDelete: (TaskItem) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        DisclosureGroup(isExpanded: $isExpanded) {
+            if tasks.isEmpty {
+                Text("No tasks yet")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .padding(.leading, 8)
+                    .padding(.vertical, 8)
+            } else {
+                VStack(spacing: 12) {
+                    ForEach(tasks) { task in
+                        TaskRow(task: task)
+                            .padding(.leading, 12)
+                            .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                Button {
+                                    onTogglePriority(task)
+                                } label: {
+                                    Label(task.isPriority ? "Unstar" : "Star", systemImage: task.isPriority ? "star.slash" : "star.fill")
+                                }
+                                .tint(.orange)
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    onDelete(task)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
+                    }
+                }
+                .padding(.top, 12)
+            }
+        } label: {
             Text(title)
                 .font(.headline)
                 .foregroundStyle(.primary)
-
-            VStack(spacing: 12) {
-                ForEach(tasks) { task in
-                    TaskRow(task: task)
-                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                            Button {
-                                onTogglePriority(task)
-                            } label: {
-                                Label(task.isPriority ? "Unstar" : "Star", systemImage: task.isPriority ? "star.slash" : "star.fill")
-                            }
-                            .tint(.orange)
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                onDelete(task)
-                            } label: {
-                                Label("Delete", systemImage: "trash")
-                            }
-                        }
-                }
-            }
         }
-        .padding(16)
-        .background(AppTheme.surfaceCard)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardRadius, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.cardRadius, style: .continuous)
-                .stroke(AppTheme.border, lineWidth: 1)
-        )
-        .shadow(color: AppTheme.cardShadow, radius: 8, x: 0, y: 4)
+        .accentColor(.primary)
     }
 }
 
