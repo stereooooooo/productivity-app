@@ -1,73 +1,70 @@
 import SwiftUI
-import Combine
 
 struct FocusSheet: View {
-    let session: FocusSession
+    var session: FocusSession
     var onDone: () -> Void
-
-    @State private var timerCancellable: AnyCancellable?
+    @EnvironmentObject private var store: AppStore
+    @State private var isPaused = false
 
     var body: some View {
         VStack(spacing: 16) {
-            Capsule().fill(Color.secondary.opacity(0.4)).frame(width: 40, height: 5).padding(.top, 8)
-
             Text(session.task.title)
                 .font(.headline)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
+            HStack(spacing: 8) {
+                TagPill(text: "Focus Session")
+                TagPill(text: "\(session.task.minutes) min session")
+            }
 
-            Countdown(remaining: session.remaining)
+            ZStack {
+                Circle().stroke(Color.secondary.opacity(0.2), lineWidth: 10)
+                Circle()
+                    .trim(from: 0, to: progress)
+                    .stroke(AppTheme.accent, style: StrokeStyle(lineWidth: 10, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                Text(elapsedString)
+                    .font(.system(size: 32, weight: .bold, design: .rounded))
+                    .monospacedDigit()
+                    .padding(.top, 2)
+            }
+            .frame(width: 180, height: 180)
+            .padding(.vertical, 12)
 
             HStack(spacing: 12) {
-                Button(role: .cancel) {
-                    onDone()
-                } label: {
-                    Text("Finish")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.bordered)
-
-                Button {
-                    onDone()
-                } label: {
-                    Label("Done", systemImage: "checkmark.circle.fill")
-                        .frame(maxWidth: .infinity)
+                Button(isPaused ? "Resume" : "Pause") { isPaused.toggle() }
+                    .buttonStyle(.bordered)
+                Button("Stop & Discard", role: .destructive) {
+                    store.activeSession = nil
                 }
                 .buttonStyle(.borderedProminent)
             }
-            .padding(.horizontal)
-            .padding(.bottom)
-        }
-        .onAppear { startTimer() }
-        .onDisappear { timerCancellable?.cancel() }
-    }
 
-    private func startTimer() {
-        timerCancellable?.cancel()
-        timerCancellable = Timer
-            .publish(every: 1, on: .main, in: .common)
-            .autoconnect()
-            .sink { _ in
-                // Use environment store to tick
-                NotificationCenter.default.post(name: .focusTick, object: nil)
+            Button {
+                store.finishFocus()
+                onDone()
+            } label: {
+                Label("Mark as Complete", systemImage: "checkmark")
+                    .frame(maxWidth: .infinity)
             }
+            .buttonStyle(.borderedProminent)
+            .tint(.green)
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        }
+        .padding(24)
+        .background(AppTheme.surfaceCard)
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .padding()
     }
-}
 
-private struct Countdown: View {
-    var remaining: Int
-    var body: some View {
-        let mins = remaining / 60
-        let secs = remaining % 60
-        Text(String(format: "%02d:%02d", mins, secs))
-            .font(.system(size: 44, weight: .bold, design: .rounded))
-            .padding(.vertical, 8)
-            .padding(.horizontal, 16)
-            .background(Color(.secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+    private var progress: CGFloat {
+        let total = CGFloat(session.task.minutes * 60)
+        let done = CGFloat(max(0, (session.task.minutes * 60) - session.remaining))
+        return total == 0 ? 0 : (done / total)
     }
-}
 
-extension Notification.Name {
-    static let focusTick = Notification.Name("focusTick")
+    private var elapsedString: String {
+        let elapsed = (session.task.minutes * 60) - session.remaining
+        let m = max(0, elapsed) / 60
+        let s = max(0, elapsed) % 60
+        return String(format: "%02d:%02d", m, s)
+    }
 }

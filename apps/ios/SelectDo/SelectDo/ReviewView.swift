@@ -6,109 +6,79 @@ struct ReviewView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: AppTheme.blockSpacing) {
-
-                // Completed Today
                 VStack(alignment: .leading, spacing: 12) {
                     SectionHeaderView(title: "Completed Today")
-
-                    Card {
+                    VStack(spacing: 8) {
+                        ForEach(store.completedToday) { t in
+                            HStack {
+                                Text(t.title).lineLimit(1)
+                                Spacer()
+                                Text("\(t.minutes) min").foregroundStyle(.secondary)
+                            }
+                            .padding(12)
+                            .background(AppTheme.surfaceCard)
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(AppTheme.border, lineWidth: 1))
+                        }
                         if store.completedToday.isEmpty {
                             Text("No tasks completed yet. Start a task to see progress here.")
                                 .foregroundStyle(.secondary)
-                                .padding(.vertical, 4)
-                        } else {
-                            VStack(spacing: 10) {
-                                ForEach(store.completedToday) { t in
-                                    HStack(alignment: .firstTextBaseline) {
-                                        Text(t.title)
-                                            .font(.subheadline)
-                                            .foregroundStyle(.primary)
-                                            .lineLimit(2)
-                                            .multilineTextAlignment(.leading)
-                                        Spacer(minLength: 12)
-                                        Text("\(t.minutes) min")
-                                            .font(.subheadline)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                    if t.id != store.completedToday.last?.id {
-                                        Divider().opacity(0.2)
-                                    }
-                                }
-                            }
+                                .padding(12)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(AppTheme.surfaceCard)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(AppTheme.border, lineWidth: 1))
                         }
                     }
                 }
 
-                // Weekly Insights
                 VStack(alignment: .leading, spacing: 12) {
                     SectionHeaderView(title: "Weekly Insights")
-
-                    Card {
-                        VStack(alignment: .leading, spacing: 12) {
-                            HStack(spacing: 8) {
-                                Image(systemName: "chart.bar.fill")
-                                    .foregroundStyle(.blue)
-                                Text("Most productive context: \(mostContext)")
-                                    .font(.subheadline)
-                            }
-
-                            Divider().opacity(0.2)
-
-                            HStack(spacing: 8) {
-                                Image(systemName: "timer")
-                                    .foregroundStyle(.blue)
-                                Text("Preferred time bracket: \(prefTime)")
-                                    .font(.subheadline)
-                            }
-                        }
-                    }
+                    Card(title: "Most productive context:", value: mostProductiveContext)
+                    Card(title: "Preferred time bracket:", value: preferredTimeBracket)
                 }
             }
             .padding(.horizontal)
-            .padding(.top, 8)
-            .padding(.bottom, 24)
+            .padding(.bottom, 32)
+            .background(AppTheme.surface)
         }
-        .background(Color(.systemGroupedBackground))
     }
 
-    // MARK: - Simple insight calcs
-
-    private var mostContext: String {
-        Dictionary(grouping: store.tasks.filter { $0.completedAt != nil }, by: { $0.context })
-            .max(by: { $0.value.count < $1.value.count })?.key ?? "—"
+    private var mostProductiveContext: String {
+        // naive example (today only). You can expand to last 7 days.
+        let personal = store.completedToday.filter { $0.context == "Personal" }.count
+        let work = store.completedToday.filter { $0.context == "Work" }.count
+        if personal == 0, work == 0 { return "—" }
+        return work >= personal ? "Work" : "Personal"
     }
 
-    private var prefTime: String {
-        let mins = store.tasks.compactMap { $0.completedAt == nil ? nil : $0.minutes }
-        guard let avg = mins.average else { return "—" }
+    private var preferredTimeBracket: String {
+        let mins = store.completedToday.map(\.minutes)
+        guard !mins.isEmpty else { return "—" }
+        let avg = mins.reduce(0,+) / mins.count
         switch avg {
-        case ..<15: return "Quick"
-        case ..<35: return "Standard"
-        default:    return "Long"
+        case 0 ..< 20: return "Quick"
+        case 20 ..< 40: return "Standard"
+        default: return "Long"
         }
     }
 }
 
-// MARK: - Reusable Card
-
-private struct Card<Content: View>: View {
-    @ViewBuilder var content: Content
+private struct Card: View {
+    var title: String
+    var value: String
     var body: some View {
-        VStack { content }
-            .padding(14)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(.systemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardRadius, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.cardRadius)
-                    .stroke(.quaternary, lineWidth: 1)
-            )
-            .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 4)
+        VStack(alignment: .leading, spacing: 6) {
+            Label { Text(title) } icon: { Image(systemName: "chart.bar") }
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.secondary)
+            Text(value)
+                .font(.headline)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(AppTheme.surfaceCard)
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardRadius))
+        .overlay(RoundedRectangle(cornerRadius: AppTheme.cardRadius).stroke(AppTheme.border, lineWidth: 1))
     }
-}
-
-// MARK: - Helpers
-
-private extension Array where Element == Int {
-    var average: Double? { isEmpty ? nil : Double(reduce(0,+)) / Double(count) }
 }
