@@ -11,6 +11,18 @@ final class TaskModel {
     var isPriority: Bool
     var completedAt: Date?
     var updatedAt: Date
+    var energy: String?
+    var project: String?
+    var tagsData: Data
+    @Transient var tags: [String] {
+        get {
+            (try? JSONDecoder().decode([String].self, from: tagsData)) ?? []
+        }
+        set {
+            let cleaned = newValue.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+            tagsData = (try? JSONEncoder().encode(cleaned)) ?? Data()
+        }
+    }
 
     init(id: UUID = UUID(),
          title: String,
@@ -19,7 +31,10 @@ final class TaskModel {
          minutes: Int,
          isPriority: Bool = false,
          completedAt: Date? = nil,
-         updatedAt: Date = .now)
+         updatedAt: Date = .now,
+         energy: String? = nil,
+         project: String? = nil,
+         tags: [String] = [])
     {
         self.id = id
         self.title = title
@@ -29,6 +44,10 @@ final class TaskModel {
         self.isPriority = isPriority
         self.completedAt = completedAt
         self.updatedAt = updatedAt
+        self.energy = energy
+        self.project = project
+        self.tagsData = Data()
+        self.tags = tags
     }
 }
 

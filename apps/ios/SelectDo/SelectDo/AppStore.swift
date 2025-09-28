@@ -18,6 +18,9 @@ struct TaskItem: Identifiable, Hashable {
     var isPriority: Bool = false
     var completedAt: Date?
     var updatedAt: Date = .init()
+    var energy: String?
+    var project: String?
+    var tags: [String]
 
     init(
         id: UUID = UUID(),
@@ -27,7 +30,10 @@ struct TaskItem: Identifiable, Hashable {
         minutes: Int,
         isPriority: Bool = false,
         completedAt: Date? = nil,
-        updatedAt: Date = Date()
+        updatedAt: Date = Date(),
+        energy: String? = nil,
+        project: String? = nil,
+        tags: [String] = []
     ) {
         self.id = id
         self.title = title
@@ -37,6 +43,9 @@ struct TaskItem: Identifiable, Hashable {
         self.isPriority = isPriority
         self.completedAt = completedAt
         self.updatedAt = updatedAt
+        self.energy = energy
+        self.project = project
+        self.tags = tags
     }
 }
 
@@ -143,7 +152,10 @@ extension AppStore {
             minutes: model.minutes,
             isPriority: model.isPriority,
             completedAt: model.completedAt,
-            updatedAt: model.updatedAt
+            updatedAt: model.updatedAt,
+            energy: model.energy,
+            project: model.project,
+            tags: model.tags
         )
         activeSession = FocusSession(task: snapshot, remaining: model.minutes * 60)
     }

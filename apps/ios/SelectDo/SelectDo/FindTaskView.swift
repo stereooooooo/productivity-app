@@ -74,9 +74,20 @@ private struct FindTaskContent: View {
                         try? ctx.save()
                     },
                     onTogglePriority: { model in
+                        let item = snapshot(for: model)
+                        store.togglePriority(item)
                         model.isPriority.toggle()
                         model.updatedAt = .now
                         try? ctx.save()
+                        if store.hapticsEnabled { Haptics.light() }
+                    },
+                    onComplete: { model in
+                        let item = snapshot(for: model)
+                        store.complete(item)
+                        model.completedAt = .now
+                        model.updatedAt = .now
+                        try? ctx.save()
+                        if store.hapticsEnabled { Haptics.success() }
                     },
                     onStart: { model in
                         store.startFocus(model)
@@ -117,11 +128,53 @@ private struct FindTaskContent: View {
             open
         }
         let byPriority = store.priorityOnly ? byTime.filter(\.isPriority) : byTime
+        let advanced = byPriority.filter(matchesAdvancedFilters)
 
-        var sorted = byPriority.sorted { $0.updatedAt > $1.updatedAt }
+        var sorted = advanced.sorted { $0.updatedAt > $1.updatedAt }
         _ = store.reshuffleID
         sorted.shuffle()
         return sorted
+    }
+
+    private func matchesAdvancedFilters(_ model: TaskModel) -> Bool {
+        if !store.energy.isEmpty {
+            guard let rawEnergy = model.energy?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !rawEnergy.isEmpty,
+                  store.energy.contains(rawEnergy) else { return false }
+        }
+
+        if !store.projects.isEmpty {
+            guard let rawProject = model.project?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !rawProject.isEmpty,
+                  store.projects.contains(rawProject) else { return false }
+        }
+
+        if !store.tags.isEmpty {
+            let taskTags = Set(model.tags.map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }.filter { !$0.isEmpty })
+            guard !taskTags.isEmpty else { return false }
+            let required = store.tags.map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+            for tag in required where !taskTags.contains(tag) {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    private func snapshot(for model: TaskModel) -> TaskItem {
+        TaskItem(
+            id: model.id,
+            title: model.title,
+            context: model.context,
+            kind: model.kind,
+            minutes: model.minutes,
+            isPriority: model.isPriority,
+            completedAt: model.completedAt,
+            updatedAt: model.updatedAt,
+            energy: model.energy?.isEmpty == false ? model.energy : nil,
+            project: model.project?.isEmpty == false ? model.project : nil,
+            tags: model.tags
+        )
     }
 }
 
@@ -214,6 +267,7 @@ private struct TasksSection: View {
     var models: [TaskModel]
     var onDelete: (TaskModel) -> Void
     var onTogglePriority: (TaskModel) -> Void
+    var onComplete: (TaskModel) -> Void
     var onStart: (TaskModel) -> Void
 
     @State private var editing: TaskModel?
@@ -229,16 +283,25 @@ private struct TasksSection: View {
             } else {
                 LazyVStack(spacing: 12) {
                     ForEach(models) { model in
-                        TaskCard(model: model) { onStart(model) }
+                        TaskCard(
+                            model: model,
+                            onStart: { onStart(model) },
+                            onTogglePriority: { onTogglePriority(model) }
+                        )
                             .onTapGesture { editing = model } // 👈 open editor
+                            .contentShape(Rectangle())
+                            .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                Button {
+                                    onComplete(model)
+                                } label: {
+                                    Label("Complete", systemImage: "checkmark.circle.fill")
+                                }
+                                .tint(.green)
+                            }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) { onDelete(model) } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
-                                Button { onTogglePriority(model) } label: {
-                                    Label("Priority", systemImage: "star.fill")
-                                }
-                                .tint(.orange)
                             }
                     }
                 }
@@ -254,28 +317,32 @@ private struct TasksSection: View {
 private struct TaskCard: View {
     var model: TaskModel
     var onStart: () -> Void
+    var onTogglePriority: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text(model.title)
-                    .font(.headline)
-                    .foregroundStyle(.primary)
-                    .lineLimit(2)
-                if model.isPriority {
-                    Image(systemName: "star.fill").foregroundStyle(.orange).imageScale(.small)
+            HStack(alignment: .top, spacing: 12) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(model.title)
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                        .lineLimit(2)
+
+                    HStack(spacing: 8) {
+                        TagPill(text: model.kind)
+                        TagPill(text: model.context)
+                        TagPill(text: "\(model.minutes) min")
+                    }
                 }
                 Spacer(minLength: 8)
-                Image(systemName: "chevron.right")
-                    .foregroundStyle(.tertiary)
-                    .imageScale(.small)
-                    .opacity(0.6)
+                Button(action: onTogglePriority) {
+                    Image(systemName: model.isPriority ? "star.fill" : "star")
+                        .foregroundStyle(model.isPriority ? Color.orange : .secondary)
+                        .imageScale(.medium)
+                }
+                .buttonStyle(.plain)
             }
-            HStack(spacing: 8) {
-                TagPill(text: model.kind)
-                TagPill(text: model.context)
-                TagPill(text: "\(model.minutes) min")
-            }
+
             Button(action: onStart) {
                 Label("Start", systemImage: "play.fill")
                     .frame(maxWidth: .infinity)
