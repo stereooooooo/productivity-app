@@ -11,8 +11,8 @@ struct TasksView: View {
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: AppTheme.blockSpacing) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: Spacing.sectionV) {
                     todaySection
                     searchSection
 
@@ -20,11 +20,12 @@ struct TasksView: View {
                     projectSection(title: "Personal", tasks: taskGroups["Personal"] ?? [], isOpen: $openPersonal)
                     projectSection(title: "Learning", tasks: taskGroups["Learning"] ?? [], isOpen: $openLearning)
                 }
-                .padding(.horizontal)
-                .padding(.top, theme.tokens.sectionTop)
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+                .padding(.bottom, 120)
             }
+            .scrollIndicators(.hidden)
             .scrollContentBackground(.hidden)
-            .contentMargins(.bottom, 140)
 
             Button {
                 showTaskCreator.toggle()
