@@ -4,8 +4,7 @@ struct TasksView: View {
     @EnvironmentObject private var store: AppStore
     @StateObject private var theme = AppTheme.shared
     @State private var showTaskCreator = false
-    @State private var expandedGroups: Set<String> = []
-    @State private var collapsedGroups: Set<String> = []
+    @State private var collapsed: Set<String> = []
     @State private var query = ""
 
     var body: some View {
@@ -15,30 +14,7 @@ struct TasksView: View {
                 searchSection
 
                 ForEach(taskGroups, id: \.title) { group in
-                    ProjectSection(
-                        title: group.title,
-                        tasks: group.tasks,
-                        isExpanded: Binding(
-                            get: {
-                                if expandedGroups.contains(group.title) { return true }
-                                if collapsedGroups.contains(group.title) { return false }
-                                return !group.tasks.isEmpty
-                            },
-                            set: { newValue in
-                                if newValue {
-                                    expandedGroups.insert(group.title)
-                                    collapsedGroups.remove(group.title)
-                                } else {
-                                    collapsedGroups.insert(group.title)
-                                    expandedGroups.remove(group.title)
-                                }
-                            }
-                        ),
-                        hasQuery: hasQuery,
-                        theme: theme,
-                        onTogglePriority: { togglePriority($0) },
-                        onDelete: { delete($0) }
-                    )
+                    projectDisclosure(for: group.title, tasks: group.tasks)
                 }
             }
             .padding(.horizontal)
@@ -97,6 +73,11 @@ struct TasksView: View {
             store.delete(task)
             if store.hapticsEnabled { Haptics.light() }
         }
+    }
+
+    private func startFocus(_ task: TaskItem) {
+        store.startFocus(task)
+        if store.hapticsEnabled { Haptics.light() }
     }
 
     private var todaySection: some View {
@@ -170,58 +151,6 @@ struct TasksView: View {
     }
 }
 
-private struct ProjectSection: View {
-    var title: String
-    var tasks: [TaskItem]
-    @Binding var isExpanded: Bool
-    var hasQuery: Bool
-    @ObservedObject var theme: AppTheme
-    var onTogglePriority: (TaskItem) -> Void
-    var onDelete: (TaskItem) -> Void
-
-    var body: some View {
-        DisclosureGroup(isExpanded: $isExpanded) {
-            if tasks.isEmpty {
-                Text(hasQuery ? "No tasks match your search" : "No tasks yet")
-                    .font(theme.tokens.labelFont)
-                    .foregroundStyle(.secondary)
-                    .padding(.leading, theme.tokens.rowHPad / 2)
-                    .padding(.vertical, theme.tokens.rowVPad / 2)
-            } else {
-                VStack(spacing: theme.tokens.sectionInner) {
-                    ForEach(tasks) { task in
-                        TaskRow(task: task, theme: theme)
-                            .padding(.leading, theme.tokens.rowHPad)
-                            .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                                Button {
-                                    onTogglePriority(task)
-                                } label: {
-                                    Label(task.isPriority ? "Unstar" : "Star", systemImage: task.isPriority ? "star.slash" : "star.fill")
-                                }
-                                .tint(.orange)
-                            }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    onDelete(task)
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-                            }
-                    }
-                }
-                .padding(.top, 12)
-            }
-        } label: {
-            Text(title)
-                .font(theme.tokens.titleFont)
-                .foregroundStyle(.primary)
-                .padding(.top, theme.tokens.sectionTop)
-                .padding(.bottom, theme.tokens.sectionInner)
-        }
-        .accentColor(.primary)
-    }
-}
-
 private struct TaskRow: View {
     @EnvironmentObject private var store: AppStore
     var task: TaskItem
@@ -234,7 +163,7 @@ private struct TaskRow: View {
                 .foregroundStyle(.primary)
                 .multilineTextAlignment(.leading)
 
-            FlowLayout(spacing: 8, rowSpacing: 8) {
+            FlowLayout(spacing: theme.tokens.chipHPad, rowSpacing: 4) {
                 TagPill(text: task.kind)
                 TagPill(text: task.context)
                 TagPill(text: "\(task.minutes) min")
@@ -254,5 +183,80 @@ private struct TaskRow: View {
     private func startFocus() {
         store.startFocus(task)
         if store.hapticsEnabled { Haptics.light() }
+    }
+}
+
+private extension TasksView {
+    func isCollapsed(_ key: String) -> Bool { collapsed.contains(key) }
+
+    func toggle(_ key: String) {
+        if collapsed.contains(key) {
+            collapsed.remove(key)
+        } else {
+            collapsed.insert(key)
+        }
+    }
+
+    @ViewBuilder
+    func projectDisclosure(for title: String, tasks: [TaskItem]) -> some View {
+        DisclosureGroup(
+            isExpanded: Binding(
+                get: { !isCollapsed(title) },
+                set: { newValue in
+                    if newValue {
+                        collapsed.remove(title)
+                    } else {
+                        collapsed.insert(title)
+                    }
+                }
+            )
+        ) {
+            if tasks.isEmpty {
+                Text(hasQuery ? "No tasks match your search" : "No tasks yet")
+                    .font(theme.tokens.labelFont)
+                    .foregroundStyle(.secondary)
+                    .padding(.leading, theme.tokens.rowHPad / 2)
+                    .padding(.vertical, theme.tokens.rowVPad / 2)
+            } else {
+                VStack(spacing: theme.tokens.sectionInner) {
+                    ForEach(tasks) { task in
+                        TaskRow(task: task, theme: theme)
+                            .padding(.leading, theme.tokens.rowHPad)
+                            .padding(.vertical, theme.tokens.rowVPad)
+                            .contentShape(Rectangle())
+                            .onTapGesture { startFocus(task) }
+                            .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                Button {
+                                    togglePriority(task)
+                                } label: {
+                                    Label(task.isPriority ? "Unstar" : "Star", systemImage: task.isPriority ? "star.slash" : "star.fill")
+                                }
+                                .tint(.orange)
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    delete(task)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
+                    }
+                }
+            }
+        } label: {
+            HStack {
+                Text(title)
+                    .font(theme.tokens.titleFont)
+                Spacer()
+                Image(systemName: isCollapsed(title) ? "chevron.down" : "chevron.up")
+                    .font(.footnote)
+                    .foregroundStyle(.tertiary)
+            }
+            .contentShape(Rectangle())
+            .onTapGesture { toggle(title) }
+            .padding(.top, theme.tokens.sectionTop)
+            .padding(.bottom, theme.tokens.sectionInner)
+        }
+        .accentColor(.primary)
     }
 }

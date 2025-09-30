@@ -92,8 +92,8 @@ struct Chip: View {
     var body: some View {
         Text(text)
             .font(AppTheme.shared.tokens.chipFont.weight(.semibold))
-            .padding(.horizontal, AppTheme.shared.tokens.chipHPad + 4)
-            .padding(.vertical, AppTheme.shared.tokens.chipVPad + 3)
+            .padding(.horizontal, AppTheme.shared.tokens.chipHPad)
+            .padding(.vertical, AppTheme.shared.tokens.chipVPad)
             .background(selected ? AppTheme.accent : .clear)
             .foregroundStyle(selected ? .white : .primary)
             .clipShape(Capsule())
