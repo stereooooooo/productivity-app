@@ -4,30 +4,48 @@ struct TasksView: View {
     @EnvironmentObject private var store: AppStore
     @StateObject private var theme = AppTheme.shared
     @State private var showTaskCreator = false
-    @State private var collapsed: Set<String> = []
+    @State private var openWork = true
+    @State private var openPersonal = true
+    @State private var openLearning = true
     @State private var query = ""
 
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: AppTheme.blockSpacing) {
-                todaySection
-                searchSection
+        ZStack(alignment: .bottomTrailing) {
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: AppTheme.blockSpacing) {
+                    todaySection
+                    searchSection
 
-                ForEach(taskGroups, id: \.title) { group in
-                    projectDisclosure(for: group.title, tasks: group.tasks)
+                    projectSection(title: "Work Projects", tasks: taskGroups["Work Projects"] ?? [], isOpen: $openWork)
+                    projectSection(title: "Personal", tasks: taskGroups["Personal"] ?? [], isOpen: $openPersonal)
+                    projectSection(title: "Learning", tasks: taskGroups["Learning"] ?? [], isOpen: $openLearning)
                 }
+                .padding(.horizontal)
+                .padding(.top, theme.tokens.sectionTop)
             }
-            .padding(.horizontal)
-            .padding(.top, theme.tokens.sectionTop)
+            .scrollContentBackground(.hidden)
+            .contentMargins(.bottom, 140)
+
+            Button {
+                showTaskCreator.toggle()
+                if store.hapticsEnabled { Haptics.light() }
+            } label: {
+                Image(systemName: "plus")
+                    .font(.system(size: 20, weight: .semibold))
+                    .frame(width: 44, height: 44)
+                    .contentShape(Circle())
+            }
+            .buttonStyle(.plain)
+            .background(.ultraThinMaterial, in: Circle())
+            .overlay(
+                Circle().strokeBorder(.white.opacity(0.35), lineWidth: 0.5)
+            )
+            .shadow(color: .black.opacity(0.15), radius: 22, y: 10)
+            .padding(.trailing, 18)
+            .padding(.bottom, 80)
+            .accessibilityLabel("Add Task")
         }
-        .scrollContentBackground(.hidden)
-        .contentMargins(.bottom, 140)
         .background(AppTheme.surface)
-        .overlay(alignment: Alignment.bottomTrailing) {
-            addButton
-                .padding(.trailing, 18)
-                .padding(.bottom, 86)
-        }
         .sheet(isPresented: $showTaskCreator) {
             NavigationStack {
                 AddTaskView()
@@ -50,15 +68,15 @@ struct TasksView: View {
         return store.tasks.filter { $0.title.localizedCaseInsensitiveContains(trimmed) }
     }
 
-    private var taskGroups: [(title: String, tasks: [TaskItem])] {
+    private var taskGroups: [String: [TaskItem]] {
         let work = filteredTasks.filter { $0.context == "Work" }
         let personal = filteredTasks.filter { $0.context == "Personal" }
         let learning = filteredTasks.filter { $0.context == "Learning" }
 
         return [
-            ("Work Projects", work),
-            ("Personal", personal),
-            ("Learning", learning),
+            "Work Projects": work,
+            "Personal": personal,
+            "Learning": learning,
         ]
     }
 
@@ -155,22 +173,6 @@ struct TasksView: View {
         }
     }
 
-    private var addButton: some View {
-        Button {
-            showTaskCreator = true
-            if store.hapticsEnabled { Haptics.light() }
-        } label: {
-            Circle()
-                .fill(.ultraThinMaterial)
-                .frame(width: 52, height: 52)
-                .overlay(
-                    Image(systemName: "plus")
-                        .font(.system(size: 18, weight: .semibold))
-                )
-                .shadow(color: Color.black.opacity(0.10), radius: 16, x: 0, y: 8)
-        }
-        .accessibilityLabel("Add Task")
-    }
 }
 
 private struct TaskRow: View {
@@ -209,30 +211,11 @@ private struct TaskRow: View {
 }
 
 private extension TasksView {
-    func isCollapsed(_ key: String) -> Bool { collapsed.contains(key) }
-
-    func toggle(_ key: String) {
-        if collapsed.contains(key) {
-            collapsed.remove(key)
-        } else {
-            collapsed.insert(key)
-        }
-    }
-
     @ViewBuilder
-    func projectDisclosure(for title: String, tasks: [TaskItem]) -> some View {
-        DisclosureGroup(
-            isExpanded: Binding(
-                get: { !isCollapsed(title) },
-                set: { newValue in
-                    if newValue {
-                        collapsed.remove(title)
-                    } else {
-                        collapsed.insert(title)
-                    }
-                }
-            )
-        ) {
+    func projectSection(title: String, tasks: [TaskItem], isOpen: Binding<Bool>) -> some View {
+        ProjectHeader(title: title, isOpen: isOpen)
+
+        if isOpen.wrappedValue {
             if tasks.isEmpty {
                 Text(hasQuery ? "No tasks match your search" : "No tasks yet")
                     .font(theme.tokens.labelFont)
@@ -265,20 +248,25 @@ private extension TasksView {
                     }
                 }
             }
+        }
+    }
+
+    func ProjectHeader(title: String, isOpen: Binding<Bool>) -> some View {
+        Button {
+            withAnimation(.snappy) { isOpen.wrappedValue.toggle() }
         } label: {
-            HStack {
+            HStack(spacing: 10) {
                 Text(title)
-                    .font(theme.tokens.titleFont)
+                    .font(.headline.weight(.semibold))
                 Spacer()
-                Image(systemName: isCollapsed(title) ? "chevron.down" : "chevron.up")
-                    .font(.footnote)
-                    .foregroundStyle(.tertiary)
+                Image(systemName: "chevron.down")
+                    .font(.subheadline.weight(.semibold))
+                    .rotationEffect(.degrees(isOpen.wrappedValue ? 0 : -90))
+                    .foregroundStyle(.secondary)
             }
             .contentShape(Rectangle())
-            .onTapGesture { toggle(title) }
-            .padding(.top, theme.tokens.sectionTop)
-            .padding(.bottom, theme.tokens.sectionInner)
+            .padding(.vertical, 6)
         }
-        .accentColor(.primary)
+        .buttonStyle(.plain)
     }
 }
