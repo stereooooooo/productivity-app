@@ -94,9 +94,30 @@ struct TasksView: View {
                     .padding(.horizontal, theme.tokens.rowHPad)
                     .frame(maxWidth: .infinity, alignment: .leading)
             } else {
-                VStack(alignment: .leading, spacing: theme.tokens.sectionInner) {
-                    ForEach(filteredTasks) { task in
-                        TaskRow(task: task, theme: theme)
+                VStack(alignment: .leading, spacing: theme.tokens.rowVPad) {
+                    ForEach(filteredTasks, id: \.id) { task in
+                        VStack(alignment: .leading, spacing: theme.tokens.rowVPad / 2) {
+                            Text(task.title)
+                                .font(theme.tokens.baseFont.weight(.semibold))
+                                .foregroundStyle(.primary)
+
+                            FlowLayout(spacing: theme.tokens.chipHPad, rowSpacing: 4) {
+                                TagPill(text: task.kind)
+                                TagPill(text: task.context)
+                                TagPill(text: "\(task.minutes) min")
+                                if task.isPriority {
+                                    TagPill(text: "⭐️ Priority")
+                                }
+                            }
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture { startFocus(task) }
+
+                        if task.id != filteredTasks.last?.id {
+                            Rectangle()
+                                .fill(Color(.separator).opacity(0.6))
+                                .frame(height: 0.5)
+                        }
                     }
                 }
             }
@@ -219,7 +240,7 @@ private extension TasksView {
                     .padding(.vertical, theme.tokens.rowVPad / 2)
             } else {
                 VStack(spacing: theme.tokens.sectionInner) {
-                    ForEach(tasks) { task in
+                    ForEach(tasks, id: \.id) { task in
                         TaskRow(task: task, theme: theme)
                             .padding(.leading, theme.tokens.rowHPad)
                             .padding(.vertical, theme.tokens.rowVPad)
