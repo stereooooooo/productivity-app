@@ -99,23 +99,37 @@ struct TasksView: View {
         if store.hapticsEnabled { Haptics.light() }
     }
 
-    private var todaySection: some View {
-        VStack(alignment: .leading, spacing: theme.tokens.sectionInner) {
+    private var todayHeader: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "star.fill")
+                .font(.caption)
+                .foregroundStyle(.white)
+                .frame(width: 18, height: 18)
+                .background(Circle().fill(Color.yellow))
             Text("Today")
-                .font(theme.tokens.titleFont)
-                .foregroundStyle(.primary)
+                .font(.headline.weight(.semibold))
+            Spacer(minLength: 0)
+        }
+        .padding(.vertical, 2)
+        .padding(.top, 4)
+        .overlay(Divider().offset(y: 16), alignment: .bottom)
+    }
+
+    private var todaySection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            todayHeader
 
             if filteredTasks.isEmpty {
                 Text(hasQuery ? "No tasks match your search" : "No tasks planned for today")
                     .font(theme.tokens.labelFont)
                     .foregroundStyle(.secondary)
-                    .padding(.vertical, theme.tokens.rowVPad * 1.2)
+                    .padding(.vertical, theme.tokens.rowVPad)
                     .padding(.horizontal, theme.tokens.rowHPad)
                     .frame(maxWidth: .infinity, alignment: .leading)
             } else {
-                VStack(alignment: .leading, spacing: theme.tokens.rowVPad) {
+                VStack(alignment: .leading, spacing: 6) {
                     ForEach(filteredTasks, id: \.id) { task in
-                        VStack(alignment: .leading, spacing: theme.tokens.rowVPad / 2) {
+                        VStack(alignment: .leading, spacing: 3) {
                             Text(task.title)
                                 .font(theme.tokens.baseFont.weight(.semibold))
                                 .foregroundStyle(.primary)
@@ -134,13 +148,14 @@ struct TasksView: View {
 
                         if task.id != filteredTasks.last?.id {
                             Rectangle()
-                                .fill(Color(.separator).opacity(0.6))
+                                .fill(Color(.separator).opacity(0.35))
                                 .frame(height: 0.5)
                         }
                     }
                 }
             }
         }
+        .padding(.bottom, Spacing.sectionV)
     }
 
     private var searchSection: some View {
