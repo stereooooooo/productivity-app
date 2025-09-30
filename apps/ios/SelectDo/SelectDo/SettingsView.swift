@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject private var store: AppStore
+    @EnvironmentObject private var theme: AppTheme
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -16,6 +17,12 @@ struct SettingsView: View {
                         Text("Light").tag(AppStore.ThemeChoice.light)
                         Text("Dark").tag(AppStore.ThemeChoice.dark)
                     }
+
+                    Picker("Layout density", selection: $theme.density) {
+                        Text("Standard").tag(UIModeDensity.standard)
+                        Text("Compact").tag(UIModeDensity.compact)
+                    }
+                    .pickerStyle(.segmented)
                 }
                 Section {
                     Link(destination: URL(string: "https://selectdo.example/")!) {

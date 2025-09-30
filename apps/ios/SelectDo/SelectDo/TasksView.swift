@@ -2,51 +2,54 @@ import SwiftUI
 
 struct TasksView: View {
     @EnvironmentObject private var store: AppStore
+    @StateObject private var theme = AppTheme.shared
     @State private var showTaskCreator = false
     @State private var expandedGroups: Set<String> = []
-    @State private var initializedGroups: Set<String> = []
+    @State private var collapsedGroups: Set<String> = []
+    @State private var query = ""
 
     var body: some View {
-        ZStack(alignment: .bottomTrailing) {
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: AppTheme.blockSpacing) {
-                    todaySection
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: AppTheme.blockSpacing) {
+                todaySection
+                searchSection
 
-                    ForEach(taskGroups, id: \.title) { group in
-                        ProjectSection(
-                            title: group.title,
-                            tasks: group.tasks,
-                            isExpanded: Binding(
-                                get: { expandedGroups.contains(group.title) },
-                                set: { newValue in
-                                    if newValue {
-                                        expandedGroups.insert(group.title)
-                                    } else {
-                                        expandedGroups.remove(group.title)
-                                    }
+                ForEach(taskGroups, id: \.title) { group in
+                    ProjectSection(
+                        title: group.title,
+                        tasks: group.tasks,
+                        isExpanded: Binding(
+                            get: {
+                                if expandedGroups.contains(group.title) { return true }
+                                if collapsedGroups.contains(group.title) { return false }
+                                return !group.tasks.isEmpty
+                            },
+                            set: { newValue in
+                                if newValue {
+                                    expandedGroups.insert(group.title)
+                                    collapsedGroups.remove(group.title)
+                                } else {
+                                    collapsedGroups.insert(group.title)
+                                    expandedGroups.remove(group.title)
                                 }
-                            ),
-                            onTogglePriority: { togglePriority($0) },
-                            onDelete: { delete($0) }
-                        )
-                        .onAppear {
-                            guard !initializedGroups.contains(group.title) else { return }
-                            if !group.tasks.isEmpty {
-                                expandedGroups.insert(group.title)
                             }
-                            initializedGroups.insert(group.title)
-                        }
-                    }
+                        ),
+                        hasQuery: hasQuery,
+                        theme: theme,
+                        onTogglePriority: { togglePriority($0) },
+                        onDelete: { delete($0) }
+                    )
                 }
-                .padding(.horizontal)
-                .padding(.top, 24)
-                .padding(.bottom, 140)
             }
-            .background(AppTheme.surface)
-
+            .padding(.horizontal)
+            .padding(.top, theme.tokens.sectionTop)
+        }
+        .padding(.bottom, 140)
+        .background(AppTheme.surface)
+        .overlay(alignment: Alignment.bottomTrailing) {
             addButton
-                .padding(.trailing, 20)
-                .padding(.bottom, 72) // small gap above the floating bar
+                .padding(.trailing, 18)
+                .padding(.bottom, 86)
         }
         .sheet(isPresented: $showTaskCreator) {
             NavigationStack {
@@ -62,16 +65,24 @@ struct TasksView: View {
         }
     }
 
-    private var taskGroups: [(title: String, tasks: [TaskItem])] {
-        let work = store.tasks.filter { $0.context == "Work" }
-        let personal = store.tasks.filter { $0.context == "Personal" }
-        let learning = store.tasks.filter { $0.context == "Learning" }
+    private var hasQuery: Bool { query.trimmingCharacters(in: .whitespacesAndNewlines).count >= 2 }
 
-        var groups: [(String, [TaskItem])] = []
-        if !work.isEmpty { groups.append(("Work Projects", work)) }
-        if !personal.isEmpty { groups.append(("Personal", personal)) }
-        if !learning.isEmpty { groups.append(("Learning", learning)) }
-        return groups
+    private var filteredTasks: [TaskItem] {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed.count >= 2 else { return store.tasks }
+        return store.tasks.filter { $0.title.localizedCaseInsensitiveContains(trimmed) }
+    }
+
+    private var taskGroups: [(title: String, tasks: [TaskItem])] {
+        let work = filteredTasks.filter { $0.context == "Work" }
+        let personal = filteredTasks.filter { $0.context == "Personal" }
+        let learning = filteredTasks.filter { $0.context == "Learning" }
+
+        return [
+            ("Work Projects", work),
+            ("Personal", personal),
+            ("Learning", learning),
+        ]
     }
 
     private func togglePriority(_ task: TaskItem) {
@@ -89,30 +100,55 @@ struct TasksView: View {
     }
 
     private var todaySection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: theme.tokens.sectionInner) {
             Text("Today")
-                .font(.headline)
+                .font(theme.tokens.titleFont)
                 .foregroundStyle(.primary)
 
-            if store.tasks.isEmpty {
-                Text("No tasks planned for today")
-                    .font(.subheadline)
+            if filteredTasks.isEmpty {
+                Text(hasQuery ? "No tasks match your search" : "No tasks planned for today")
+                    .font(theme.tokens.labelFont)
                     .foregroundStyle(.secondary)
-                    .padding(16)
+                    .padding(.vertical, theme.tokens.rowVPad * 1.2)
+                    .padding(.horizontal, theme.tokens.rowHPad)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(AppTheme.surfaceCard)
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardRadius, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: AppTheme.cardRadius, style: .continuous)
-                            .stroke(AppTheme.border, lineWidth: 1)
-                    )
             } else {
-                VStack(alignment: .leading, spacing: 12) {
-                    ForEach(store.tasks) { task in
-                        TaskRow(task: task)
+                VStack(alignment: .leading, spacing: theme.tokens.sectionInner) {
+                    ForEach(filteredTasks) { task in
+                        TaskRow(task: task, theme: theme)
                     }
                 }
             }
+        }
+    }
+
+    private var searchSection: some View {
+        VStack(alignment: .leading, spacing: theme.tokens.sectionInner) {
+            SectionHeaderView(title: "Search")
+
+            HStack(spacing: 8) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(.secondary)
+                TextField("Search tasks", text: $query)
+                    .textInputAutocapitalization(.never)
+                    .disableAutocorrection(true)
+                if !query.isEmpty {
+                    Button {
+                        query = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Clear search")
+                }
+            }
+            .padding(.vertical, 8)
+            .padding(.horizontal, 12)
+            .background(
+                RoundedRectangle(cornerRadius: theme.tokens.cardCorner)
+                    .fill(.ultraThinMaterial)
+            )
         }
     }
 
@@ -123,17 +159,12 @@ struct TasksView: View {
         } label: {
             Circle()
                 .fill(.ultraThinMaterial)
-                .frame(width: 56, height: 56)
-                .overlay(
-                    Circle()
-                        .strokeBorder(Color.white.opacity(0.35), lineWidth: 1)
-                )
+                .frame(width: 52, height: 52)
                 .overlay(
                     Image(systemName: "plus")
-                        .font(.system(size: 22, weight: .semibold))
-                        .foregroundStyle(Color.accentColor)
+                        .font(.system(size: 18, weight: .semibold))
                 )
-                .shadow(color: Color.black.opacity(0.2), radius: 12, x: 0, y: 8)
+                .shadow(color: Color.black.opacity(0.10), radius: 16, x: 0, y: 8)
         }
         .accessibilityLabel("Add Task")
     }
@@ -143,22 +174,24 @@ private struct ProjectSection: View {
     var title: String
     var tasks: [TaskItem]
     @Binding var isExpanded: Bool
+    var hasQuery: Bool
+    @ObservedObject var theme: AppTheme
     var onTogglePriority: (TaskItem) -> Void
     var onDelete: (TaskItem) -> Void
 
     var body: some View {
         DisclosureGroup(isExpanded: $isExpanded) {
             if tasks.isEmpty {
-                Text("No tasks yet")
-                    .font(.subheadline)
+                Text(hasQuery ? "No tasks match your search" : "No tasks yet")
+                    .font(theme.tokens.labelFont)
                     .foregroundStyle(.secondary)
-                    .padding(.leading, 8)
-                    .padding(.vertical, 8)
+                    .padding(.leading, theme.tokens.rowHPad / 2)
+                    .padding(.vertical, theme.tokens.rowVPad / 2)
             } else {
-                VStack(spacing: 12) {
+                VStack(spacing: theme.tokens.sectionInner) {
                     ForEach(tasks) { task in
-                        TaskRow(task: task)
-                            .padding(.leading, 12)
+                        TaskRow(task: task, theme: theme)
+                            .padding(.leading, theme.tokens.rowHPad)
                             .swipeActions(edge: .leading, allowsFullSwipe: true) {
                                 Button {
                                     onTogglePriority(task)
@@ -180,8 +213,10 @@ private struct ProjectSection: View {
             }
         } label: {
             Text(title)
-                .font(.headline)
+                .font(theme.tokens.titleFont)
                 .foregroundStyle(.primary)
+                .padding(.top, theme.tokens.sectionTop)
+                .padding(.bottom, theme.tokens.sectionInner)
         }
         .accentColor(.primary)
     }
@@ -190,11 +225,12 @@ private struct ProjectSection: View {
 private struct TaskRow: View {
     @EnvironmentObject private var store: AppStore
     var task: TaskItem
+    @ObservedObject var theme: AppTheme
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: theme.tokens.sectionInner / 2) {
             Text(task.title)
-                .font(.subheadline.weight(.semibold))
+                .font(theme.tokens.labelFont.weight(.semibold))
                 .foregroundStyle(.primary)
                 .multilineTextAlignment(.leading)
 
@@ -207,10 +243,10 @@ private struct TaskRow: View {
                 }
             }
         }
-        .padding(14)
+        .padding(.vertical, theme.tokens.rowVPad)
+        .padding(.horizontal, theme.tokens.rowHPad)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .background(Color.clear)
         .contentShape(Rectangle())
         .onTapGesture { startFocus() }
     }
