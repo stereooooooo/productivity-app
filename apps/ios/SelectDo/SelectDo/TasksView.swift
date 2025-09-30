@@ -20,7 +20,8 @@ struct TasksView: View {
             .padding(.horizontal)
             .padding(.top, theme.tokens.sectionTop)
         }
-        .padding(.bottom, 140)
+        .scrollContentBackground(.hidden)
+        .contentMargins(.bottom, 140)
         .background(AppTheme.surface)
         .overlay(alignment: Alignment.bottomTrailing) {
             addButton
