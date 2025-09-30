@@ -124,32 +124,13 @@ struct TasksView: View {
                     .font(theme.tokens.labelFont)
                     .foregroundStyle(.secondary)
                     .padding(.vertical, theme.tokens.rowVPad)
-                    .padding(.horizontal, theme.tokens.rowHPad)
                     .frame(maxWidth: .infinity, alignment: .leading)
             } else {
                 VStack(alignment: .leading, spacing: 6) {
                     ForEach(filteredTasks, id: \.id) { task in
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(task.title)
-                                .font(theme.tokens.baseFont.weight(.semibold))
-                                .foregroundStyle(.primary)
-
-                            FlowLayout(spacing: theme.tokens.chipHPad, rowSpacing: 4) {
-                                TagPill(text: task.kind)
-                                TagPill(text: task.context)
-                                TagPill(text: "\(task.minutes) min")
-                                if task.isPriority {
-                                    TagPill(text: "⭐️ Priority")
-                                }
-                            }
-                        }
-                        .contentShape(Rectangle())
-                        .onTapGesture { startFocus(task) }
-
+                        TaskRow(task: task)
                         if task.id != filteredTasks.last?.id {
-                            Rectangle()
-                                .fill(Color(.separator).opacity(0.35))
-                                .frame(height: 0.5)
+                            Divider().opacity(0.35)
                         }
                     }
                 }
@@ -193,35 +174,27 @@ struct TasksView: View {
 private struct TaskRow: View {
     @EnvironmentObject private var store: AppStore
     var task: TaskItem
-    @ObservedObject var theme: AppTheme
 
     var body: some View {
-        VStack(alignment: .leading, spacing: theme.tokens.sectionInner / 2) {
-            Text(task.title)
-                .font(theme.tokens.labelFont.weight(.semibold))
-                .foregroundStyle(.primary)
-                .multilineTextAlignment(.leading)
-
-            FlowLayout(spacing: theme.tokens.chipHPad, rowSpacing: 4) {
-                TagPill(text: task.kind)
-                TagPill(text: task.context)
-                TagPill(text: "\(task.minutes) min")
-                if task.isPriority {
-                    TagPill(text: "⭐️ Priority")
+        HStack(alignment: .firstTextBaseline) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(task.title)
+                    .font(.body.weight(.semibold))
+                FlowLayout(spacing: 6, rowSpacing: 4) {
+                    TagPill(text: task.kind)
+                    TagPill(text: task.context)
+                    TagPill(text: "\(task.minutes) min")
+                    if task.isPriority { TagPill(text: "⭐️ Priority") }
                 }
             }
+            Spacer(minLength: 0)
         }
-        .padding(.vertical, theme.tokens.rowVPad)
-        .padding(.horizontal, theme.tokens.rowHPad)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.clear)
         .contentShape(Rectangle())
-        .onTapGesture { startFocus() }
-    }
-
-    private func startFocus() {
-        store.startFocus(task)
-        if store.hapticsEnabled { Haptics.light() }
+        .onTapGesture {
+            store.startFocus(task)
+            if store.hapticsEnabled { Haptics.light() }
+        }
+        .padding(.vertical, Spacing.rowV)
     }
 }
 
@@ -240,7 +213,7 @@ private extension TasksView {
             } else {
                 VStack(spacing: theme.tokens.sectionInner) {
                     ForEach(tasks, id: \.id) { task in
-                        TaskRow(task: task, theme: theme)
+                        TaskRow(task: task)
                             .padding(.leading, theme.tokens.rowHPad)
                             .padding(.vertical, theme.tokens.rowVPad)
                             .contentShape(Rectangle())
