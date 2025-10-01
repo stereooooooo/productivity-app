@@ -11,21 +11,17 @@ struct TasksView: View {
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: Spacing.sectionV) {
-                    todaySection
-                    searchSection
-
-                    projectSection(title: "Work Projects", tasks: taskGroups["Work Projects"] ?? [], isOpen: $openWork)
-                    projectSection(title: "Personal", tasks: taskGroups["Personal"] ?? [], isOpen: $openPersonal)
-                    projectSection(title: "Learning", tasks: taskGroups["Learning"] ?? [], isOpen: $openLearning)
-                }
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
-                .padding(.bottom, 120)
+            List {
+                todaySection
+                projectSection(title: "Work Projects", tasks: taskGroups["Work Projects"] ?? [], isOpen: $openWork)
+                projectSection(title: "Personal", tasks: taskGroups["Personal"] ?? [], isOpen: $openPersonal)
+                projectSection(title: "Learning", tasks: taskGroups["Learning"] ?? [], isOpen: $openLearning)
             }
+            .environment(\.defaultMinListRowHeight, 36)
+            .listStyle(.plain)
             .scrollIndicators(.hidden)
             .scrollContentBackground(.hidden)
+            .listSectionSeparator(.hidden)
 
             Button {
                 showTaskCreator.toggle()
@@ -47,6 +43,12 @@ struct TasksView: View {
             .accessibilityLabel("Add Task")
         }
         .background(AppTheme.surface)
+        .safeAreaInset(edge: .top) {
+            searchBar
+        }
+        .safeAreaInset(edge: .bottom) {
+            Color.clear.frame(height: 90)
+        }
         .sheet(isPresented: $showTaskCreator) {
             NavigationStack {
                 AddTaskView()
@@ -61,11 +63,11 @@ struct TasksView: View {
         }
     }
 
-    private var hasQuery: Bool { query.trimmingCharacters(in: .whitespacesAndNewlines).count >= 2 }
+    private var hasQuery: Bool { !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
 
     private var filteredTasks: [TaskItem] {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmed.count >= 2 else { return store.tasks }
+        guard !trimmed.isEmpty else { return store.tasks }
         return store.tasks.filter { $0.title.localizedCaseInsensitiveContains(trimmed) }
     }
 
@@ -100,7 +102,7 @@ struct TasksView: View {
         if store.hapticsEnabled { Haptics.light() }
     }
 
-    private var todayHeader: some View {
+    private var todayHeaderView: some View {
         HStack(spacing: 10) {
             Image(systemName: "star.fill")
                 .font(.caption)
@@ -108,7 +110,7 @@ struct TasksView: View {
                 .frame(width: 18, height: 18)
                 .background(Circle().fill(Color.yellow))
             Text("Today")
-                .font(.headline.weight(.semibold))
+                .font(UI.Fonts.title)
             Spacer(minLength: 0)
         }
         .padding(.vertical, 2)
@@ -117,145 +119,132 @@ struct TasksView: View {
     }
 
     private var todaySection: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            todayHeader
-
+        Section(header: todayHeaderView) {
             if filteredTasks.isEmpty {
                 Text(hasQuery ? "No tasks match your search" : "No tasks planned for today")
                     .font(theme.tokens.labelFont)
                     .foregroundStyle(.secondary)
-                    .padding(.vertical, theme.tokens.rowVPad)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .listRowInsets(.init(top: 6, leading: 16, bottom: 6, trailing: 16))
+                    .listRowSeparator(.hidden)
             } else {
-                VStack(alignment: .leading, spacing: 6) {
-                    ForEach(filteredTasks, id: \.id) { task in
-                        TaskRow(task: task)
-                        if task.id != filteredTasks.last?.id {
-                            Divider().opacity(0.35)
+                let items = filteredTasks
+                ForEach(Array(items.enumerated()), id: \.element.id) { index, task in
+                    TaskRow(task: makeModel(from: task)) {
+                        startFocus(task)
+                    }
+                    .listRowInsets(.init(top: 6, leading: 16, bottom: 6, trailing: 16))
+                    .listRowSeparator(.hidden)
+
+                    if index < items.count - 1 {
+                        Divider()
+                            .padding(.leading, 16)
+                            .padding(.trailing, 0)
+                            .opacity(0.28)
+                            .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+                            .listRowSeparator(.hidden)
+                    }
+                }
+            }
+        }
+    }
+
+    private var searchBar: some View {
+        HStack(spacing: UI.Spacing.s) {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(.secondary)
+            TextField("Search tasks", text: $query)
+                .textFieldStyle(.roundedBorder)
+                .font(UI.Fonts.meta)
+                .textInputAutocapitalization(.never)
+                .disableAutocorrection(true)
+            if !query.isEmpty {
+                Button {
+                    query = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Clear search")
+            }
+        }
+        .padding(.horizontal)
+        .padding(.vertical, UI.Spacing.xs)
+        .background(.ultraThinMaterial)
+    }
+
+    @ViewBuilder
+    private func projectSection(title: String, tasks: [TaskItem], isOpen: Binding<Bool>) -> some View {
+        Section {
+            DisclosureGroup(isExpanded: isOpen) {
+                if tasks.isEmpty {
+                    Text(hasQuery ? "No tasks match your search" : "No tasks yet")
+                        .font(theme.tokens.labelFont)
+                        .foregroundStyle(.secondary)
+                        .padding(.vertical, UI.Spacing.s)
+                        .listRowInsets(.init(top: 6, leading: 16, bottom: 6, trailing: 16))
+                        .listRowSeparator(.hidden)
+                } else {
+                    let items = tasks
+                    ForEach(Array(items.enumerated()), id: \.element.id) { index, task in
+                        TaskRow(task: makeModel(from: task)) {
+                            startFocus(task)
+                        }
+                        .listRowInsets(.init(top: 6, leading: 16, bottom: 6, trailing: 16))
+                        .listRowSeparator(.hidden)
+                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                            Button {
+                                togglePriority(task)
+                            } label: {
+                                Label(task.isPriority ? "Unstar" : "Star", systemImage: task.isPriority ? "star.slash" : "star.fill")
+                            }
+                            .tint(.orange)
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                delete(task)
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        }
+
+                        if index < items.count - 1 {
+                            Divider()
+                                .padding(.leading, 16)
+                                .padding(.trailing, 0)
+                                .opacity(0.28)
+                                .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+                                .listRowSeparator(.hidden)
                         }
                     }
                 }
-            }
-        }
-        .padding(.bottom, Spacing.sectionV)
-    }
-
-    private var searchSection: some View {
-        VStack(alignment: .leading, spacing: theme.tokens.sectionInner) {
-            SectionHeaderView(title: "Search")
-
-            HStack(spacing: 8) {
-                Image(systemName: "magnifyingglass")
-                    .foregroundStyle(.secondary)
-                TextField("Search tasks", text: $query)
-                    .textInputAutocapitalization(.never)
-                    .disableAutocorrection(true)
-                if !query.isEmpty {
-                    Button {
-                        query = ""
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(.secondary)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Clear search")
+            } label: {
+                HStack(spacing: UI.Spacing.s) {
+                    Text(title)
+                        .font(UI.Fonts.title)
+                    Spacer()
+                    Image(systemName: "chevron.down")
+                        .font(.subheadline.weight(.semibold))
+                        .rotationEffect(.degrees(isOpen.wrappedValue ? 0 : -90))
+                        .foregroundStyle(.secondary)
                 }
+                .padding(.vertical, UI.Spacing.s)
             }
-            .padding(.vertical, 8)
-            .padding(.horizontal, 12)
-            .background(
-                RoundedRectangle(cornerRadius: theme.tokens.cardCorner)
-                    .fill(.ultraThinMaterial)
-            )
+            .listRowInsets(.init(top: 6, leading: 16, bottom: 6, trailing: 16))
+            .listRowSeparator(.hidden)
         }
     }
 
-}
-
-private struct TaskRow: View {
-    @EnvironmentObject private var store: AppStore
-    var task: TaskItem
-
-    var body: some View {
-        HStack(alignment: .firstTextBaseline) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(task.title)
-                    .font(.body.weight(.semibold))
-                FlowLayout(spacing: 6, rowSpacing: 4) {
-                    TagPill(text: task.kind)
-                    TagPill(text: task.context)
-                    TagPill(text: "\(task.minutes) min")
-                    if task.isPriority { TagPill(text: "⭐️ Priority") }
-                }
-            }
-            Spacer(minLength: 0)
-        }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            store.startFocus(task)
-            if store.hapticsEnabled { Haptics.light() }
-        }
-        .padding(.vertical, Spacing.rowV)
-    }
-}
-
-private extension TasksView {
-    @ViewBuilder
-    func projectSection(title: String, tasks: [TaskItem], isOpen: Binding<Bool>) -> some View {
-        ProjectHeader(title: title, isOpen: isOpen)
-
-        if isOpen.wrappedValue {
-            if tasks.isEmpty {
-                Text(hasQuery ? "No tasks match your search" : "No tasks yet")
-                    .font(theme.tokens.labelFont)
-                    .foregroundStyle(.secondary)
-                    .padding(.leading, theme.tokens.rowHPad / 2)
-                    .padding(.vertical, theme.tokens.rowVPad / 2)
-            } else {
-                VStack(spacing: theme.tokens.sectionInner) {
-                    ForEach(tasks, id: \.id) { task in
-                        TaskRow(task: task)
-                            .padding(.leading, theme.tokens.rowHPad)
-                            .padding(.vertical, theme.tokens.rowVPad)
-                            .contentShape(Rectangle())
-                            .onTapGesture { startFocus(task) }
-                            .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                                Button {
-                                    togglePriority(task)
-                                } label: {
-                                    Label(task.isPriority ? "Unstar" : "Star", systemImage: task.isPriority ? "star.slash" : "star.fill")
-                                }
-                                .tint(.orange)
-                            }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    delete(task)
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-                            }
-                    }
-                }
-            }
-        }
-    }
-
-    func ProjectHeader(title: String, isOpen: Binding<Bool>) -> some View {
-        Button {
-            withAnimation(.snappy) { isOpen.wrappedValue.toggle() }
-        } label: {
-            HStack(spacing: 10) {
-                Text(title)
-                    .font(.headline.weight(.semibold))
-                Spacer()
-                Image(systemName: "chevron.down")
-                    .font(.subheadline.weight(.semibold))
-                    .rotationEffect(.degrees(isOpen.wrappedValue ? 0 : -90))
-                    .foregroundStyle(.secondary)
-            }
-            .contentShape(Rectangle())
-            .padding(.vertical, 6)
-        }
-        .buttonStyle(.plain)
+    private func makeModel(from item: TaskItem) -> TaskModel {
+        TaskModel(
+            id: item.id,
+            title: item.title,
+            context: item.context,
+            kind: item.kind,
+            minutes: item.minutes,
+            isPriority: item.isPriority,
+            completedAt: item.completedAt,
+            updatedAt: item.updatedAt
+        )
     }
 }
