@@ -1,6 +1,28 @@
 import Combine
 import SwiftUI
 
+enum UI {
+    enum Spacing {
+        static let xxs: CGFloat = 2
+        static let xs: CGFloat = 4
+        static let s: CGFloat = 6
+        static let m: CGFloat = 8
+        static let l: CGFloat = 12
+    }
+
+    enum Radius {
+        static let chip: CGFloat = 8
+        static let card: CGFloat = 14
+    }
+
+    enum Fonts {
+        static let title: Font = .system(size: 20, weight: .semibold)
+        static let rowTitle: Font = .system(size: 17, weight: .semibold)
+        static let meta: Font = .system(size: 12, weight: .regular)
+        static let micro: Font = .system(size: 11, weight: .regular)
+    }
+}
+
 enum Spacing {
     static let sectionV: CGFloat = 14
     static let stackV: CGFloat = 8
@@ -98,26 +120,26 @@ struct Chip: View {
     var selected: Bool = false
     var body: some View {
         Text(text)
-            .font(AppTheme.shared.tokens.chipFont.weight(.semibold))
-            .padding(.horizontal, AppTheme.shared.tokens.chipHPad)
-            .padding(.vertical, AppTheme.shared.tokens.chipVPad)
-            .background(selected ? AppTheme.accent : .clear)
-            .foregroundStyle(selected ? .white : .primary)
-            .clipShape(Capsule())
-            .overlay(
-                Capsule().strokeBorder(Color.secondary.opacity(selected ? 0 : 0.3))
+            .font(UI.Fonts.meta)
+            .fontWeight(.semibold)
+            .padding(.horizontal, UI.Spacing.xs)
+            .padding(.vertical, UI.Spacing.xs)
+            .background(
+                (selected ? AppTheme.accent : Color.secondary.opacity(0.12)),
+                in: RoundedRectangle(cornerRadius: UI.Radius.chip, style: .continuous)
             )
+            .foregroundStyle(selected ? .white : .primary)
     }
 }
 
 struct TagPill: View {
-    let text: String
+    var text: String
+    var style: Color = .secondary.opacity(0.12)
     var body: some View {
         Text(text)
-            .font(.footnote)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 3)
-            .background(.thinMaterial)
-            .clipShape(Capsule())
+            .font(UI.Fonts.meta)
+            .padding(.horizontal, UI.Spacing.s)
+            .padding(.vertical, UI.Spacing.xs)
+            .background(style, in: RoundedRectangle(cornerRadius: UI.Radius.chip, style: .continuous))
     }
 }
