@@ -10,36 +10,40 @@ struct TasksView: View {
     @State private var query = ""
 
     var body: some View {
-        ZStack(alignment: .bottomTrailing) {
-            List {
-                todaySection
-                projectSection(title: "Work Projects", tasks: taskGroups["Work Projects"] ?? [], isOpen: $openWork)
-                projectSection(title: "Personal", tasks: taskGroups["Personal"] ?? [], isOpen: $openPersonal)
-                projectSection(title: "Learning", tasks: taskGroups["Learning"] ?? [], isOpen: $openLearning)
-            }
-            .environment(\.defaultMinListRowHeight, 36)
-            .listStyle(.plain)
-            .scrollIndicators(.hidden)
-            .scrollContentBackground(.hidden)
-            .listSectionSeparator(.hidden)
-
+        List {
+            todayRow
+            projectSection(title: "Work Projects", tasks: taskGroups["Work Projects"] ?? [], isOpen: $openWork)
+            projectSection(title: "Personal", tasks: taskGroups["Personal"] ?? [], isOpen: $openPersonal)
+            projectSection(title: "Learning", tasks: taskGroups["Learning"] ?? [], isOpen: $openLearning)
+        }
+        .environment(\.defaultMinListRowHeight, 36)
+        .listStyle(.plain)
+        .scrollIndicators(.hidden)
+        .scrollContentBackground(.hidden)
+        .listSectionSeparator(.hidden)
+        .overlay(alignment: .bottomTrailing) {
             Button {
                 showTaskCreator.toggle()
                 if store.hapticsEnabled { Haptics.light() }
             } label: {
-                Image(systemName: "plus")
-                    .font(.system(size: 20, weight: .semibold))
-                    .frame(width: 44, height: 44)
-                    .contentShape(Circle())
+                Circle()
+                    .fill(.ultraThinMaterial)
+                    .overlay(
+                        Image(systemName: "plus")
+                            .font(.system(size: 20, weight: .semibold))
+                    )
+                    .frame(width: 56, height: 56)
+                    .overlay(
+                        Circle().stroke(Color.black.opacity(0.08))
+                    )
+                    .shadow(color: .black.opacity(0.12), radius: 12, y: 6)
+                    .compositingGroup()
             }
             .buttonStyle(.plain)
-            .background(.ultraThinMaterial, in: Circle())
-            .overlay(
-                Circle().strokeBorder(.white.opacity(0.35), lineWidth: 0.5)
-            )
-            .shadow(color: .black.opacity(0.15), radius: 22, y: 10)
             .padding(.trailing, 18)
-            .padding(.bottom, 80)
+            .padding(.bottom, 110)
+            .allowsHitTesting(true)
+            .zIndex(2)
             .accessibilityLabel("Add Task")
         }
         .background(AppTheme.surface)
@@ -102,59 +106,12 @@ struct TasksView: View {
         if store.hapticsEnabled { Haptics.light() }
     }
 
-    private var todayHeaderView: some View {
-        HStack(spacing: 10) {
-            Image(systemName: "star.fill")
-                .font(.caption)
-                .foregroundStyle(.white)
-                .frame(width: 18, height: 18)
-                .background(Circle().fill(Color.yellow))
-            Text("Today")
-                .font(UI.Fonts.title)
-            Spacer(minLength: 0)
-        }
-        .padding(.vertical, 2)
-        .padding(.top, 4)
-        .overlay(Divider().offset(y: 16), alignment: .bottom)
-    }
-
-    private var todaySection: some View {
-        Section(header: todayHeaderView) {
-            if filteredTasks.isEmpty {
-                Text(hasQuery ? "No tasks match your search" : "No tasks planned for today")
-                    .font(theme.tokens.labelFont)
-                    .foregroundStyle(.secondary)
-                    .listRowInsets(.init(top: 6, leading: 16, bottom: 6, trailing: 16))
-                    .listRowSeparator(.hidden)
-            } else {
-                let items = filteredTasks
-                ForEach(Array(items.enumerated()), id: \.element.id) { index, task in
-                    TaskRow(task: makeModel(from: task)) {
-                        startFocus(task)
-                    }
-                    .listRowInsets(.init(top: 6, leading: 16, bottom: 6, trailing: 16))
-                    .listRowSeparator(.hidden)
-
-                    if index < items.count - 1 {
-                        Divider()
-                            .padding(.leading, 16)
-                            .padding(.trailing, 0)
-                            .opacity(0.28)
-                            .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
-                            .listRowSeparator(.hidden)
-                    }
-                }
-            }
-        }
-    }
-
     private var searchBar: some View {
-        HStack(spacing: UI.Spacing.s) {
+        HStack(spacing: AppTheme.Spacing.s) {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(.secondary)
             TextField("Search tasks", text: $query)
-                .textFieldStyle(.roundedBorder)
-                .font(UI.Fonts.meta)
+                .font(AppTheme.Typography.meta)
                 .textInputAutocapitalization(.never)
                 .disableAutocorrection(true)
             if !query.isEmpty {
@@ -168,9 +125,16 @@ struct TasksView: View {
                 .accessibilityLabel("Clear search")
             }
         }
-        .padding(.horizontal)
-        .padding(.vertical, UI.Spacing.xs)
-        .background(.ultraThinMaterial)
+        .padding(.horizontal, AppTheme.Spacing.rowH)
+        .frame(height: 36)
+        .background(
+            RoundedRectangle(cornerRadius: UI.Radius.card, style: .continuous)
+                .fill(.ultraThinMaterial)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: UI.Radius.card, style: .continuous)
+                .stroke(Color.black.opacity(0.06))
+        )
     }
 
     @ViewBuilder
@@ -181,16 +145,16 @@ struct TasksView: View {
                     Text(hasQuery ? "No tasks match your search" : "No tasks yet")
                         .font(theme.tokens.labelFont)
                         .foregroundStyle(.secondary)
-                        .padding(.vertical, UI.Spacing.s)
-                        .listRowInsets(.init(top: 6, leading: 16, bottom: 6, trailing: 16))
+                        .padding(.vertical, AppTheme.Spacing.rowV)
+                        .listRowInsets(.init(top: AppTheme.Spacing.rowV, leading: AppTheme.Spacing.rowH, bottom: AppTheme.Spacing.rowV, trailing: AppTheme.Spacing.rowH))
                         .listRowSeparator(.hidden)
-                } else {
-                    let items = tasks
+            } else {
+                let items = tasks
                     ForEach(Array(items.enumerated()), id: \.element.id) { index, task in
                         TaskRow(task: makeModel(from: task)) {
                             startFocus(task)
                         }
-                        .listRowInsets(.init(top: 6, leading: 16, bottom: 6, trailing: 16))
+                        .listRowInsets(.init(top: AppTheme.Spacing.rowV, leading: AppTheme.Spacing.rowH, bottom: AppTheme.Spacing.rowV, trailing: AppTheme.Spacing.rowH))
                         .listRowSeparator(.hidden)
                         .swipeActions(edge: .leading, allowsFullSwipe: true) {
                             Button {
@@ -210,27 +174,20 @@ struct TasksView: View {
 
                         if index < items.count - 1 {
                             Divider()
-                                .padding(.leading, 16)
+                                .overlay(Color.black.opacity(0.06))
+                                .padding(.leading, AppTheme.Spacing.rowH)
                                 .padding(.trailing, 0)
-                                .opacity(0.28)
                                 .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
                                 .listRowSeparator(.hidden)
                         }
                     }
                 }
             } label: {
-                HStack(spacing: UI.Spacing.s) {
-                    Text(title)
-                        .font(UI.Fonts.title)
-                    Spacer()
-                    Image(systemName: "chevron.down")
-                        .font(.subheadline.weight(.semibold))
-                        .rotationEffect(.degrees(isOpen.wrappedValue ? 0 : -90))
-                        .foregroundStyle(.secondary)
-                }
-                .padding(.vertical, UI.Spacing.s)
+                Text(title)
+                    .font(AppTheme.Typography.title)
+                    .padding(.vertical, AppTheme.Spacing.sectionV)
             }
-            .listRowInsets(.init(top: 6, leading: 16, bottom: 6, trailing: 16))
+            .listRowInsets(.init(top: AppTheme.Spacing.rowV, leading: AppTheme.Spacing.rowH, bottom: AppTheme.Spacing.rowV, trailing: AppTheme.Spacing.rowH))
             .listRowSeparator(.hidden)
         }
     }
@@ -246,5 +203,38 @@ struct TasksView: View {
             completedAt: item.completedAt,
             updatedAt: item.updatedAt
         )
+    }
+
+    private func startFocusFromModel(_ model: TaskModel) {
+        let snapshot = TaskItem(
+            id: model.id,
+            title: model.title,
+            context: model.context,
+            kind: model.kind,
+            minutes: model.minutes,
+            isPriority: model.isPriority,
+            completedAt: model.completedAt,
+            updatedAt: model.updatedAt
+        )
+        startFocus(snapshot)
+    }
+
+    private var todayRow: some View {
+        Group {
+            if filteredTasks.isEmpty {
+                Text(hasQuery ? "No tasks match your search" : "No tasks planned for today")
+                    .font(theme.tokens.labelFont)
+                    .foregroundStyle(.secondary)
+                    .listRowInsets(.init(top: AppTheme.Spacing.rowV, leading: AppTheme.Spacing.rowH, bottom: AppTheme.Spacing.rowV, trailing: AppTheme.Spacing.rowH))
+                    .listRowSeparator(.hidden)
+            } else {
+                TodaySectionView(tasks: filteredTasks.map { makeModel(from: $0) }) { model in
+                    startFocusFromModel(model)
+                }
+                .listRowInsets(.init(top: AppTheme.Spacing.rowV, leading: AppTheme.Spacing.rowH, bottom: AppTheme.Spacing.rowV, trailing: AppTheme.Spacing.rowH))
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
+            }
+        }
     }
 }

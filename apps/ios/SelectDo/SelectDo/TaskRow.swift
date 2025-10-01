@@ -5,10 +5,10 @@ struct TaskRow: View {
     var onStart: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: UI.Spacing.xs) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
             Text(task.title)
-                .font(UI.Fonts.rowTitle)
-            HStack(spacing: UI.Spacing.s) {
+                .font(AppTheme.Typography.rowTitle)
+            HStack(spacing: AppTheme.Spacing.s) {
                 TagPill(text: task.kind)
                 TagPill(text: task.context)
                 TagPill(text: "\(task.minutes) min")
@@ -17,7 +17,7 @@ struct TaskRow: View {
                 }
             }
         }
-        .padding(.vertical, UI.Spacing.s)
+        .padding(.vertical, AppTheme.Spacing.rowV)
         .contentShape(Rectangle())
         .onTapGesture(perform: onStart)
     }
